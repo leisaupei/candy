@@ -19,21 +19,22 @@ namespace Creeper.PostgreSql.XUnitTest
 		public void Union()
 		{
 
-			var a1 = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-			var a2 = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-			var dt = (DateTime?)null;
-			var type = dt.GetType();
-			switch (dt)
-			{
-				case DateTime dt1:
-					var b = dt1;
-					break;
-				default:
-					var c = dt;
-					break;
-			}
+			var temp = TestEnum.A | TestEnum.B;
+			var aa = (int)temp;
+			var bo = temp.HasFlag(TestEnum.A);
+			var bo1 = temp.HasFlag(TestEnum.C);
+			var istrue = (temp & TestEnum.A & TestEnum.B) != 0;
+			var istrue1 = (temp & TestEnum.C & TestEnum.B) != 0;
+
+			temp = temp & (~TestEnum.B);
 		}
 
+		public enum TestEnum
+		{
+			A = 1,
+			B = 2,
+			C = 4,
+		}
 
 	}
 }

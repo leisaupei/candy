@@ -30,8 +30,8 @@ namespace Creeper.PostgreSql.XUnitTest.Entity.Options
 			{
 				MapAction = conn =>
 				{
-					conn.TypeMapper.UseJsonNetForJtype();
-					conn.TypeMapper.UseCustomXml();
+					conn.TypeMapper.UseNewtonsoftJson();
+					conn.TypeMapper.UseSystemXmlDocument();
 					conn.TypeMapper.MapEnum<Model.EtDataState>("public.et_data_state", PostgreSqlTranslator.Instance);
 					conn.TypeMapper.MapComposite<Model.Info>("public.info");
 				}

@@ -211,9 +211,9 @@ WHERE {GenerateHelper.ExceptConvert("ns.nspname || '.' || a.typname",_postgresEx
 			_sbConstTypeConstrutor.AppendLine("\t\t\t{");
 			_sbConstTypeConstrutor.AppendLine("\t\t\t\tMapAction = conn =>");
 			_sbConstTypeConstrutor.AppendLine("\t\t\t\t{");
-			_sbConstTypeConstrutor.AppendLine("\t\t\t\t\tconn.TypeMapper.UseJsonNetForJtype();");
+			_sbConstTypeConstrutor.AppendLine("\t\t\t\t\tconn.TypeMapper.UseNewtonsoftJson();");
 			if (MappingOptions.XmlTypeName.Contains(_typeName))
-				_sbConstTypeConstrutor.AppendLine("\t\t\t\t\tconn.TypeMapper.UseCustomXml();");
+				_sbConstTypeConstrutor.AppendLine("\t\t\t\t\tconn.TypeMapper.UseSystemXmlDocument();");
 			if (MappingOptions.GeometryTableTypeName.Contains(_typeName))
 				_sbConstTypeConstrutor.AppendLine("\t\t\t\t\tconn.TypeMapper.UseLegacyPostgis();");
 			foreach (var item in list)

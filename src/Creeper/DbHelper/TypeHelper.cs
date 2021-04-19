@@ -30,7 +30,7 @@ namespace Creeper.DbHelper
 		/// <returns></returns>
 		public static ICreeperDbTypeConverter GetConvert(DataBaseKind dataBaseKind)
 			=> DbTypeConverts.TryGetValue(dataBaseKind, out var convert)
-			? convert : throw new ArgumentException("没有添加相应的数据库类型转换器");
+			? convert : throw new NoCreeperDbTypeConverteException(dataBaseKind.ToString());
 
 		/// <summary>
 		/// 根据字符串类型的dbname获取转换器
@@ -39,7 +39,7 @@ namespace Creeper.DbHelper
 		/// <returns></returns>
 		public static ICreeperDbTypeConverter GetConvert(string dbName)
 			=> DbTypeConvertsName.TryGetValue(dbName, out var convert)
-			? convert : throw new ArgumentException("没有添加相应的数据库类型转换器");
+			? convert : throw new NoCreeperDbTypeConverteException(dbName);
 
 		/// <summary>
 		/// 根据type类型的dbname获取转换器

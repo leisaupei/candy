@@ -22,9 +22,9 @@ public class MainPostgreSqlDbOption : BasePostgreSqlDbOption<DbMain, DbSecondary
         MapAction = conn =>
         {
             //使用NewtonSoft.Json接收数据库类型为json/jsonb的字段
-            conn.TypeMapper.UseJsonNetForJtype();
+            conn.TypeMapper.UseNewtonsoftJson();
             //使用XmlDocument接收数据库类型为xml的字段
-            conn.TypeMapper.UseCustomXml();
+            conn.TypeMapper.UseSystemXmlDocument();
             //枚举类型CLR
             conn.TypeMapper.MapEnum<Model.EDataState>("public.e_data_state", PostgreSqlTranslator.Instance);
             //符合类型CLR

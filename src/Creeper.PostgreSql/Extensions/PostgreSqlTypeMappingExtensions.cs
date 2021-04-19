@@ -23,7 +23,7 @@ namespace Creeper.PostgreSql.Extensions
         /// 使用自定义xml映射, 使用XmlDocument接收
         /// </summary>
         /// <param name="map"></param>
-        public static void UseCustomXml(this INpgsqlTypeMapper map)
+        public static void UseSystemXmlDocument(this INpgsqlTypeMapper map)
         {
             map.RemoveMapping("xml");
             map.AddMapping(new NpgsqlTypeMappingBuilder
@@ -34,7 +34,7 @@ namespace Creeper.PostgreSql.Extensions
                 TypeHandlerFactory = new XmlHandlerFactory()
             }.Build());
         }
-        public static void UseJsonNetForJtype(this INpgsqlTypeMapper mapper)
+        public static void UseNewtonsoftJson(this INpgsqlTypeMapper mapper)
         {
             mapper.UseJsonNet(JTypes);
         }
