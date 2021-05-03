@@ -67,11 +67,6 @@ namespace Creeper.PostgreSql.Generator
 		private string NamespaceSuffix => _folder ? "." + _dataBaseTypeName : "";
 
 		/// <summary>
-		/// 多库枚举 *需要在目标项目添加枚举以及创建该库实例
-		/// </summary>
-		private string DbNameAttribute => $", typeof(Db" + _dataBaseTypeName + ")";
-
-		/// <summary>
 		/// Model名称
 		/// </summary>
 		private string ModelClassName => DalClassName + CreeperGenerator.ModelSuffix;
@@ -80,8 +75,6 @@ namespace Creeper.PostgreSql.Generator
 		/// DAL名称
 		/// </summary>
 		private string DalClassName => Types.DeletePublic(_schemaName, _table.Name, isView: _isView);
-
-		public ICreeperDbExecute DbExecute => _dbExecute;
 
 		private static readonly string[] _notAddQues = { "string", "JToken", "byte[]", "object", "IPAddress", "Dictionary<string, string>", "NpgsqlTsQuery", "NpgsqlTsVector", "BitArray", "PhysicalAddress", "XmlDocument", "PostgisGeometry" };
 
@@ -150,7 +143,7 @@ LEFT JOIN pg_namespace ns ON ns.oid = e.typnamespace and ns.nspname <> 'pg_catal
 LEFT JOIN pg_constraint pc ON pc.conrelid = a.oid and pc.conkey[1] = c.attnum and pc.contype = 'u'  
 WHERE (b.nspname='{_schemaName}' and a.relname='{_table.Name}')  
 ";
-			_fieldList = DbExecute.ExecuteDataReaderList<TableFieldModel>(sql);
+			_fieldList = _dbExecute.ExecuteDataReaderList<TableFieldModel>(sql);
 
 			foreach (var f in _fieldList)
 			{
@@ -201,7 +194,7 @@ FROM pg_index a
 INNER JOIN pg_attribute b ON b.attrelid = a.indrelid AND b.attnum = ANY (a.indkey)  
 WHERE a.indrelid = '{_schemaName}.{_table.Name}'::regclass AND a.indisprimary
 ";
-			_pkList = DbExecute.ExecuteDataReaderList<PrimarykeyInfo>(sqlPk);
+			_pkList = _dbExecute.ExecuteDataReaderList<PrimarykeyInfo>(sqlPk);
 
 			List<string> d_key = new List<string>();
 			for (var i = 0; i < _pkList.Count; i++)
@@ -241,7 +234,7 @@ using {3}.{0}.Options;
 namespace {3}.{0}.{1}{2}
 {{
 {4}
-	[CreeperDbTable(@""""""{6}"""".""""{9}""""""{8})]
+	[CreeperDbTable(@""""""{6}"""".""""{9}"""""", typeof(Db{8}), DataBaseKind.{10})]
 	public partial class {7} : ICreeperDbModel
 	{{
 		#region Properties",
@@ -253,8 +246,9 @@ WriteComment(_table.Description, 1),
 _isGeometryTable ? "using Npgsql.LegacyPostgis;" + Environment.NewLine : "",
 _schemaName,
 ModelClassName,
-DbNameAttribute,
-_table.Name);
+_dataBaseTypeName,
+_table.Name,
+_dbExecute.ConnectionOptions.DataBaseKind.ToString());
 
 			for (int i = 0; i < _fieldList.Count; i++)
 			{
