@@ -6,6 +6,12 @@ namespace Creeper.Generator.Common
 {
 	public class GenerateHelper
 	{
+		/// <summary>
+		/// 排除字符串转换器, 匹配字符串: '*','%'
+		/// </summary>
+		/// <param name="column"></param>
+		/// <param name="excepts"></param>
+		/// <returns></returns>
 		public static string ExceptConvert(string column, string[] excepts)
 		{
 			var exceptPattern = new List<string>();

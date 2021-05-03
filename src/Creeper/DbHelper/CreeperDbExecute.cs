@@ -431,7 +431,7 @@ namespace Creeper.DbHelper
 				}
 				cmd.CommandText = cmdText;
 				cmd.CommandType = cmdType;
-				if (cmdParams?.Any() != true) return cmd;
+				if (!cmdParams?.Any() ?? true) return cmd;
 
 				foreach (var p in cmdParams)
 				{

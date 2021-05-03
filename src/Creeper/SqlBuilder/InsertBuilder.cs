@@ -52,6 +52,9 @@ namespace Creeper.SqlBuilder
 				var column = p.GetCustomAttribute<CreeperDbColumnAttribute>();
 				if (column != null)
 				{
+					if ((column.IgnoreFlags & IgnoreWhen.Insert) != 0)
+						return;
+
 					//如果自增字段而且没有赋值, 那么忽略此字段
 					if (column.Identity)
 						identityKey.Add(name);
@@ -109,6 +112,9 @@ namespace Creeper.SqlBuilder
 				var column = p.GetCustomAttribute<CreeperDbColumnAttribute>();
 				if (column != null)
 				{
+					if ((column.IgnoreFlags & IgnoreWhen.Insert) != 0)
+						return;
+
 					//如果自增字段而且没有赋值, 那么忽略此字段
 					if (IngoreIdentity(column, value, p.PropertyType))
 						return;

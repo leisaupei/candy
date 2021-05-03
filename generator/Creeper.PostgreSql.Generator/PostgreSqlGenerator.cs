@@ -10,7 +10,7 @@ namespace Creeper.PostgreSql.Generator
 	/// <summary>
 	/// 
 	/// </summary>
-	public class TableViewGenerator
+	public class PostgreSqlGenerator
 	{
 		/// <summary>
 		/// 项目名称
@@ -34,6 +34,7 @@ namespace Creeper.PostgreSql.Generator
 
 		private readonly ICreeperDbExecute _dbExecute;
 		private readonly bool _folder;
+		private readonly FieldIgnore _fieldIgnore;
 
 		/// <summary>
 		/// 是不是空间表
@@ -93,10 +94,11 @@ namespace Creeper.PostgreSql.Generator
 		/// <param name="schemaName"></param>
 		/// <param name="table"></param>
 		/// <param name="type"></param>
-		public TableViewGenerator(ICreeperDbExecute dbExecute, bool folder)
+		public PostgreSqlGenerator(ICreeperDbExecute dbExecute, bool folder, FieldIgnore fieldIgnore)
 		{
 			_dbExecute = dbExecute;
 			_folder = folder;
+			_fieldIgnore = fieldIgnore;
 		}
 
 		public void Generate(string projectName, string modelPath, string schemaName, TableViewModel table, string type)
@@ -257,20 +259,32 @@ _table.Name);
 			for (int i = 0; i < _fieldList.Count; i++)
 			{
 				TableFieldModel item = _fieldList[i];
-				var pkAttr = "[CreeperDbColumn({0})]";
+
+				#region CreeperDbColumn
 				var element = new List<string>();
 				if (_pkList.Any(a => a.Field == item.Field))
 					element.Add("Primary = true");
+
 				if (item.IsIdentity)
-				{
 					element.Add("Identity = true");
-				}
-				var input = element.Count > 0 ? string.Format(pkAttr, string.Join(", ", element)) : null;
+
+				#region Ignore
+				var fullFieldName = string.Concat(_schemaName, '.', _table.Name, '.', item.Field);
+				var ignores = new List<string>();
+				if (_fieldIgnore.Insert.Contains(fullFieldName.ToLower()))
+					ignores.Add("IgnoreWhen.Insert");
+				if (_fieldIgnore.Returning.Contains(fullFieldName))
+					ignores.Add("IgnoreWhen.Returning");
+				if (ignores.Count > 0)
+					element.Add("IgnoreFlags = " + string.Join(" | ", ignores));
+				#endregion
+
+				#endregion
 
 				writer.Write(WriteComment(item.Comment, 2));
-				if (input != null)
-					writer.WriteLine(@"{1}{1}{0}", input, '\t');
-				writer.WriteLine(@"{3}{3}public {1} {2} {{ get; set; }}", input, item.RelType, item.FieldUpCase, '\t');
+				if (element.Count > 0)
+					writer.WriteLine(@"{1}{1}[CreeperDbColumn({0})]", string.Join(", ", element), '\t');
+				writer.WriteLine(@"{2}{2}public {0} {1} {{ get; set; }}", item.RelType, item.FieldUpCase, '\t');
 				if (i != _fieldList.Count - 1)
 					writer.WriteLine();
 			}

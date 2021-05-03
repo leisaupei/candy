@@ -14,7 +14,7 @@ public partial class PeopleModel : ICreeperDbModel
 ```
 
 ## 根据实体类删除数据
-会根据数据库模型以主键为条件更新
+根据数据库模型以主键为条件更新
 ### 删除单条数据Delete
 ``` C#
 PeopleModel people = new PeopleModel { Id = 1, Age = 25, Name = "小明" }

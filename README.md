@@ -20,16 +20,16 @@
 ## 配置代码生成器
 ### 参数
 
-- -o 输出路径
-- -p 项目名称
-- -s 是否在目标目录创建.sln解决方案文件
-- --b 构建连接字符串，params参数，需要写在末尾
-  - host 数据库地址
-  - port 数据库端口
-  - pwd password
-  - user username
-  - name 数据库名称，用于生成名称参数，留空默认Main
-  - type 数据库类型，postgresql/sqlserver/mysql
+- ``-o`` 输出路径
+- ``-p`` 项目名称
+- ``-s`` 是否在目标目录创建.sln解决方案文件
+- ``--b`` 构建连接字符串，params参数，需要写在末尾
+  - ``host`` 数据库地址
+  - ``port`` 数据库端口
+  - ``pwd`` password
+  - ``user`` username
+  - ``name`` 数据库名称，用于生成名称参数，留空默认Main
+  - ``type`` 数据库类型，postgresql/sqlserver/mysql
 ### Build
 - 单个
 ``` 
@@ -59,6 +59,8 @@ public void ConfigureServices(IServiceCollection services)
     });
 }
 ```
+> ``options.UseCache<DbCache>()``参阅[数据库缓存](./DbCache.md)
+
 > ``PostgreSqlDbOptions``参阅[DbOption说明](./docs/DbOptions.md)
 ### Controller或其他注入类
 ``` C#
@@ -71,9 +73,9 @@ public class SomeController : Controller
     }
 
     [HttpGet]
-    public async Task SomeAction()
+    public DbModel SomeAction()
     {
-        _dbContext.Select<DbModel>().Where(a => a.DbField == SomeValue).ToOne();
+        return _dbContext.Select<DbModel>().Where(a => a.DbField == SomeValue).ToOne();
     }
 }
 ```

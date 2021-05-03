@@ -314,9 +314,9 @@ namespace Creeper.PostgreSql.Generator
 		/// <returns></returns>
 		public static string DeletePublic(string schemaName, string tableName, bool isTableName = false, bool isView = false)
 		{
+			tableName = ExceptUnderlineToUpper(tableName);
 			if (isTableName)
 				return schemaName.ToLower() == "public" ? tableName.ToUpperPascal() : schemaName.ToLower() + "." + tableName;
-			tableName = ExceptUnderlineToUpper(tableName);
 			if (isView)
 				tableName += "View";
 			return schemaName.ToLower() == "public" ? tableName.ToUpperPascal() : schemaName.ToUpperPascal() + tableName;
@@ -327,18 +327,12 @@ namespace Creeper.PostgreSql.Generator
 		/// <param name="str"></param>
 		/// <param name="len"></param>
 		/// <returns></returns>
-		public static string ExceptUnderlineToUpper(string str, int? len = null)
+		public static string ExceptUnderlineToUpper(string str)
 		{
 			var strArr = str.Split('_');
 			str = string.Empty;
-			var index = 1;
 			foreach (var item in strArr)
-			{
 				str = string.Concat(str, item.ToUpperPascal());
-				if (len != null && len == index)
-					break;
-				index++;
-			}
 			return str;
 		}
 	}

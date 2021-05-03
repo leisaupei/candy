@@ -21,16 +21,18 @@ namespace Creeper.PostgreSql.XUnitTest
 
 			var temp = TestEnum.A | TestEnum.B;
 			var aa = (int)temp;
-			var bo = temp.HasFlag(TestEnum.A);
+			var bo = temp.HasFlag(TestEnum.A | TestEnum.B);
 			var bo1 = temp.HasFlag(TestEnum.C);
 			var istrue = (temp & TestEnum.A & TestEnum.B) != 0;
 			var istrue1 = (temp & TestEnum.C & TestEnum.B) != 0;
 
 			temp = temp & (~TestEnum.B);
-		}
 
-		public enum TestEnum
+		}
+		[Flags]
+		public enum TestEnum : uint
 		{
+			x = 0,
 			A = 1,
 			B = 2,
 			C = 4,

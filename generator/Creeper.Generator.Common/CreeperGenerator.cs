@@ -11,15 +11,15 @@ namespace Creeper.Generator.Common
 {
 	public class CreeperGenerator : ICreeperGenerator
 	{
-		private readonly CreeperGeneratorProviderFactory _generatorProviderFactory;
+		private readonly ICreeperGeneratorProviderFactory _generatorProviderFactory;
 		private readonly IConfiguration _cfg;
 
 		public static string ModelSuffix { get; private set; }
 		public static string Namespace { get; private set; }
 		public static string DbStandardSuffix { get; private set; }
-		private static readonly object _lock = new object();
+
 		public static Action<StreamWriter> WriteAuthorHeader { get; private set; }
-		public CreeperGenerator(CreeperGeneratorProviderFactory generatorProviderFactory, IConfiguration cfg)
+		public CreeperGenerator(ICreeperGeneratorProviderFactory generatorProviderFactory, IConfiguration cfg)
 		{
 			_generatorProviderFactory = generatorProviderFactory;
 			_cfg = cfg;

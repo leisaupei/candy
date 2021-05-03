@@ -13,36 +13,41 @@ namespace Creeper.Attributes
 		/// 主键
 		/// </summary>
 		public bool Primary { get; set; } = false;
+
 		/// <summary>
-		/// 忽略
+		/// 字段忽略, Flags
 		/// </summary>
-		public IgnoreWhen Ignore { get; set; } = IgnoreWhen.None;
+		public IgnoreWhen IgnoreFlags { get; set; } = IgnoreWhen.None;
+
 		/// <summary>
 		/// 自增字段
 		/// </summary>
 		public bool Identity { get; set; } = false;
+
 		public CreeperDbColumnAttribute() { }
 	}
+
 	/// <summary>
 	/// 数据库字段忽略策略
 	/// </summary>
+
+	[Flags]
 	public enum IgnoreWhen
 	{
-		/// <summary>
-		/// 输入时忽略, Insert
-		/// </summary>
-		Input = 1,
-		/// <summary>
-		/// 查询输出时忽略
-		/// </summary>
-		Output = 2,
-		/// <summary>
-		/// 都忽略
-		/// </summary>
-		Both = 3,
+
 		/// <summary>
 		/// 不忽略
 		/// </summary>
-		None = 4
+		None = 0x0,
+
+		/// <summary>
+		/// 插入数据时, 
+		/// </summary>
+		Insert = 0x1,
+
+		/// <summary>
+		/// 数据库查询返回数据时, 包括Select, Insert/Update/Upsert Returning
+		/// </summary>
+		Returning = 0x2,
 	}
 }

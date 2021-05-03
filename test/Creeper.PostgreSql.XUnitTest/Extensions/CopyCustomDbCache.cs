@@ -16,14 +16,6 @@ namespace Creeper.PostgreSql.XUnitTest.Extensions
 		public CopyCustomDbCache()
 		{
 		}
-		/// <summary>
-		/// 当类型是Nullable&lt;T&gt;,则返回T, 否则返回传入类型
-		/// </summary>
-		/// <param name="type"></param>
-		/// <returns></returns>
-		private static Type GetOriginalType(Type type) => type.IsGenericType && type.GetGenericTypeDefinition().Equals(typeof(Nullable<>)) ? Nullable.GetUnderlyingType(type) : type;
-
-		private static readonly TimeSpan _expireTime = TimeSpan.FromMinutes(10);
 
 		public bool Exists(string key) => _redisStorage.ContainsKey(key);
 
@@ -58,6 +50,7 @@ namespace Creeper.PostgreSql.XUnitTest.Extensions
 		public void Dispose()
 		{
 			_redisStorage.Clear();
+			GC.SuppressFinalize(this);
 		}
 	}
 }

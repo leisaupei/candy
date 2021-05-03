@@ -21,7 +21,7 @@ namespace Creeper.Generic
 		/// <summary>
 		/// 子项扩展
 		/// </summary>
-		internal IList<ICreeperDbOptionsExtension> Extensions { get; } = new List<ICreeperDbOptionsExtension>();
+		internal IList<ICreeperOptionsExtension> Extensions { get; } = new List<ICreeperOptionsExtension>();
 
 		/// <summary>
 		/// 数据库缓存类
@@ -42,7 +42,7 @@ namespace Creeper.Generic
 		/// 添加数据库配置
 		/// </summary>
 		/// <param name="dbOption"></param>
-		public void AddOption(ICreeperDbOption dbOption)
+		public void AddDbOption(ICreeperDbOption dbOption)
 			=> DbOptions.Add(dbOption);
 
 		/// <summary>
@@ -52,7 +52,7 @@ namespace Creeper.Generic
 		public void TryAddDbTypeConvert<TDbTypeConvert>() where TDbTypeConvert : ICreeperDbTypeConverter, new()
 		{
 			var convert = Activator.CreateInstance<TDbTypeConvert>();
-			if (!CreeperDbTypeConverters.Any(a => a.DataBaseKind != convert.DataBaseKind))
+			if (!CreeperDbTypeConverters.Any(a => a.DataBaseKind == convert.DataBaseKind))
 				CreeperDbTypeConverters.Add(convert);
 		}
 
@@ -69,7 +69,7 @@ namespace Creeper.Generic
 		/// 注册扩展服务
 		/// </summary>
 		/// <param name="extension"></param>
-		public void RegisterExtension(ICreeperDbOptionsExtension extension)
+		public void RegisterExtension(ICreeperOptionsExtension extension)
 		{
 			if (extension == null)
 			{

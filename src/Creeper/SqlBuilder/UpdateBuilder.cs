@@ -89,7 +89,6 @@ namespace Creeper.SqlBuilder
 		/// <typeparam name="TKey">字段类型</typeparam>
 		/// <param name="selector">字段key selector</param>
 		/// <param name="value">value</param>
-		/// <param name="isSet">是否设置</param>
 		/// <returns></returns>
 		public UpdateBuilder<TModel> Set<TKey>(Expression<Func<TModel, TKey>> selector, TKey value)
 		{
@@ -141,7 +140,6 @@ namespace Creeper.SqlBuilder
 		/// <typeparam name="TKey">字段类型</typeparam>
 		/// <param name="selector">字段key selector</param>
 		/// <param name="value">value</param>
-		/// <param name="isSet"></param>
 		/// <returns></returns>
 		public UpdateBuilder<TModel> Set<TKey>(Expression<Func<TModel, TKey?>> selector, TKey? value) where TKey : struct
 		{

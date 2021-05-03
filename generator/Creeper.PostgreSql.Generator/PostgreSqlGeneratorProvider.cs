@@ -11,18 +11,18 @@ using System.Text;
 
 namespace Creeper.PostgreSql.Generator
 {
-	public class PostgerSqlGeneratorProvider : CreeperGeneratorProviderBase
+	public class PostgreSqlGeneratorProvider : CreeperGeneratorProviderBase
 	{
-		private readonly PostgresExcepts _postgresExcepts;
+		private readonly PostgreSqlRules _postgreSqlRules;
 
-		public PostgerSqlGeneratorProvider(IOptions<PostgresExcepts> optionsAccessor)
+		public PostgreSqlGeneratorProvider(IOptions<PostgreSqlRules> optionsAccessor)
 		{
-			_postgresExcepts = optionsAccessor.Value;
+			_postgreSqlRules = optionsAccessor.Value;
 		}
 
 		public override DataBaseKind DataBaseKind => DataBaseKind.PostgreSql;
 
-		public override void Generate(string modelPath, GenerateOption option, ICreeperDbConnectionOption dbOption, bool folder, CreeperDbExecute execute)
+		public override void Generate(string modelPath, CreeperGenerateOption option, bool folder, CreeperDbExecute execute)
 		{
 			var schemaList = GetSchemas(execute);
 			foreach (var schemaName in schemaList)
@@ -30,13 +30,13 @@ namespace Creeper.PostgreSql.Generator
 				List<TableViewModel> tableList = GetTables(execute, schemaName);
 				foreach (var item in tableList)
 				{
-					TableViewGenerator td = new TableViewGenerator(execute, folder);
-					td.Generate(option.ProjectName, modelPath, schemaName, item, dbOption.DbName);
+					PostgreSqlGenerator td = new PostgreSqlGenerator(execute, folder, _postgreSqlRules.FieldIgnore);
+					td.Generate(option.ProjectName, modelPath, schemaName, item, execute.ConnectionOptions.DbName);
 				}
 			}
-			var enumsDal = new PostgreSqlDbOptionsGenerator(execute, _postgresExcepts, folder);
+			var enumsDal = new PostgreSqlDbOptionsGenerator(execute, _postgreSqlRules, folder);
 			var rootPath = Path.Combine(option.OutputPath, option.ProjectName + "." + CreeperGenerator.DbStandardSuffix);
-			enumsDal.Generate(rootPath, modelPath, option.ProjectName, dbOption.DbName);
+			enumsDal.Generate(rootPath, modelPath, option.ProjectName, execute.ConnectionOptions.DbName);
 		}
 
 		public override ICreeperDbConnectionOption GetDbConnectionOptionFromString(string conn)
@@ -57,14 +57,15 @@ namespace Creeper.PostgreSql.Generator
 					case "user": connectionString += $"username={right};"; break;
 					case "pwd": connectionString += $"password={right};"; break;
 					case "db": connectionString += $"database={right};"; break;
-					case "name": dbName = ToUpperPascal(string.IsNullOrEmpty(right) ? GenerateOption.MASTER_DATABASE_TYPE_NAME : right); break;
+					case "name": dbName = ToUpperPascal(string.IsNullOrEmpty(right) ? CreeperGenerateOption.MASTER_DATABASE_TYPE_NAME : right); break;
 				}
 			}
 			connectionString += $"maximum pool size=32;pooling=true;CommandTimeout=300";
-			dbName = string.IsNullOrEmpty(dbName) ? GenerateOption.MASTER_DATABASE_TYPE_NAME : dbName;
-			ICreeperDbConnectionOption connections = new PostgreSqlDbConnectionOptions(connectionString, dbName, null);
+			dbName = string.IsNullOrEmpty(dbName) ? CreeperGenerateOption.MASTER_DATABASE_TYPE_NAME : dbName;
+			ICreeperDbConnectionOption connections = new PostgreSqlDbConnectionOption(connectionString, dbName, null);
 			return connections;
 		}
+
 		private static string ToUpperPascal(string s) => string.IsNullOrEmpty(s) ? s : $"{s[0..1].ToUpper()}{s[1..]}";
 
 		/// <summary>
@@ -76,7 +77,7 @@ namespace Creeper.PostgreSql.Generator
 			string sql = $@"
 				SELECT SCHEMA_NAME AS schemaname 
 				FROM information_schema.schemata a  
-				WHERE {GenerateHelper.ExceptConvert("SCHEMA_NAME", _postgresExcepts.Global.Schemas)}
+				WHERE {GenerateHelper.ExceptConvert("SCHEMA_NAME", _postgreSqlRules.Excepts.Global.Schemas)}
 				ORDER BY SCHEMA_NAME";
 
 			return execute.ExecuteDataReaderList<string>(sql);
@@ -94,14 +95,14 @@ namespace Creeper.PostgreSql.Generator
 				FROM pg_tables a  
 				LEFT JOIN pg_class b on a.tablename = b.relname AND b.relkind in ('r','p') 
 				INNER JOIN pg_namespace c on c.oid = b.relnamespace AND c.nspname = a.schemaname
-				WHERE {GenerateHelper.ExceptConvert("schemaname ||'.'||tablename", _postgresExcepts.Global.Tables)}
+				WHERE {GenerateHelper.ExceptConvert("schemaname ||'.'||tablename", _postgreSqlRules.Excepts.Global.Tables)}
 				AND schemaname = '{schemaName}'
 				UNION (
 					SELECT viewname AS name,'view' AS type, CAST(obj_description(b.oid,'pg_class') AS VARCHAR) AS description
 					FROM pg_views a  
 					LEFT JOIN pg_class b on a.viewname = b.relname AND b.relkind = 'v' 
 					INNER JOIN pg_namespace c on c.oid = b.relnamespace AND c.nspname = a.schemaname
-					WHERE {GenerateHelper.ExceptConvert("schemaname ||'.'||viewname", _postgresExcepts.Global.Views)}
+					WHERE {GenerateHelper.ExceptConvert("schemaname ||'.'||viewname", _postgreSqlRules.Excepts.Global.Views)}
 					AND schemaname = '{schemaName}'
 				)  
 			";

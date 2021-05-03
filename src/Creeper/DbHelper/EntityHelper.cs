@@ -196,6 +196,7 @@ namespace Creeper.DbHelper
 			IEnumerable<PropertyInfo> properties = GetProperties(type);
 			foreach (var p in properties)
 				action?.Invoke(p);
+			
 		}
 
 		private static IEnumerable<PropertyInfo> GetProperties(Type type)
@@ -204,7 +205,7 @@ namespace Creeper.DbHelper
 			{
 				var column = p.GetCustomAttribute<CreeperDbColumnAttribute>();
 				if (column == null) return true;
-				if (column.Ignore != IgnoreWhen.None)
+				if ((column.IgnoreFlags & IgnoreWhen.Returning) != 0)
 					return false;
 				return true;
 			});

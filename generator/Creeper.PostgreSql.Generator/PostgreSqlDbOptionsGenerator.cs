@@ -43,13 +43,13 @@ namespace Creeper.PostgreSql.Generator
 		private static readonly StringBuilder _sbNamespace = new StringBuilder();
 		private static readonly StringBuilder _sbConstTypeConstrutor = new StringBuilder();
 		private readonly ICreeperDbExecute _dbExecute;
-		private readonly PostgresExcepts _postgresExcepts;
+		private readonly PostgreSqlRules _postgreSqlRules;
 		private static bool _folder { get; set; }
 
-		public PostgreSqlDbOptionsGenerator(ICreeperDbExecute dbExecute, PostgresExcepts postgresExcepts, bool folder)
+		public PostgreSqlDbOptionsGenerator(ICreeperDbExecute dbExecute, PostgreSqlRules postgreSqlRules, bool folder)
 		{
 			_dbExecute = dbExecute;
-			_postgresExcepts = postgresExcepts;
+			_postgreSqlRules = postgreSqlRules;
 			_folder = folder;
 		}
 
@@ -121,7 +121,7 @@ INNER JOIN pg_attribute c on c.attrelid = b.oid and c.attnum > 0
 INNER JOIN pg_type d on d.oid = c.atttypid
 INNER JOIN pg_namespace ns on ns.oid = a.typnamespace
 LEFT JOIN pg_namespace ns2 on ns2.oid = d.typnamespace
-WHERE {GenerateHelper.ExceptConvert("ns.nspname || '.' || a.typname",_postgresExcepts.Global.Composites)}
+WHERE {GenerateHelper.ExceptConvert("ns.nspname || '.' || a.typname", _postgreSqlRules.Excepts.Global.Composites)}
 ";
 			Dictionary<string, string> dic = new Dictionary<string, string>();
 			List<CompositeTypeInfo> composites = new List<CompositeTypeInfo>();
@@ -183,7 +183,7 @@ WHERE {GenerateHelper.ExceptConvert("ns.nspname || '.' || a.typname",_postgresEx
 			return composites;
 		}
 
-		private string TypeName => _typeName == GenerateOption.MASTER_DATABASE_TYPE_NAME ? "" : _typeName;
+		private string TypeName => _typeName == CreeperGenerateOption.MASTER_DATABASE_TYPE_NAME ? "" : _typeName;
 
 		/// <summary>
 		/// 生成初始化文件(覆盖生成)

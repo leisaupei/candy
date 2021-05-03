@@ -5,11 +5,11 @@ using System.Text;
 
 namespace Creeper.Generator.Common
 {
-	public class CreeperGenerateBuilder : GenerateOption
+	public class CreeperGenerateBuilder : CreeperGenerateOption
 	{
 		public List<ICreeperDbConnectionOption> Connections { get; set; } = new List<ICreeperDbConnectionOption>();
 	}
-	public class GenerateOption
+	public class CreeperGenerateOption
 	{
 		/// <summary>
 		/// 默认主库名称

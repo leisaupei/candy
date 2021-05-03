@@ -13,17 +13,18 @@ namespace Creeper.Generator.Common
 		public abstract DataBaseKind DataBaseKind { get; }
 
 		public abstract ICreeperDbConnectionOption GetDbConnectionOptionFromString(string conn);
+
 		public abstract Action GetFinallyGen();
 
-		public virtual void ModelGenerator(string modelPath, GenerateOption option, ICreeperDbConnectionOption dbOption, bool folder = false)
+		public virtual void ModelGenerator(string modelPath, CreeperGenerateOption option, ICreeperDbConnectionOption dbOption, bool folder = false)
 		{
 			if (folder) modelPath = Path.Combine(modelPath, dbOption.DbName);
 
 			CreeperGenerator.RecreateDir(modelPath);
 
 			var execute = new CreeperDbExecute(dbOption);
-			Generate(modelPath, option, dbOption, folder, execute);
+			Generate(modelPath, option, folder, execute);
 		}
-		public abstract void Generate(string modelPath, GenerateOption option, ICreeperDbConnectionOption dbOption, bool folder, CreeperDbExecute execute);
+		public abstract void Generate(string modelPath, CreeperGenerateOption option, bool folder, CreeperDbExecute execute);
 	}
 }

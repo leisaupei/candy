@@ -13,6 +13,7 @@ using Creeper.PostgreSql.Generator;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -24,10 +25,6 @@ namespace Creeper.Generator
 	{
 		private static void Main(string[] args)
 		{
-			Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-			Console.OutputEncoding = Encoding.GetEncoding("UTF-8");
-			Console.InputEncoding = Encoding.GetEncoding("UTF-8");
-
 			Console.WriteLine(@"
 ##########################################################
 #        .net standard 2.1 + data base Code Maker        #
@@ -45,29 +42,15 @@ namespace Creeper.Generator
 		pwd		password
 		db		database name
 		type	database enum type name, 'main' if only one. *optional
-		dbtype	postgres/mysql at presents
+		dbtype	postgresql/mysql at presents
 > Single Example: -o d:\workspace\test -p SimpleTest -s t --b host=localhost;port=5432;user=postgres;pwd=123456;db=postgres;name=main;dbtype=postgresql
 
 > Multiple Example: -o d:\workspace\test -p SimpleTest -s t --b host=localhost;port=5432;user=postgres;pwd=123456;db=postgres;name=main;dbtype=postgresql host=localhost;port=5432;user=postgres;pwd=123456;db=postgres;name=main;dbtype=postgresql
 ");
-			IConfiguration cfg = new ConfigurationBuilder().AddJsonFile("appsettings.json", true, false).Build();
 
-			IServiceCollection services = new ServiceCollection();
-			services.AddSingleton(cfg);
-			//postgresql 
-			services.Configure<PostgresExcepts>(cfg.GetSection("GenerateRules:PostgresqlRules:Excepts"));
-			services.AddSingleton<ICreeperGeneratorProvider, PostgerSqlGeneratorProvider>();
-			services.TryAddSingleton<CreeperGeneratorProviderFactory>();
+			ServiceProvider serviceProvider = BuildServiceProvider();
 
-			services.TryAddSingleton<ICreeperGenerator, CreeperGenerator>();
-
-			services.AddCreeperDbContext(option =>
-			{
-				option.AddPostgreSqlOptions();
-			});
-			var serviceProvider = services.BuildServiceProvider();
-
-			var generatorFactory = serviceProvider.GetService<CreeperGeneratorProviderFactory>();
+			var generatorFactory = serviceProvider.GetService<ICreeperGeneratorProviderFactory>();
 			var creeperGenerator = serviceProvider.GetService<ICreeperGenerator>();
 			var creeperDbContext = serviceProvider.GetService<ICreeperDbContext>();
 			if (args?.Length > 0)
@@ -108,6 +91,31 @@ namespace Creeper.Generator
 				Console.WriteLine("successful...");
 			}
 			Console.ReadKey();
+		}
+
+		private static ServiceProvider BuildServiceProvider()
+		{
+			IConfiguration cfg = new ConfigurationBuilder()
+				.AddJsonFile("appsettings.json", true, false)
+				.AddJsonFile("appsettings.postgresql.json", true, false)
+				.Build();
+
+			IServiceCollection services = new ServiceCollection();
+
+			services.AddSingleton(cfg);
+
+			//postgresql 
+			var postgreSqlRules = cfg.GetSection("GenerateRules:PostgreSqlRules").Get<PostgreSqlRules>();
+			services.AddCreeperGenerator(option =>
+			{
+				option.UsePostgreSqlRules(o =>
+				{
+					o.Excepts = postgreSqlRules.Excepts;
+					o.FieldIgnore = postgreSqlRules.FieldIgnore;
+				});
+			});
+			var serviceProvider = services.BuildServiceProvider();
+			return serviceProvider;
 		}
 	}
 }

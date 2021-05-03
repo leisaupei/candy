@@ -23,84 +23,44 @@ namespace Creeper.PostgreSql.XUnitTest.Model
 		}
 	}
 
-	public class BooleanConverter : JsonConverter
+	/// <summary>
+	/// 转化为时间戳
+	/// </summary>
+	public class NewtonJsonDateTimeConverter : DateTimeConverterBase
 	{
-		public override bool CanConvert(Type objectType)
-		{
-			return objectType == typeof(bool) || objectType == typeof(bool?);
-		}
-
 		public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
 		{
-			if (reader.Value == null)
+			if (reader.Value == null || reader.TokenType == JsonToken.Null)
 				return null;
 
-			return ConvertToBoolean(reader.Value);
+			return reader.TokenType switch
+			{
+				JsonToken.Integer or JsonToken.Float => DateTimeOffset.FromUnixTimeMilliseconds((long)reader.Value).LocalDateTime,
+				JsonToken.Date or JsonToken.String => Convert.ToDateTime(reader.Value),
+				_ => reader.Value,
+			};
 		}
 
 		public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
 		{
 			if (value == null)
+			{
 				writer.WriteNull();
-			else
-				writer.WriteValue(ConvertToBoolean(value));
-		}
-		private bool ConvertToBoolean(object val)
-		{
-			try
-			{
-				return Convert.ToBoolean(val);
+				return;
 			}
-			catch { }
-			return false;
-		}
-	}
-	public class DateTimeConverter : DateTimeConverterBase
-	{
-
-		// 本地时区 1970.1.1格林威治时间
-		public static DateTime Greenwich_Mean_Time = TimeZoneInfo.ConvertTime(new DateTime(1970, 1, 1), TimeZoneInfo.Local);
-		public override bool CanConvert(Type objectType)
-		{
-			return objectType == typeof(DateTime) || objectType == typeof(DateTime?);
-		}
-		public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-		{
-			if (reader.Value == null) return null;
-
-			if (CanConvert(objectType))
-				return ToDateTime(reader.Value);
-			else
-				return reader.Value;
-		}
-		//转化成Format形式
-		public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-		{
-			if (value == null) writer.WriteNull();
-			if (value is DateTime dt)
-				writer.WriteValue(ToTimestamp(dt));
-			else
-				writer.WriteValue(value);
-		}
-		public static long ToTimestamp(DateTime dt)
-		{
-			return (dt.ToUniversalTime().Ticks - Greenwich_Mean_Time.Ticks) / 10000;
-		}
-		public static DateTime ToDateTime(object val)
-		{
-			DateTime dt = Greenwich_Mean_Time;
-			try
+			switch (value)
 			{
-				return val switch
-				{
-					null => dt,
-					long v => new DateTime(Greenwich_Mean_Time.Ticks + Convert.ToInt64(val) * 10000).ToLocalTime(),
-					_ => Convert.ToDateTime(val),
-				};
+				case DateTime dateTime:
+					writer.WriteValue(new DateTimeOffset(dateTime).ToUnixTimeMilliseconds());
+					break;
+				case DateTimeOffset dateTimeOffset:
+					writer.WriteValue(dateTimeOffset.ToUnixTimeMilliseconds());
+					break;
+				default:
+					writer.WriteValue(Convert.ToInt64(value));
+					break;
 			}
-			catch { }
-			return dt;
-		}
 
+		}
 	}
 }

@@ -1,17 +1,17 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
+﻿using Creeper.Driver;
+using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using Xunit.Abstractions;
-using Creeper.Driver;
-using Creeper.Generic;
-using Creeper.PostgreSql.XUnitTest.Entity.Options;
-using Creeper.PostgreSql.XUnitTest.Extensions;
 
-namespace Creeper.PostgreSql.XUnitTest
+namespace Creeper.MySql.XUnitTest
 {
 	public class BaseTest
 	{
+
 		public const string TestMainConnectionString = "host=192.168.1.15;port=5432;username=postgres;password=123456;database=postgres;maximum pool size=10;pooling=true;Timeout=10;CommandTimeout=10;";
 
 		public const string TestSecondaryConnectionString = "host=192.168.1.15;port=5432;username=postgres;password=123456;database=postgres;maximum pool size=10;pooling=true;Timeout=10;CommandTimeout=20;";
@@ -35,10 +35,7 @@ namespace Creeper.PostgreSql.XUnitTest
 				var services = new ServiceCollection();
 				services.AddCreeperDbContext(options =>
 				{
-					options.DefaultDbOptionName = typeof(DbMain);
-					options.DbTypeStrategy = DataBaseTypeStrategy.SecondaryFirstOfMainIfEmpty;
-					options.UseCache<CopyCustomDbCache>();
-					options.AddPostgreSql(new PostgreSqlDbOptions.MainPostgreSqlDbOption(TestMainConnectionString, new[] { TestSecondaryConnectionString }));
+					options.AddMySqlDbOption();
 				});
 				var serviceProvider = services.BuildServiceProvider();
 				_dbContext = serviceProvider.GetService<ICreeperDbContext>();
@@ -69,6 +66,5 @@ namespace Creeper.PostgreSql.XUnitTest
 		{
 			_output = output;
 		}
-
 	}
 }

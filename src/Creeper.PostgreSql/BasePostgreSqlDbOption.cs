@@ -34,14 +34,14 @@ namespace Creeper.PostgreSql
         /// 主库对象
         /// </summary>
         ICreeperDbConnectionOption ICreeperDbOption.Main =>
-            new PostgreSqlDbConnectionOptions(_mainConnectionString, typeof(TDbMainName).Name, Options);
+            new PostgreSqlDbConnectionOption(_mainConnectionString, typeof(TDbMainName).Name, Options);
 
         /// <summary>
         /// 从库数组对象
         /// </summary>
         ICreeperDbConnectionOption[] ICreeperDbOption.Secondary
-            => _secondaryConnectionStrings?.Select(f => new PostgreSqlDbConnectionOptions(f, typeof(TDbSecondaryName).Name, Options)).ToArray()
-            ?? new PostgreSqlDbConnectionOptions[0];
+            => _secondaryConnectionStrings?.Select(f => new PostgreSqlDbConnectionOption(f, typeof(TDbSecondaryName).Name, Options)).ToArray()
+            ?? new PostgreSqlDbConnectionOption[0];
     }
     public class DbConnectionOptions
     {

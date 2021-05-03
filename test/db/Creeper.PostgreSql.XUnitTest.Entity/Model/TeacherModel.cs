@@ -15,20 +15,8 @@ using Creeper.PostgreSql.XUnitTest.Entity.Options;
 
 namespace Creeper.PostgreSql.XUnitTest.Entity.Model
 {
-
-	[CreeperDbTable(@"""class"".""grade""", typeof(DbMain))]
-	public partial class ClassGradeModel : ICreeperDbModel
+	public partial class TeacherModel : ICreeperDbModel
 	{
-		#region Properties
-		[CreeperDbColumn(Primary = true, IgnoreFlags = IgnoreWhen.Insert | IgnoreWhen.Returning)]
-		public Guid Id { get; set; }
 
-		/// <summary>
-		/// 班级名称
-		/// </summary>
-		public string Name { get; set; }
-
-		public DateTime Create_time { get; set; }
-		#endregion
 	}
 }

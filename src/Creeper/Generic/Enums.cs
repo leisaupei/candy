@@ -16,7 +16,18 @@ namespace Creeper.Generic
 	/// </summary>
 	public enum PipeReturnType
 	{
-		One = 1, List, Rows
+		/// <summary>
+		/// 返回第一项
+		/// </summary>
+		One = 1,
+		/// <summary>
+		/// 列表
+		/// </summary>
+		List,
+		/// <summary>
+		/// 受影响行数
+		/// </summary>
+		Rows
 	}
 
 	/// <summary>

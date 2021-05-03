@@ -13,7 +13,7 @@ namespace Creeper.PostgreSql.XUnitTest.Extensions
 		private readonly CSRedis.CSRedisClient _redisClient = null;
 		public CustomDbCache()
 		{
-			_redisClient = new CSRedis.CSRedisClient("localhost:6379,defaultDatabase=13,name=xxx,password=12345,prefix=fc,abortConnect=false");
+			_redisClient = new CSRedis.CSRedisClient("192.168.1.15:6379,defaultDatabase=13,password=12345,prefix=test,abortConnect=false");
 		}
 		private static object Deserialize(string value, Type type)
 		{
@@ -55,6 +55,7 @@ namespace Creeper.PostgreSql.XUnitTest.Extensions
 		public void Dispose()
 		{
 			_redisClient.Dispose();
+			GC.SuppressFinalize(this);
 		}
 	}
 }
