@@ -40,25 +40,6 @@ namespace Creeper.MySql.XUnitTest
 				var serviceProvider = services.BuildServiceProvider();
 				_dbContext = serviceProvider.GetService<ICreeperDbContext>();
 
-				//JsonConvert.DefaultSettings = () =>
-				//{
-				//	var st = new JsonSerializerSettings
-				//	{
-				//		Formatting = Formatting.Indented,
-				//	};
-				//	st.Converters.Add(new StringEnumConverter());
-				//	st.Converters.Add(new IPConverter());
-				//	st.Converters.Add(new PhysicalAddressConverter());
-				//	st.Converters.Add(new NpgsqlTsQueryConverter());
-				//	st.Converters.Add(new NpgsqlTsVectorConverter());
-				//	st.Converters.Add(new BitArrayConverter());
-				//	st.Converters.Add(new NpgsqlPointListConverter());
-				//	st.Converters.Add(new BooleanConverter());
-				//	st.Converters.Add(new DateTimeConverter());
-
-				//	st.ContractResolver = new LowercaseContractResolver();
-				//	return st;
-				//};
 			}
 		}
 

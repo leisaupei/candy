@@ -9,6 +9,7 @@ using Npgsql;
 using Creeper.SqlBuilder;
 using Creeper.PostgreSql.XUnitTest.Entity.Model;
 using System.Reflection;
+using Creeper.DbHelper;
 
 namespace Creeper.PostgreSql.XUnitTest
 {
@@ -18,7 +19,6 @@ namespace Creeper.PostgreSql.XUnitTest
 		[Fact]
 		public void Union()
 		{
-
 			var temp = TestEnum.A | TestEnum.B;
 			var aa = (int)temp;
 			var bo = temp.HasFlag(TestEnum.A | TestEnum.B);

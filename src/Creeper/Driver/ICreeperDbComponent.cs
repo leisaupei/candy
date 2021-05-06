@@ -160,13 +160,13 @@ namespace Creeper.Driver
 		ValueTask<T> ExecuteScalarAsync<T>(string cmdText, CommandType cmdType = CommandType.Text, DbParameter[] cmdParams = null, CancellationToken cancellationToken = default);
 
 		/// <summary>
-		/// 事务, 需要手动 commit提交事务/rollback回滚事务
+		/// 事务, 无需手动commit提交事务/rollback回滚事务
 		/// </summary>
 		/// <param name="action"></param>
 		void Transaction(Action<ICreeperDbExecute> action);
 
 		/// <summary>
-		/// 事务, 需要手动commit提交事务/rollback回滚事务
+		/// 事务, 无需手动commit提交事务/rollback回滚事务
 		/// </summary>
 		/// <param name="action"></param>
 		/// <param name="cancellationToken"></param>

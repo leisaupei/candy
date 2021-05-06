@@ -41,7 +41,7 @@ namespace Creeper.DbHelper
 		/// <summary>
 		/// 数据库缓存
 		/// </summary>
-		public static ICreeperDbCache DbCache { get; private set; }
+		public ICreeperDbCache DbCache { get; private set; }
 
 		/// <summary>
 		/// 初始化一主多从数据库连接, 从库后缀默认: DataBaseType.Secondary.ToString()
@@ -64,14 +64,6 @@ namespace Creeper.DbHelper
 
 			#region Init Options
 			var executeOptions = new Dictionary<string, List<ICreeperDbConnectionOption>>();
-			var dbTypeConverts = new Dictionary<DataBaseKind, ICreeperDbTypeConverter>();
-			var dbTypeConvertsName = new Dictionary<string, ICreeperDbTypeConverter>();
-
-			foreach (var convert in options.CreeperDbTypeConverters)
-			{
-				if (!dbTypeConverts.ContainsKey(convert.DataBaseKind))
-					dbTypeConverts[convert.DataBaseKind] = convert;
-			}
 
 			foreach (var option in options.DbOptions)
 			{
@@ -79,8 +71,6 @@ namespace Creeper.DbHelper
 					throw new ArgumentNullException(nameof(option.Main), $"Main Connectionstring is null");
 
 				executeOptions[option.Main.DbName] = new List<ICreeperDbConnectionOption> { option.Main };
-
-				dbTypeConvertsName[option.Main.DbName] = dbTypeConverts[option.Main.DataBaseKind];
 
 				if (option.Secondary == null) continue;
 
@@ -93,8 +83,6 @@ namespace Creeper.DbHelper
 				}
 			}
 
-			TypeHelper.DbTypeConvertsName = dbTypeConvertsName;
-			TypeHelper.DbTypeConverts = dbTypeConverts;
 			TypeHelper.ExecuteOptions = executeOptions;
 			#endregion
 		}

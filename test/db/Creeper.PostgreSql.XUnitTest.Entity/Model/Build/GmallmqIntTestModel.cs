@@ -11,30 +11,20 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Threading;
 using Creeper.Attributes;
+using Creeper.Generic;
 using Creeper.PostgreSql.XUnitTest.Entity.Options;
 
 namespace Creeper.PostgreSql.XUnitTest.Entity.Model
 {
 
-	[CreeperDbTable(@"""test"".""uuid_iden_pk""", typeof(DbMain))]
-	public partial class TestUuidIdenPkModel : ICreeperDbModel
+	[CreeperDbTable(@"""gmallmq"".""int_test""", typeof(DbMain), DataBaseKind.PostgreSql)]
+	public partial class GmallmqIntTestModel : ICreeperDbModel
 	{
 		#region Properties
 		[CreeperDbColumn(Primary = true)]
-		public Guid Id { get; set; }
+		public int Id { get; set; }
 
-		/// <summary>
-		/// 名字
-		/// </summary>
-		public string Name { get; set; }
-
-		/// <summary>
-		/// 年龄
-		/// </summary>
-		public int? Age { get; set; }
-
-		[CreeperDbColumn(Primary = true, Identity = true)]
-		public int Id_sec { get; set; }
+		public string Ints { get; set; }
 		#endregion
 	}
 }

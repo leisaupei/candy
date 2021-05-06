@@ -62,7 +62,7 @@ namespace Creeper.PostgreSql.Generator
 			}
 			connectionString += $"maximum pool size=32;pooling=true;CommandTimeout=300";
 			dbName = string.IsNullOrEmpty(dbName) ? CreeperGenerateOption.MASTER_DATABASE_TYPE_NAME : dbName;
-			ICreeperDbConnectionOption connections = new PostgreSqlDbConnectionOption(connectionString, dbName, null);
+			ICreeperDbConnectionOption connections = new PostgreSqlConnectionOption(connectionString, dbName, null);
 			return connections;
 		}
 

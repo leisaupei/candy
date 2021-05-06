@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Creeper.Generic;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -6,6 +7,11 @@ namespace Creeper.Driver
 {
 	public interface ICreeperDbContext : ICreeperDbComponent
 	{
+		/// <summary>
+		/// 数据库缓存实例
+		/// </summary>
+		ICreeperDbCache DbCache { get; }
+
 		/// <summary>
 		/// 获取数据库执行对象
 		/// </summary>

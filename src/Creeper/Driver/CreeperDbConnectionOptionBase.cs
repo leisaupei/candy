@@ -1,37 +1,26 @@
-﻿using Creeper.Driver;
+﻿using Creeper.DbHelper;
 using Creeper.Generic;
-using MySql.Data.MySqlClient;
 using System;
+using System.Collections.Generic;
 using System.Data.Common;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Creeper.MySql
+namespace Creeper.Driver
 {
-	public class MySqlDbConnectionOption : ICreeperDbConnectionOption
+	public abstract class CreeperDbConnectionOptionBase : ICreeperDbConnectionOption
 	{
-		/// <summary>
-		/// 初始化
-		/// </summary>
-		/// <param name="connectionString">数据库连接</param>
-		/// <param name="dbName">数据库别名</param>
-		public MySqlDbConnectionOption(string connectionString, string dbName)
+		public CreeperDbConnectionOptionBase(string connectionString, string dbName, DataBaseKind dataBaseKind)
 		{
 			ConnectionString = connectionString;
 			DbName = dbName;
+			DataBaseKind = dataBaseKind;
 		}
 
 		public string DbName { get; }
-
-		/// <summary>
-		/// 数据库连接
-		/// </summary>
 		public string ConnectionString { get; }
-
-		/// <summary>
-		/// 数据库类型
-		/// </summary>
-		public DataBaseKind DataBaseKind { get; } = DataBaseKind.MySql;
+		public DataBaseKind DataBaseKind { get; }
 
 		/// <summary>
 		/// 创建连接
@@ -51,7 +40,7 @@ namespace Creeper.MySql
 			if (cancellationToken.IsCancellationRequested)
 				return await Task.FromCanceled<DbConnection>(cancellationToken);
 
-			DbConnection connection = new MySqlConnection(ConnectionString);
+			DbConnection connection = TypeHelper.GetConverter(DataBaseKind).GetDbConnection(ConnectionString);
 
 			if (connection == null)
 				throw new ArgumentNullException(nameof(connection));
@@ -61,7 +50,13 @@ namespace Creeper.MySql
 			else
 				connection.Open();
 
+			SetDbOptions(connection);
 			return connection;
+		}
+
+		public virtual void SetDbOptions(DbConnection connection)
+		{
+
 		}
 	}
 }

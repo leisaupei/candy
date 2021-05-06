@@ -211,12 +211,12 @@ namespace Creeper.DbHelper
 			if (async)
 				await ExecuteDataReaderAsync(dr =>
 				{
-					list.Add(TypeHelper.GetConvert(ConnectionOptions.DataBaseKind).ConvertDataReader<T>(dr));
+					list.Add(TypeHelper.GetConverter(ConnectionOptions.DataBaseKind).ConvertDataReader<T>(dr));
 				}, cmdText, cmdType, cmdParams, cancellationToken);
 			else
 				ExecuteDataReader(dr =>
 				{
-					list.Add(TypeHelper.GetConvert(ConnectionOptions.DataBaseKind).ConvertDataReader<T>(dr));
+					list.Add(TypeHelper.GetConverter(ConnectionOptions.DataBaseKind).ConvertDataReader<T>(dr));
 				}, cmdText, cmdType, cmdParams);
 			return list;
 		}
@@ -255,7 +255,7 @@ namespace Creeper.DbHelper
 						var item = builders.ElementAt(i);
 						List<object> list = new List<object>();
 						while (await dr.ReadAsync(cancellationToken))
-							list.Add(TypeHelper.GetConvert(ConnectionOptions.DataBaseKind).ConvertDataReader(dr, item.Type));
+							list.Add(TypeHelper.GetConverter(ConnectionOptions.DataBaseKind).ConvertDataReader(dr, item.Type));
 
 						results[i] = GetResult(dr, item, list);
 
@@ -270,7 +270,7 @@ namespace Creeper.DbHelper
 						var item = builders.ElementAt(i);
 						List<object> list = new List<object>();
 						while (dr.Read())
-							list.Add(TypeHelper.GetConvert(ConnectionOptions.DataBaseKind).ConvertDataReader(dr, item.Type));
+							list.Add(TypeHelper.GetConverter(ConnectionOptions.DataBaseKind).ConvertDataReader(dr, item.Type));
 
 						results[i] = GetResult(dr, item, list);
 

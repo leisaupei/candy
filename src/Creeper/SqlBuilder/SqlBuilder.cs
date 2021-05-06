@@ -96,7 +96,7 @@ namespace Creeper.SqlBuilder
 		{
 			var table = EntityHelper.GetDbTable<TModel>();
 
-			DbConverter = TypeHelper.GetConvert(table.DbName);
+			DbConverter = TypeHelper.GetConverter(table.DbKind);
 			if (string.IsNullOrEmpty(MainTable))
 				MainTable = table.TableName;
 
@@ -147,7 +147,7 @@ namespace Creeper.SqlBuilder
 		/// <returns></returns>
 		public TBuilder ByCache(TimeSpan? expireTime = null)
 		{
-			if (CreeperDbContext.DbCache == null)
+			if (_dbContext.DbCache == null)
 				throw new ArgumentNullException("Not found the implemention type of ICreeperDbExecute");
 			UseCacheType = DbCacheType.Default;
 			DbCacheExpireTime = expireTime;
@@ -312,7 +312,7 @@ namespace Creeper.SqlBuilder
 		public string ToString(string field)
 		{
 			if (!string.IsNullOrEmpty(field)) Fields = field;
-			return TypeHelper.GetConvert(DbExecute.ConnectionOptions.DataBaseKind).ConvertSqlToString(this);
+			return TypeHelper.GetConverter(DbExecute.ConnectionOptions.DataBaseKind).ConvertSqlToString(this);
 		}
 
 		/// <summary>
@@ -332,23 +332,23 @@ namespace Creeper.SqlBuilder
 		{
 			if (UseCacheType == DbCacheType.None) return fn.Invoke();
 			var key = string.Concat(_cachePrefix, ToString().GetMD5String());
-			if (CreeperDbContext.DbCache.Exists(key))
+			if (_dbContext.DbCache.Exists(key))
 			{
-				var value = (TResult)CreeperDbContext.DbCache.Get(key, typeof(TResult));
+				var value = (TResult)_dbContext.DbCache.Get(key, typeof(TResult));
 				return value;
 			}
 			var ret = fn.Invoke();
-			CreeperDbContext.DbCache.Set(key, ret, DbCacheExpireTime);
+			_dbContext.DbCache.Set(key, ret, DbCacheExpireTime);
 			return ret;
 		}
 		private async Task<T> GetCacheResultAsync<T>(Func<Task<T>> fn)
 		{
 			if (UseCacheType == DbCacheType.None) return await fn.Invoke();
 			var key = string.Concat(_cachePrefix, ToString().GetMD5String());
-			if (await CreeperDbContext.DbCache.ExistsAsync(key))
-				return (T)await CreeperDbContext.DbCache.GetAsync(key, typeof(T));
+			if (await _dbContext.DbCache.ExistsAsync(key))
+				return (T)await _dbContext.DbCache.GetAsync(key, typeof(T));
 			var ret = await fn.Invoke();
-			await CreeperDbContext.DbCache.SetAsync(key, ret, DbCacheExpireTime);
+			await _dbContext.DbCache.SetAsync(key, ret, DbCacheExpireTime);
 			return ret;
 		}
 

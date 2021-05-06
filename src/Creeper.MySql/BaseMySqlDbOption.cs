@@ -27,13 +27,13 @@ namespace Creeper.MySql
 		/// 主库对象
 		/// </summary>
 		ICreeperDbConnectionOption ICreeperDbOption.Main =>
-			new MySqlDbConnectionOption(_mainConnectionString, typeof(TDbMainName).Name);
+			new MySqlConnectionOption(_mainConnectionString, typeof(TDbMainName).Name);
 
 		/// <summary>
 		/// 从库数组对象
 		/// </summary>
 		ICreeperDbConnectionOption[] ICreeperDbOption.Secondary
-			=> _secondaryConnectionStrings?.Select(f => new MySqlDbConnectionOption(f, typeof(TDbSecondaryName).Name)).ToArray()
-			?? new MySqlDbConnectionOption[0];
+			=> _secondaryConnectionStrings?.Select(f => new MySqlConnectionOption(f, typeof(TDbSecondaryName).Name)).ToArray()
+			?? new MySqlConnectionOption[0];
 	}
 }

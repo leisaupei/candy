@@ -1,5 +1,4 @@
 ﻿using Creeper.DbHelper;
-using Creeper.DBHelper;
 using Creeper.Driver;
 using Creeper.Extensions;
 using Creeper.Generic;
@@ -82,6 +81,9 @@ namespace Creeper.MySql
 			}
 			return value?.ToString();
 		}
+
+		public override DbConnection GetDbConnection(string connectionString)
+		=> new MySqlConnection(connectionString);
 	}
 
 }

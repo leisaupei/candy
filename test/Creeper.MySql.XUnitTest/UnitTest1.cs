@@ -11,7 +11,6 @@ namespace Creeper.XUnitTest
 		[Fact]
 		public void Test1()
 		{
-
 		}
 	}
 }

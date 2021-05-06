@@ -60,6 +60,9 @@ namespace Creeper.PostgreSql
 			return TypeHelper.SqlToString(sqlBuilder.CommandText, sqlBuilder.Params);
 		}
 
+		public override DbConnection GetDbConnection(string connectionString)
+			=> new NpgsqlConnection(connectionString);
+
 		public override DbParameter GetDbParameter(string name, object value)
 			=> new NpgsqlParameter(name, value);
 	}

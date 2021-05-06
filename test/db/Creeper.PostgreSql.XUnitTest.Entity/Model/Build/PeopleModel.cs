@@ -11,12 +11,13 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Threading;
 using Creeper.Attributes;
+using Creeper.Generic;
 using Creeper.PostgreSql.XUnitTest.Entity.Options;
 
 namespace Creeper.PostgreSql.XUnitTest.Entity.Model
 {
 
-	[CreeperDbTable(@"""public"".""people""", typeof(DbMain))]
+	[CreeperDbTable(@"""public"".""people""", typeof(DbMain), DataBaseKind.PostgreSql)]
 	public partial class PeopleModel : ICreeperDbModel
 	{
 		#region Properties

@@ -26,7 +26,7 @@ namespace Creeper
         {
         }
     }
-    public class CreeperSqlExecuteException : DbException
+    public class CreeperSqlExecuteException : CreeperException
     {
         public CreeperSqlExecuteException(string message, Exception innerException) : base(message, innerException)
         {

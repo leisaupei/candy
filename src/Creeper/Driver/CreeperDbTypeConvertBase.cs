@@ -174,5 +174,6 @@ namespace Creeper.Driver
 		/// <returns></returns>
 		public abstract string ConvertSqlToString(ISqlBuilder sqlBuilder);
 		public abstract DbParameter GetDbParameter(string name, object value);
+		public abstract DbConnection GetDbConnection(string connectionString);
 	}
 }

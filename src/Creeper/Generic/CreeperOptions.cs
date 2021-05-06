@@ -1,4 +1,5 @@
-﻿using Creeper.Driver;
+﻿using Creeper.DbHelper;
+using Creeper.Driver;
 using Creeper.Extensions;
 using System;
 using System.Collections.Generic;
@@ -12,11 +13,6 @@ namespace Creeper.Generic
 		/// 数据库连接集合
 		/// </summary>
 		internal IList<ICreeperDbOption> DbOptions { get; } = new List<ICreeperDbOption>();
-
-		/// <summary>
-		/// 数据库转换器
-		/// </summary>
-		internal IList<ICreeperDbTypeConverter> CreeperDbTypeConverters { get; } = new List<ICreeperDbTypeConverter>();
 
 		/// <summary>
 		/// 子项扩展
@@ -52,8 +48,8 @@ namespace Creeper.Generic
 		public void TryAddDbTypeConvert<TDbTypeConvert>() where TDbTypeConvert : ICreeperDbTypeConverter, new()
 		{
 			var convert = Activator.CreateInstance<TDbTypeConvert>();
-			if (!CreeperDbTypeConverters.Any(a => a.DataBaseKind == convert.DataBaseKind))
-				CreeperDbTypeConverters.Add(convert);
+			if (!TypeHelper.DbTypeConverts.ContainsKey(convert.DataBaseKind))
+				TypeHelper.DbTypeConverts[convert.DataBaseKind] = convert;
 		}
 
 		/// <summary>

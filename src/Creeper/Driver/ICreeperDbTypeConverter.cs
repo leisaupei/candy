@@ -76,5 +76,12 @@ namespace Creeper.Driver
 		/// <param name="value"></param>
 		/// <returns></returns>
 		DbParameter GetDbParameter(string name, object value);
+
+		/// <summary>
+		/// 获取dbconnection
+		/// </summary>
+		/// <param name="connectionString"></param>
+		/// <returns></returns>
+		DbConnection GetDbConnection(string connectionString);
 	}
 }

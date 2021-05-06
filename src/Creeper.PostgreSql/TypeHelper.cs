@@ -1,5 +1,4 @@
 ﻿using System.Data;
-using Creeper.DBHelper;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Npgsql;
@@ -10,6 +9,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Creeper.DbHelper;
 
 namespace Creeper.PostgreSql
 {
