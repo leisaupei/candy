@@ -229,6 +229,7 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Threading;
 using Creeper.Attributes;
+using Creeper.Generic;
 using {3}.{0}.Options;
 {5}
 namespace {3}.{0}.{1}{2}
