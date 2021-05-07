@@ -19,6 +19,7 @@ namespace Creeper.PostgreSql
 		/// <param name="options">配置</param>
 		public PostgreSqlConnectionOption(string connectionString, string dbName, DbConnectionOptions options) : base(connectionString, dbName, DataBaseKind.PostgreSql)
 		{
+			Options = options;
 		}
 
 		/// <summary>
