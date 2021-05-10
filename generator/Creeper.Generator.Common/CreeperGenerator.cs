@@ -83,6 +83,8 @@ namespace Creeper.Generator.Common
 		/// </summary>
 		private void CreateSln(GeneratorGlobalOptions options)
 		{
+			if (!options.BaseOptions.Sln) return;
+
 			if (Directory.GetFiles(options.BaseOptions.OutputPath).Any(f => f.Contains(".sln")))
 				return;
 

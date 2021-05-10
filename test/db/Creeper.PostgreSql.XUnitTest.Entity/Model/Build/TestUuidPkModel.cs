@@ -16,23 +16,22 @@ using Creeper.PostgreSql.XUnitTest.Entity.Options;
 
 namespace Creeper.PostgreSql.XUnitTest.Entity.Model
 {
-	[CreeperDbTable(@"""public"".""student""", typeof(DbMain), DataBaseKind.PostgreSql)]
-	public partial class StudentModel : ICreeperDbModel
+	[CreeperDbTable(@"""test"".""uuid_pk""", typeof(DbMain), DataBaseKind.PostgreSql)]
+	public partial class TestUuidPkModel : ICreeperDbModel
 	{
 		#region Properties
-		/// <summary>
-		/// 学号
-		/// </summary>
-		public string Stu_no { get; set; }
-
-		public Guid Grade_id { get; set; }
-
-		public Guid People_id { get; set; }
-
-		public DateTime Create_time { get; set; }
-
 		[CreeperDbColumn(Primary = true)]
 		public Guid Id { get; set; }
+
+		/// <summary>
+		/// 名字
+		/// </summary>
+		public string Name { get; set; }
+
+		/// <summary>
+		/// 年龄
+		/// </summary>
+		public int? Age { get; set; }
 		#endregion
 	}
 }

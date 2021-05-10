@@ -20,7 +20,7 @@ namespace Creeper.MySql.Generator
 
 		public override DataBaseKind DataBaseKind => DataBaseKind.MySql;
 
-		public override void Generate(GeneratorGlobalOptions options, bool folder, ICreeperDbExecute execute)
+		public override void Generate(GeneratorGlobalOptions options, ICreeperDbExecute execute)
 		{
 
 			List<TableViewModel> tableList = GetTables(execute);
@@ -45,7 +45,12 @@ namespace Creeper.MySql.Generator
 					case "user": connectionString += $"userid={right};"; break;
 					case "pwd": connectionString += $"pwd={right};"; break;
 					case "db": connectionString += $"database={right};"; break;
-					case "name": dbName = string.IsNullOrEmpty(right) ? CreeperGeneratorBaseOptions.MASTER_DATABASE_TYPE_NAME : right.ToUpperPascal(); break;
+					case "name":
+						if (string.IsNullOrEmpty(right) || right.ToLower() == CreeperGeneratorBaseOptions.MASTER_DATABASE_TYPE_NAME.ToLower())
+							dbName = CreeperGeneratorBaseOptions.MASTER_DATABASE_TYPE_NAME;
+						else
+							dbName = right.ToUpperPascal();
+						break;
 				}
 			}
 			connectionString += $"sslmode=none;";
@@ -73,11 +78,6 @@ namespace Creeper.MySql.Generator
 FROM `information_schema`.`TABLES`
 where `table_schema` = '{db}' and `table_type` in ('base table', 'view'); ";
 			return execute.ExecuteDataReaderList<TableViewModel>(sql);
-		}
-
-		public override Action GetFinallyGen()
-		{
-			return () => { };
 		}
 	}
 }

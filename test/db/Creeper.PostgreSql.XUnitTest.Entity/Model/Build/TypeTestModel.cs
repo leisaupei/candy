@@ -16,7 +16,6 @@ using Creeper.PostgreSql.XUnitTest.Entity.Options;
 
 namespace Creeper.PostgreSql.XUnitTest.Entity.Model
 {
-
 	[CreeperDbTable(@"""public"".""type_test""", typeof(DbMain), DataBaseKind.PostgreSql)]
 	public partial class TypeTestModel : ICreeperDbModel
 	{
@@ -74,12 +73,6 @@ namespace Creeper.PostgreSql.XUnitTest.Entity.Model
 
 		public NpgsqlPolygon? Polygon_type { get; set; }
 
-		public short Serial2_type { get; set; }
-
-		public int Serial4_type { get; set; }
-
-		public long Serial8_type { get; set; }
-
 		public string Text_type { get; set; }
 
 		public TimeSpan? Time_type { get; set; }
@@ -102,17 +95,26 @@ namespace Creeper.PostgreSql.XUnitTest.Entity.Model
 
 		public Dictionary<string, string> Hstore_type { get; set; }
 
-		public EtDataState? Enum_type { get; set; }
-
 		public Info Composite_type { get; set; }
 
 		public BitArray Bit_length_type { get; set; }
 
 		public int[] Array_type { get; set; }
 
+		[CreeperDbColumn(Identity = true)]
+		public short Serial2_type { get; set; }
+
+		[CreeperDbColumn(Identity = true)]
+		public int Serial4_type { get; set; }
+
+		[CreeperDbColumn(Identity = true)]
+		public long Serial8_type { get; set; }
+
 		public Guid[] Uuid_array_type { get; set; }
 
 		public string[] Varchar_array_type { get; set; }
+
+		public EtDataState? Enum_type { get; set; }
 		#endregion
 	}
 }

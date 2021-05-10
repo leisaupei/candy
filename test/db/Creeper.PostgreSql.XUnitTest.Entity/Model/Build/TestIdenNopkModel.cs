@@ -16,15 +16,25 @@ using Creeper.PostgreSql.XUnitTest.Entity.Options;
 
 namespace Creeper.PostgreSql.XUnitTest.Entity.Model
 {
-
-	[CreeperDbTable(@"""gmallmq"".""int_test""", typeof(DbMain), DataBaseKind.PostgreSql)]
-	public partial class GmallmqIntTestModel : ICreeperDbModel
+	[CreeperDbTable(@"""test"".""iden_nopk""", typeof(DbMain), DataBaseKind.PostgreSql)]
+	public partial class TestIdenNopkModel : ICreeperDbModel
 	{
 		#region Properties
 		[CreeperDbColumn(Primary = true)]
-		public int Id { get; set; }
+		public Guid Id { get; set; }
 
-		public string Ints { get; set; }
+		/// <summary>
+		/// 名字
+		/// </summary>
+		public string Name { get; set; }
+
+		/// <summary>
+		/// 年龄
+		/// </summary>
+		public int? Age { get; set; }
+
+		[CreeperDbColumn(Identity = true)]
+		public int Name_no { get; set; }
 		#endregion
 	}
 }

@@ -51,12 +51,10 @@ namespace Creeper.Generator.Common
 		/// db层根目录
 		/// </summary>
 		public string RootPath { get; set; }
-
 		/// <summary>
 		/// 基础配置
 		/// </summary>
 		public CreeperGeneratorBaseOptions BaseOptions { get; }
-
 		/// <summary>
 		/// 项目命名空间
 		/// </summary>
@@ -89,32 +87,69 @@ namespace Creeper.Generator.Common
 		/// _Composites.cs全称(包含文件路径)
 		/// </summary>
 		public string CompositesCsFullName { get; }
+		/// <summary>
+		/// options目录.cs文件命名空间
+		/// </summary>
+		public string OptionsNamespace { get; }
 		private const string DbNameFileName = "DbNames.cs";
 		private const string DbOptionsFileName = "DbOptions.cs";
 		private const string EnumFileName = "_Enums.cs";
 		private const string CompositesFileName = "_Composites.cs";
+		private const string DbOptionsFolderName = "Options";
+		private const string DbNamePrefix = "Db";
 
 		public GeneratorGlobalOptions(CreeperGeneratorBaseOptions baseOptions, string modelNamespace, string dbStandardSuffix, string modelSuffix)
 		{
 			BaseOptions = baseOptions;
-			RootPath = Path.Combine(BaseOptions.OutputPath, BaseOptions.ProjectName + "." + dbStandardSuffix);
-			DbOptionsPath = Path.Combine(RootPath, "Options");
-			ModelPath = Path.Combine(RootPath, modelNamespace, "Build");
 			ModelNamespace = modelNamespace;
 			DbStandardSuffix = dbStandardSuffix;
 			ModelSuffix = modelSuffix;
-			CsProjFileName = $"{BaseOptions.ProjectName}.{dbStandardSuffix}.csproj";
+
+			RootPath = Path.Combine(BaseOptions.OutputPath, BaseOptions.ProjectName + "." + DbStandardSuffix);
+			DbOptionsPath = Path.Combine(RootPath, DbOptionsFolderName);
+			ModelPath = Path.Combine(RootPath, ModelNamespace, "Build");
+			CsProjFileName = string.Format("{0}.{1}.csproj", BaseOptions.ProjectName, DbStandardSuffix);
 			CsProjFileFullName = Path.Combine(RootPath, CsProjFileName);
 			SlnFileFullName = Path.Combine(BaseOptions.OutputPath, $"{BaseOptions.ProjectName}.sln");
 			EnumCsFullName = Path.Combine(ModelPath, EnumFileName);
 			CompositesCsFullName = Path.Combine(ModelPath, CompositesFileName);
+			OptionsNamespace = string.Format("{0}.{1}.{2}", BaseOptions.ProjectName, DbStandardSuffix, DbOptionsFolderName);
 			CreateDir(RootPath);
+			RecreateDir(DbOptionsPath);
 			RecreateDir(ModelPath);
 		}
-
-		public void GetModelNamespaceFullName(string type = "")
+		public static string GetDbNameNameMain(string typeName = null)
 		{
-
+			if (string.IsNullOrEmpty(typeName) || typeName.ToLower() == CreeperGeneratorBaseOptions.MASTER_DATABASE_TYPE_NAME.ToLower())
+				return DbNamePrefix + CreeperGeneratorBaseOptions.MASTER_DATABASE_TYPE_NAME;
+			return DbNamePrefix + typeName.ToUpperPascal();
+		}
+		public static string GetDbNameNameSecondary(string typeName = null)
+		{
+			if (string.IsNullOrEmpty(typeName) || typeName.ToLower() == CreeperGeneratorBaseOptions.MASTER_DATABASE_TYPE_NAME.ToLower())
+				return DbNamePrefix + DataBaseType.Secondary.ToString();
+			return DbNamePrefix + typeName.ToUpperPascal() + DataBaseType.Secondary.ToString(); ;
+		}
+		public string GetMappingNamespaceName(string typeName = null)
+		{
+			var namespaceName = ModelNamespace;
+			if (!string.IsNullOrEmpty(typeName) && typeName.ToLower() != CreeperGeneratorBaseOptions.MASTER_DATABASE_TYPE_NAME.ToLower())
+				namespaceName += "." + typeName;
+			return namespaceName;
+		}
+		public string GetModelNamespaceFullName(string typeName = null)
+		{
+			var namespaceName = string.Format("{0}.{1}.{2}", BaseOptions.ProjectName, DbStandardSuffix, ModelNamespace);
+			if (!string.IsNullOrEmpty(typeName) && typeName.ToLower() != CreeperGeneratorBaseOptions.MASTER_DATABASE_TYPE_NAME.ToLower())
+				namespaceName += "." + typeName;
+			return namespaceName;
+		}
+		public string GetModelPath(string typeName = null)
+		{
+			var namespaceName = string.Format("{0}.{1}.{2}", BaseOptions.ProjectName, DbStandardSuffix, ModelNamespace);
+			if (!string.IsNullOrEmpty(typeName) && typeName.ToLower() != CreeperGeneratorBaseOptions.MASTER_DATABASE_TYPE_NAME.ToLower())
+				namespaceName += "." + typeName;
+			return namespaceName;
 		}
 		public static void RecreateDir(string path)
 		{
@@ -127,7 +162,7 @@ namespace Creeper.Generator.Common
 			if (!Directory.Exists(path))
 				Directory.CreateDirectory(path);
 		}
-		public string GetDbNameFileFullName(DataBaseKind dataBaseKind)
+		public string GetDbNamesFileFullName(DataBaseKind dataBaseKind)
 		{
 			return Path.Combine(DbOptionsPath, dataBaseKind.ToString() + DbNameFileName);
 		}

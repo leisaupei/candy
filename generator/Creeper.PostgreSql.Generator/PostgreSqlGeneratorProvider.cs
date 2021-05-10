@@ -22,7 +22,7 @@ namespace Creeper.PostgreSql.Generator
 
 		public override DataBaseKind DataBaseKind => DataBaseKind.PostgreSql;
 
-		public override void Generate(GeneratorGlobalOptions options, bool folder, ICreeperDbExecute execute)
+		public override void Generate(GeneratorGlobalOptions options, ICreeperDbExecute execute)
 		{
 			var schemaList = GetSchemas(execute);
 			foreach (var schemaName in schemaList)
@@ -30,13 +30,12 @@ namespace Creeper.PostgreSql.Generator
 				List<TableViewModel> tableList = GetTables(execute, schemaName);
 				foreach (var item in tableList)
 				{
-					PostgreSqlTableGenerator td = new PostgreSqlTableGenerator(execute, folder, _postgreSqlRules.FieldIgnore, options);
-					td.Generate(schemaName, item, execute.ConnectionOptions.DbName);
+					PostgreSqlTableGenerator td = new PostgreSqlTableGenerator(execute, _postgreSqlRules.FieldIgnore, options);
+					td.Generate(schemaName, item);
 				}
 			}
-			var enumsDal = new PostgreSqlDbOptionsGenerator(execute, _postgreSqlRules, folder);
-			var rootPath = Path.Combine(option.OutputPath, option.ProjectName + "." + CreeperGenerator.DbStandardSuffix);
-			enumsDal.Generate(rootPath, modelPath, option.ProjectName, execute.ConnectionOptions.DbName);
+			var enumsDal = new PostgreSqlDbOptionsGenerator(execute, _postgreSqlRules, options);
+			enumsDal.Generate();
 		}
 
 		public override ICreeperDbConnectionOption GetDbConnectionOptionFromString(string conn)
@@ -57,7 +56,12 @@ namespace Creeper.PostgreSql.Generator
 					case "user": connectionString += $"username={right};"; break;
 					case "pwd": connectionString += $"password={right};"; break;
 					case "db": connectionString += $"database={right};"; break;
-					case "name": dbName = string.IsNullOrEmpty(right) ? CreeperGeneratorBaseOptions.MASTER_DATABASE_TYPE_NAME : right.ToUpperPascal(); break;
+					case "name":
+						if (string.IsNullOrEmpty(right) || right.ToLower() == CreeperGeneratorBaseOptions.MASTER_DATABASE_TYPE_NAME.ToLower())
+							dbName = CreeperGeneratorBaseOptions.MASTER_DATABASE_TYPE_NAME;
+						else
+							dbName = right.ToUpperPascal();
+						break;
 				}
 			}
 			connectionString += $"maximum pool size=32;pooling=true;CommandTimeout=300";
@@ -105,11 +109,6 @@ namespace Creeper.PostgreSql.Generator
 				)  
 			";
 			return execute.ExecuteDataReaderList<TableViewModel>(sql);
-		}
-
-		public override Action GetFinallyGen()
-		{
-			return () => { };
 		}
 	}
 }

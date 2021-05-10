@@ -24,7 +24,6 @@ namespace Creeper.PostgreSql.Generator
 		private TableViewModel _table;
 
 		private readonly ICreeperDbExecute _dbExecute;
-		private readonly bool _folder;
 		private readonly FieldIgnore _fieldIgnore;
 
 		/// <summary>
@@ -47,15 +46,15 @@ namespace Creeper.PostgreSql.Generator
 		/// </summary>
 		private List<PrimarykeyInfo> _pkList = new List<PrimarykeyInfo>();
 
-		/// <summary>
-		/// 生成项目多库
-		/// </summary>
-		private string _dataBaseTypeName;
+		///// <summary>
+		///// 生成项目多库
+		///// </summary>
+		//private string _dataBaseTypeName;
 
-		/// <summary>
-		/// 命名空间后缀
-		/// </summary>
-		private string NamespaceSuffix => _folder ? "." + _dataBaseTypeName : "";
+		///// <summary>
+		///// 命名空间后缀
+		///// </summary>
+		//private string NamespaceSuffix => _folder ? "." + _dataBaseTypeName : "";
 
 		/// <summary>
 		/// Model名称
@@ -78,17 +77,15 @@ namespace Creeper.PostgreSql.Generator
 		/// <param name="schemaName"></param>
 		/// <param name="table"></param>
 		/// <param name="type"></param>
-		public PostgreSqlTableGenerator(ICreeperDbExecute dbExecute, bool folder, FieldIgnore fieldIgnore, GeneratorGlobalOptions options)
+		public PostgreSqlTableGenerator(ICreeperDbExecute dbExecute, FieldIgnore fieldIgnore, GeneratorGlobalOptions options)
 		{
 			_dbExecute = dbExecute;
-			_folder = folder;
 			_fieldIgnore = fieldIgnore;
 			_options = options;
 		}
 
-		public void Generate(string schemaName, TableViewModel table, string type)
+		public void Generate(string schemaName, TableViewModel table)
 		{
-			_dataBaseTypeName = type.ToUpperPascal();
 			_schemaName = schemaName;
 			_table = table;
 			Console.WriteLine($"Generating {_schemaName}.{_table.Name}...");
@@ -143,11 +140,11 @@ WHERE (b.nspname='{_schemaName}' and a.relname='{_table.Name}')
 				f.IsEnum = f.DataType == "e";
 				string _type = Types.ConvertPgDbTypeToCSharpType(f.DataType, f.DbType);
 				if (f.DbType == "xml")
-					MappingOptions.XmlTypeName.Add(_dataBaseTypeName);
+					MappingOptions.XmlTypeName.Add(_dbExecute.ConnectionOptions.DbName);
 				if (f.DbType == "geometry")
 				{
 					_isGeometryTable = true;
-					MappingOptions.GeometryTableTypeName.Add(_dataBaseTypeName);
+					MappingOptions.GeometryTableTypeName.Add(_dbExecute.ConnectionOptions.DbName);
 				}
 
 				if (f.IsEnum)
@@ -219,24 +216,21 @@ using System.Threading.Tasks;
 using System.Threading;
 using Creeper.Attributes;
 using Creeper.Generic;
-using {3}.{0}.Options;
-{5}
-namespace {3}.{0}.{1}{2}
+using {1};
+{3}
+namespace {0}
 {{
-{4}
-	[CreeperDbTable(@""""""{6}"""".""""{9}"""""", typeof(Db{8}), DataBaseKind.{10})]
-	public partial class {7} : ICreeperDbModel
+{2}	[CreeperDbTable(@""""""{4}"""".""""{7}"""""", typeof({6}), DataBaseKind.{8})]
+	public partial class {5} : ICreeperDbModel
 	{{
 		#region Properties",
-_options.DbStandardSuffix,
-_options.ModelNamespace,
-NamespaceSuffix,
-_options.BaseOptions.ProjectName,
-WriteComment(_table.Description, 1),
+_options.GetModelNamespaceFullName(_dbExecute.ConnectionOptions.DbName),
+_options.OptionsNamespace,
+ WriteComment(_table.Description, 1),
 _isGeometryTable ? "using Npgsql.LegacyPostgis;" + Environment.NewLine : "",
 _schemaName,
 ModelClassName,
-_dataBaseTypeName,
+GeneratorGlobalOptions.GetDbNameNameMain(_dbExecute.ConnectionOptions.DbName),
 _table.Name,
 _dbExecute.ConnectionOptions.DataBaseKind.ToString());
 
@@ -292,7 +286,6 @@ _dbExecute.ConnectionOptions.DataBaseKind.ToString());
 			var tabStr = string.Empty;
 			for (int i = 0; i < tab; i++)
 				tabStr += "\t";
-
 			if (comment.Contains("\n"))
 			{
 				comment = comment.Replace("\r\n", string.Concat(Environment.NewLine, tabStr, "/// "));

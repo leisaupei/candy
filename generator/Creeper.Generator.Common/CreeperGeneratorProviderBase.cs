@@ -14,8 +14,6 @@ namespace Creeper.Generator.Common
 
 		public abstract ICreeperDbConnectionOption GetDbConnectionOptionFromString(string conn);
 
-		public abstract Action GetFinallyGen();
-
 		public virtual void ModelGenerator(GeneratorGlobalOptions options, ICreeperDbConnectionOption dbOption, bool folder = false)
 		{
 			var modelPath = options.ModelPath;
@@ -26,8 +24,8 @@ namespace Creeper.Generator.Common
 			GeneratorGlobalOptions.RecreateDir(modelPath);
 
 			ICreeperDbExecute execute = new CreeperDbExecute(dbOption);
-			Generate(options, folder, execute);
+			Generate(options, execute);
 		}
-		public abstract void Generate(GeneratorGlobalOptions options, bool folder, ICreeperDbExecute execute);
+		public abstract void Generate(GeneratorGlobalOptions options, ICreeperDbExecute execute);
 	}
 }
