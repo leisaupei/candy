@@ -25,7 +25,7 @@ namespace Creeper.Driver
 
 		public virtual string StringConnectWord => "||";
 
-		public virtual bool QuotationMarks => true;
+		public abstract string DbFieldMark { get; }
 
 		/// <summary>
 		/// 

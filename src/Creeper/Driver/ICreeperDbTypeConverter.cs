@@ -26,9 +26,9 @@ namespace Creeper.Driver
 		string StringConnectWord { get; }
 
 		/// <summary>
-		/// 字段是否添加双引号
+		/// 数据库字段标识符号
 		/// </summary>
-		bool QuotationMarks { get; }
+		string DbFieldMark { get; }
 
 		/// <summary>
 		/// 转化数据库返回值

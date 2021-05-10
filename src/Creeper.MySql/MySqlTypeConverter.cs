@@ -17,7 +17,11 @@ namespace Creeper.MySql
 {
 	public class MySqlTypeConverter : CreeperDbTypeConvertBase
 	{
+		private static readonly Regex _paramPattern = new Regex(@"(^(\-|\+)?\d+(\.\d+)?$)|(^SELECT\s.+\sFROM\s)|(true)|(false)", RegexOptions.IgnoreCase);
+
 		public override DataBaseKind DataBaseKind => DataBaseKind.MySql;
+
+		public override string DbFieldMark => "`";
 
 		public override T ConvertDbData<T>(object value)
 		{
@@ -44,16 +48,9 @@ namespace Creeper.MySql
 
 		public override string ConvertSqlToString(ISqlBuilder sqlBuilder)
 		{
-			return SqlToString(sqlBuilder.CommandText, sqlBuilder.Params);
-		}
+			var sql = sqlBuilder.CommandText;
 
-		public override DbParameter GetDbParameter(string name, object value)
-			=> new MySqlParameter(name, value);
-
-		private static readonly Regex _paramPattern = new Regex(@"(^(\-|\+)?\d+(\.\d+)?$)|(^SELECT\s.+\sFROM\s)|(true)|(false)", RegexOptions.IgnoreCase);
-		public static string SqlToString(string sql, List<DbParameter> nps)
-		{
-			foreach (var p in nps)
+			foreach (var p in sqlBuilder.Params)
 			{
 				var value = GetParamValue(p.Value);
 				var key = string.Concat("@", p.ParameterName);
@@ -71,14 +68,12 @@ namespace Creeper.MySql
 			}
 			return sql.Replace("\r", " ").Replace("\n", " ");
 		}
+
+		public override DbParameter GetDbParameter(string name, object value)
+			=> new MySqlParameter(name, value);
+
 		public static string GetParamValue(object value)
 		{
-			Type type = value.GetType();
-			if (type.IsArray)
-			{
-				var arrStr = (value as object[]).Select(a => $"'{a?.ToString() ?? ""}'");
-				return $"array[{string.Join(",", arrStr)}]";
-			}
 			return value?.ToString();
 		}
 

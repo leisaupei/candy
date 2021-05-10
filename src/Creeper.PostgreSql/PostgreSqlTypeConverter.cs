@@ -11,14 +11,18 @@ using NpgsqlTypes;
 using System;
 using System.Collections;
 using System.ComponentModel;
+using System.Data;
 using System.Data.Common;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Creeper.PostgreSql
 {
 	public class PostgreSqlTypeConverter : CreeperDbTypeConvertBase
 	{
 		public override DataBaseKind DataBaseKind => DataBaseKind.PostgreSql;
+
+		public override string DbFieldMark => "\"";
 
 		public override T ConvertDbData<T>(object value)
 		{
@@ -57,9 +61,39 @@ namespace Creeper.PostgreSql
 
 		public override string ConvertSqlToString(ISqlBuilder sqlBuilder)
 		{
-			return TypeHelper.SqlToString(sqlBuilder.CommandText, sqlBuilder.Params);
+			var sql = sqlBuilder.CommandText;
+
+			foreach (var p in sqlBuilder.Params)
+			{
+				var value = GetParamValue(p.Value);
+				var key = string.Concat("@", p.ParameterName);
+				if (value == null)
+					sql = SqlHelper.GetNullSql(sql, key);
+
+				else if (_paramPattern.IsMatch(value) && p.DbType == DbType.String)
+					sql = sql.Replace(key, value);
+
+				else if (value.Contains("array"))
+					sql = sql.Replace(key, value);
+
+				else
+					sql = sql.Replace(key, $"'{value}'");
+			}
+			return sql.Replace("\r", " ").Replace("\n", " ");
 		}
 
+		private static readonly Regex _paramPattern = new Regex(@"(^(\-|\+)?\d+(\.\d+)?$)|(^SELECT\s.+\sFROM\s)|(true)|(false)", RegexOptions.IgnoreCase);
+
+		public static string GetParamValue(object value)
+		{
+			Type type = value.GetType();
+			if (type.IsArray)
+			{
+				var arrStr = (value as object[]).Select(a => $"'{a?.ToString() ?? ""}'");
+				return $"array[{string.Join(",", arrStr)}]";
+			}
+			return value?.ToString();
+		}
 		public override DbConnection GetDbConnection(string connectionString)
 			=> new NpgsqlConnection(connectionString);
 

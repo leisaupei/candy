@@ -51,6 +51,7 @@ namespace Creeper.Driver
 				connection.Open();
 
 			SetDbOptions(connection);
+
 			return connection;
 		}
 

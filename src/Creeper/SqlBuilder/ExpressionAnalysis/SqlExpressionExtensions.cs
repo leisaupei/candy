@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
+using Creeper.Driver;
 using Creeper.Extensions;
 using Creeper.Generic;
 namespace Creeper.SqlBuilder.ExpressionAnalysis
@@ -40,8 +41,8 @@ namespace Creeper.SqlBuilder.ExpressionAnalysis
 		/// </summary>
 		/// <param name="mb"></param>
 		/// <returns></returns>
-		public static string ToDatebaseField(this MemberExpression mb)
-			=> string.Concat(mb.ToString().ToLower().Replace(".", ".\""), '"');
+		public static string ToDatebaseField(this MemberExpression mb, ICreeperDbTypeConverter converter)
+			=> string.Concat(mb.ToString().ToLower().Replace(".", string.Concat('.', converter.DbFieldMark)), converter.DbFieldMark);
 
 		/// <summary>
 		/// 递归member表达式, 针对optional字段, 从 a.xxx.Value->a.xxx

@@ -192,6 +192,7 @@ WHERE {GenerateHelper.ExceptConvert("ns.nspname || '.' || a.typname", _postgreSq
 		/// <param name="listComposite"></param>
 		public void GenerateMapping(List<EnumTypeInfo> list, List<CompositeTypeInfo> listComposite)
 		{
+
 			_sbNamespace.AppendLine($"using {_projectName}.{CreeperGenerator.DbStandardSuffix}.{CreeperGenerator.Namespace}{NamespaceSuffix};");
 
 			_sbConstTypeName.AppendLine("\t/// <summary>");
@@ -228,7 +229,52 @@ WHERE {GenerateHelper.ExceptConvert("ns.nspname || '.' || a.typname", _postgreSq
 			//Write();
 
 		}
+		public string[] OpenFileAndReadAllLines(string path, string fileName)
+		{
+			CreateDirectory(path);
+			fileName = Path.Combine(path, fileName);
+			return File.ReadAllLines(fileName);
 
+		}
+		public void CreateDirectory(string path)
+		{
+			if (!Directory.Exists(path))
+				Directory.CreateDirectory(path);
+		}
+		public StreamWriter OpenFile(string fileName)
+		{
+			return new StreamWriter(File.Create(fileName), Encoding.UTF8);
+		}
+		public void InitPostgreSqlDbOptionsCs()
+		{
+			var startupRoot = Path.Combine(_rootPath, "Options");
+			CreateDirectory(startupRoot);
+			var fileName = Path.Combine(startupRoot, $"PostgreSqlDbOptions.cs");
+			using var writer = OpenFile(fileName);
+			//CreeperGenerator.WriteAuthorHeader.Invoke(writer);
+			//writer.Write(_sbNamespace);
+			writer.WriteLine("using System;");
+			writer.WriteLine("using Newtonsoft.Json.Linq;");
+			writer.WriteLine("using Npgsql.TypeMapping;");
+			writer.WriteLine("using Creeper.PostgreSql.Extensions;");
+			writer.WriteLine("using Npgsql;");
+			writer.WriteLine("using Creeper.PostgreSql;");
+			writer.WriteLine("using Creeper.Driver;");
+			writer.WriteLine();
+			writer.WriteLine($"namespace {_projectName}.{CreeperGenerator.DbStandardSuffix}.Options");
+			writer.WriteLine("{");
+			writer.WriteLine("}"); // namespace end
+		}
+		public void InitDbNamesCs()
+		{
+			var startupRoot = Path.Combine(_rootPath, "Options");
+			CreateDirectory(startupRoot);
+			var fileName = Path.Combine(startupRoot, $"PostgreSqlDbNames.cs");
+			using var writer = OpenFile(fileName);
+			writer.WriteLine($"namespace {_projectName}.{CreeperGenerator.DbStandardSuffix}.Options");
+			writer.WriteLine("{");
+			writer.WriteLine("}"); // namespace end
+		}
 		public static void WritePostgreSqlDbOptions()
 		{
 			var startupRoot = Path.Combine(_rootPath, "Options");
@@ -236,8 +282,8 @@ WHERE {GenerateHelper.ExceptConvert("ns.nspname || '.' || a.typname", _postgreSq
 				Directory.CreateDirectory(startupRoot);
 			var fileName = Path.Combine(startupRoot, $"PostgreSqlDbOptions.cs");
 			using StreamWriter writer = new StreamWriter(File.Create(fileName), Encoding.UTF8);
-			CreeperGenerator.WriteAuthorHeader.Invoke(writer);
-			writer.Write(_sbNamespace);
+			//CreeperGenerator.WriteAuthorHeader.Invoke(writer);
+			//writer.Write(_sbNamespace);
 			writer.WriteLine("using System;");
 			writer.WriteLine("using Newtonsoft.Json.Linq;");
 			writer.WriteLine("using Npgsql.TypeMapping;");

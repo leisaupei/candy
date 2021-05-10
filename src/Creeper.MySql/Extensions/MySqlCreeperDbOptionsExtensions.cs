@@ -31,7 +31,7 @@ namespace Microsoft.Extensions.DependencyInjection
 		/// <returns></returns>
 		public static CreeperOptions AddMySqlDbOption(this CreeperOptions options)
 		{
-			options.TryAddDbTypeConvert<MySqlTypeConverter>();
+			options.TryAddDbTypeConverter<MySqlTypeConverter>();
 			options.RegisterExtension(new MySqlCreeperOptionsExtensions());
 			return options;
 		}

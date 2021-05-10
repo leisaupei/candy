@@ -99,7 +99,7 @@ namespace Creeper.PostgreSql.XUnitTest
 					.Where(a => a.Id == default)
 					.FirstOrDefault();
 
-			Assert.Null(info?.Sex);
+			Assert.NotNull(info?.Sex);
 		}
 		[Fact]
 		public void WhereInnerClassPeoperty()
@@ -143,7 +143,7 @@ namespace Creeper.PostgreSql.XUnitTest
 			var info = _dbContext.Select<PeopleModel>()
 				.Where(a => a.Id == Guid.Empty)
 				.FirstOrDefault();
-			info = _dbContext.Select<PeopleModel>()
+			var info1 = _dbContext.Select<PeopleModel>()
 				.Where(a => a.Name == "sss")
 				.FirstOrDefault();
 			Assert.Equal("sss", info.Name);

@@ -323,13 +323,17 @@ namespace Creeper.DbHelper
 
 		private async ValueTask CommitTransactionAsync(bool async, CancellationToken cancellationToken)
 		{
-			using (_trans)
+			if (async)
 			{
-				using var conn = _trans?.Connection;
-				if (async)
-					await _trans.CommitAsync(cancellationToken);
-				else
-					_trans.Commit();
+				await _trans.CommitAsync(cancellationToken);
+				await _trans.Connection.DisposeAsync();
+				await _trans.DisposeAsync();
+			}
+			else
+			{
+				_trans.Commit();
+				_trans.Connection.Dispose();
+				_trans.Dispose();
 			}
 		}
 
@@ -347,13 +351,17 @@ namespace Creeper.DbHelper
 
 		private async ValueTask RollbackTransactionAsync(bool async, CancellationToken cancellationToken)
 		{
-			using (_trans)
+			if (async)
 			{
-				using var conn = _trans?.Connection;
-				if (async)
-					await _trans.RollbackAsync(cancellationToken);
-				else
-					_trans.Rollback();
+				await _trans.RollbackAsync(cancellationToken);
+				await _trans.Connection.DisposeAsync();
+				await _trans.DisposeAsync();
+			}
+			else
+			{
+				_trans.Rollback();
+				_trans.Connection.Dispose();
+				_trans.Dispose();
 			}
 		}
 
@@ -449,16 +457,22 @@ namespace Creeper.DbHelper
 		/// </summary>
 		private void ThrowException(DbCommand cmd, Exception ex)
 		{
-			StringBuilder msg = new StringBuilder();
-			msg.AppendLine($"{ConnectionOptions.DbName}数据库执行出错：===== ");
-			msg.AppendLine("ConnectionString=" + cmd?.Connection?.ConnectionString);
-			msg.AppendLine("CmdText=" + cmd?.CommandText);
-			msg.AppendLine("Parameters:");
-			if (cmd?.Parameters != null)
-				foreach (DbParameter item in cmd?.Parameters)
-					msg.AppendLine(item.ParameterName + "=" + (typeof(IEnumerable).IsAssignableFrom(item.Value.GetType()) ? string.Join(",", item.Value as IEnumerable) : item.Value.ToString()));
+			if (cmd == null)
+				throw new CreeperSqlExecuteException(ex.ToString(), ex);
 
-			throw new CreeperSqlExecuteException(msg.ToString(), ex);
+			var exception = new CreeperSqlExecuteException($"{ConnectionOptions.DbName}数据库执行出错", ex);
+			exception.Data["ConnectionString"] = cmd.Connection?.ConnectionString;
+			exception.Data["CommandText"] = cmd.CommandText;
+
+			var ps = new Hashtable();
+			if (cmd.Parameters != null)
+			{
+				foreach (DbParameter item in cmd.Parameters)
+					ps[item.ParameterName] = item.Value;
+			}
+			exception.Data["Parameters"] = ps;
+
+			throw exception;
 		}
 
 		private async ValueTask CloseConnectionAsync(bool async, DbConnection connection)

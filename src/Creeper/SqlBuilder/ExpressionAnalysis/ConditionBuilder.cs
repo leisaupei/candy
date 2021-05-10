@@ -165,14 +165,7 @@ namespace Creeper.SqlBuilder.ExpressionAnalysis
 			}
 
 			// 返回数据库成员字段
-			if (_converter.QuotationMarks) //是否添加引号
-			{
-				_conditionParts.Push(string.Format("{0}", node.GetOriginExpression().ToDatebaseField()));
-			}
-			else
-			{
-				_conditionParts.Push(string.Format("{0}", node.GetOriginExpression()));
-			}
+			_conditionParts.Push(string.Format("{0}", node.GetOriginExpression().ToDatebaseField(_converter)));
 
 			return node;
 		}

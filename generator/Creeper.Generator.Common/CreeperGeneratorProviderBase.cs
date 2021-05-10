@@ -22,9 +22,9 @@ namespace Creeper.Generator.Common
 
 			CreeperGenerator.RecreateDir(modelPath);
 
-			var execute = new CreeperDbExecute(dbOption);
+			ICreeperDbExecute execute = new CreeperDbExecute(dbOption);
 			Generate(modelPath, option, folder, execute);
 		}
-		public abstract void Generate(string modelPath, CreeperGenerateOption option, bool folder, CreeperDbExecute execute);
+		public abstract void Generate(string modelPath, CreeperGenerateOption option, bool folder, ICreeperDbExecute execute);
 	}
 }

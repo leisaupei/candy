@@ -22,7 +22,7 @@ namespace Creeper.PostgreSql.Generator
 
 		public override DataBaseKind DataBaseKind => DataBaseKind.PostgreSql;
 
-		public override void Generate(string modelPath, CreeperGenerateOption option, bool folder, CreeperDbExecute execute)
+		public override void Generate(string modelPath, CreeperGenerateOption option, bool folder, ICreeperDbExecute execute)
 		{
 			var schemaList = GetSchemas(execute);
 			foreach (var schemaName in schemaList)
@@ -30,7 +30,7 @@ namespace Creeper.PostgreSql.Generator
 				List<TableViewModel> tableList = GetTables(execute, schemaName);
 				foreach (var item in tableList)
 				{
-					PostgreSqlGenerator td = new PostgreSqlGenerator(execute, folder, _postgreSqlRules.FieldIgnore);
+					PostgreSqlTableGenerator td = new PostgreSqlTableGenerator(execute, folder, _postgreSqlRules.FieldIgnore);
 					td.Generate(option.ProjectName, modelPath, schemaName, item, execute.ConnectionOptions.DbName);
 				}
 			}
@@ -57,7 +57,7 @@ namespace Creeper.PostgreSql.Generator
 					case "user": connectionString += $"username={right};"; break;
 					case "pwd": connectionString += $"password={right};"; break;
 					case "db": connectionString += $"database={right};"; break;
-					case "name": dbName = ToUpperPascal(string.IsNullOrEmpty(right) ? CreeperGenerateOption.MASTER_DATABASE_TYPE_NAME : right); break;
+					case "name": dbName = string.IsNullOrEmpty(right) ? CreeperGenerateOption.MASTER_DATABASE_TYPE_NAME : GenerateHelper.ToUpperPascal(right); break;
 				}
 			}
 			connectionString += $"maximum pool size=32;pooling=true;CommandTimeout=300";
@@ -65,8 +65,6 @@ namespace Creeper.PostgreSql.Generator
 			ICreeperDbConnectionOption connections = new PostgreSqlConnectionOption(connectionString, dbName, null);
 			return connections;
 		}
-
-		private static string ToUpperPascal(string s) => string.IsNullOrEmpty(s) ? s : $"{s[0..1].ToUpper()}{s[1..]}";
 
 		/// <summary>
 		/// 获取模式名称

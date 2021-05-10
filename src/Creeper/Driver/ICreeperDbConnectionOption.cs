@@ -8,7 +8,7 @@ namespace Creeper.Driver
 	public interface ICreeperDbConnectionOption
 	{
 		/// <summary>
-		/// 数据库名称
+		/// 指定的数据库唯一标识
 		/// </summary>
 		string DbName { get; }
 

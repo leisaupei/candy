@@ -10,7 +10,7 @@ namespace Creeper.PostgreSql.Generator
 	/// <summary>
 	/// 
 	/// </summary>
-	public class PostgreSqlGenerator
+	public class PostgreSqlTableGenerator
 	{
 		/// <summary>
 		/// 项目名称
@@ -87,7 +87,7 @@ namespace Creeper.PostgreSql.Generator
 		/// <param name="schemaName"></param>
 		/// <param name="table"></param>
 		/// <param name="type"></param>
-		public PostgreSqlGenerator(ICreeperDbExecute dbExecute, bool folder, FieldIgnore fieldIgnore)
+		public PostgreSqlTableGenerator(ICreeperDbExecute dbExecute, bool folder, FieldIgnore fieldIgnore)
 		{
 			_dbExecute = dbExecute;
 			_folder = folder;

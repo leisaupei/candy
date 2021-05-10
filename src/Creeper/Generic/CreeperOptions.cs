@@ -44,12 +44,12 @@ namespace Creeper.Generic
 		/// <summary>
 		/// 添加db类型转换器
 		/// </summary>
-		/// <typeparam name="TDbTypeConvert"></typeparam>
-		public void TryAddDbTypeConvert<TDbTypeConvert>() where TDbTypeConvert : ICreeperDbTypeConverter, new()
+		/// <typeparam name="TDbTypeConverter"></typeparam>
+		public void TryAddDbTypeConverter<TDbTypeConverter>() where TDbTypeConverter : ICreeperDbTypeConverter, new()
 		{
-			var convert = Activator.CreateInstance<TDbTypeConvert>();
-			if (!TypeHelper.DbTypeConverts.ContainsKey(convert.DataBaseKind))
-				TypeHelper.DbTypeConverts[convert.DataBaseKind] = convert;
+			var convert = Activator.CreateInstance<TDbTypeConverter>();
+			if (!TypeHelper.DbTypeConverters.ContainsKey(convert.DataBaseKind))
+				TypeHelper.DbTypeConverters[convert.DataBaseKind] = convert;
 		}
 
 		/// <summary>

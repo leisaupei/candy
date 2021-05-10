@@ -15,8 +15,9 @@ namespace Creeper.Extensions
 		/// <returns></returns>
 		public static string WithQuotationMarks(this ICreeperDbTypeConverter converter, string value)
 		{
-			var mark = converter.QuotationMarks ? '"' : '\0';
-			return string.Concat(mark, value, mark);
+			if (string.IsNullOrWhiteSpace(converter.DbFieldMark)) return value;
+
+			return string.Concat(converter.DbFieldMark, value, converter.DbFieldMark);
 		}
 	}
 }
