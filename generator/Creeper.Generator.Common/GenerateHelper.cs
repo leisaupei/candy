@@ -37,11 +37,5 @@ namespace Creeper.Generator.Common
 				return " 1=1 ";
 		}
 
-		/// <summary>
-		/// 首字母大写
-		/// </summary>
-		/// <param name="s"></param>
-		/// <returns></returns>
-		public static string ToUpperPascal(string s) => string.IsNullOrEmpty(s) ? s : $"{s[0..1].ToUpper()}{s[1..]}";
 	}
 }

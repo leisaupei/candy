@@ -16,15 +16,18 @@ namespace Creeper.Generator.Common
 
 		public abstract Action GetFinallyGen();
 
-		public virtual void ModelGenerator(string modelPath, CreeperGenerateOption option, ICreeperDbConnectionOption dbOption, bool folder = false)
+		public virtual void ModelGenerator(GeneratorGlobalOptions options, ICreeperDbConnectionOption dbOption, bool folder = false)
 		{
-			if (folder) modelPath = Path.Combine(modelPath, dbOption.DbName);
-
-			CreeperGenerator.RecreateDir(modelPath);
+			var modelPath = options.ModelPath;
+			if (folder)
+			{
+				modelPath = Path.Combine(options.ModelPath, dbOption.DbName);
+			}
+			GeneratorGlobalOptions.RecreateDir(modelPath);
 
 			ICreeperDbExecute execute = new CreeperDbExecute(dbOption);
-			Generate(modelPath, option, folder, execute);
+			Generate(options, folder, execute);
 		}
-		public abstract void Generate(string modelPath, CreeperGenerateOption option, bool folder, ICreeperDbExecute execute);
+		public abstract void Generate(GeneratorGlobalOptions options, bool folder, ICreeperDbExecute execute);
 	}
 }

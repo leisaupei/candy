@@ -16,6 +16,9 @@ using Creeper.PostgreSql.XUnitTest.Entity.Options;
 
 namespace Creeper.PostgreSql.XUnitTest.Entity.Model
 {
+	/// <summary>
+	/// 测试注释
+	/// </summary>
 
 	[CreeperDbTable(@"""public"".""people""", typeof(DbMain), DataBaseKind.PostgreSql)]
 	public partial class PeopleModel : ICreeperDbModel

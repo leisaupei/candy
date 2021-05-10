@@ -12,16 +12,7 @@ namespace Creeper.PostgreSql.Generator
 	/// </summary>
 	public class PostgreSqlTableGenerator
 	{
-		/// <summary>
-		/// 项目名称
-		/// </summary>
-		private string _projectName;
-
-		/// <summary>
-		/// 模型路径
-		/// </summary>
-		private string _modelPath;
-
+		private readonly GeneratorGlobalOptions _options;
 		/// <summary>
 		/// schema 名称
 		/// </summary>
@@ -69,7 +60,7 @@ namespace Creeper.PostgreSql.Generator
 		/// <summary>
 		/// Model名称
 		/// </summary>
-		private string ModelClassName => DalClassName + CreeperGenerator.ModelSuffix;
+		private string ModelClassName => DalClassName + _options.ModelSuffix;
 
 		/// <summary>
 		/// DAL名称
@@ -87,18 +78,17 @@ namespace Creeper.PostgreSql.Generator
 		/// <param name="schemaName"></param>
 		/// <param name="table"></param>
 		/// <param name="type"></param>
-		public PostgreSqlTableGenerator(ICreeperDbExecute dbExecute, bool folder, FieldIgnore fieldIgnore)
+		public PostgreSqlTableGenerator(ICreeperDbExecute dbExecute, bool folder, FieldIgnore fieldIgnore, GeneratorGlobalOptions options)
 		{
 			_dbExecute = dbExecute;
 			_folder = folder;
 			_fieldIgnore = fieldIgnore;
+			_options = options;
 		}
 
-		public void Generate(string projectName, string modelPath, string schemaName, TableViewModel table, string type)
+		public void Generate(string schemaName, TableViewModel table, string type)
 		{
 			_dataBaseTypeName = type.ToUpperPascal();
-			_projectName = projectName;
-			_modelPath = modelPath;
 			_schemaName = schemaName;
 			_table = table;
 			Console.WriteLine($"Generating {_schemaName}.{_table.Name}...");
@@ -148,9 +138,8 @@ WHERE (b.nspname='{_schemaName}' and a.relname='{_table.Name}')
 			foreach (var f in _fieldList)
 			{
 				f.IsArray = f.Dimensions > 0;
-				f.DbType = f.DbType.StartsWith("_", StringComparison.Ordinal) ? f.DbType.Remove(0, 1) : f.DbType;
+				f.DbType = f.DbType.StartsWith("_", StringComparison.Ordinal) ? f.DbType[1..] : f.DbType;
 				f.PgDbType = Types.ConvertDbTypeToNpgsqlDbType(f.DataType, f.DbType, f.IsArray);
-				f.PgDbTypeString = Types.ConvertDbTypeToNpgsqlDbTypeString(f.DbType, f.IsArray);
 				f.IsEnum = f.DataType == "e";
 				string _type = Types.ConvertPgDbTypeToCSharpType(f.DataType, f.DbType);
 				if (f.DbType == "xml")
@@ -178,7 +167,7 @@ WHERE (b.nspname='{_schemaName}' and a.relname='{_table.Name}')
 					f.RelType = $"{_type}{_notnull}{_array}";
 				}
 
-				if (f.Column_default?.StartsWith("nextval(") == true)
+				if (f.Column_default?.StartsWith("nextval(") ?? false)
 					f.IsIdentity = true;
 			}
 		}
@@ -201,7 +190,7 @@ WHERE a.indrelid = '{_schemaName}.{_table.Name}'::regclass AND a.indisprimary
 			{
 				TableFieldModel fs = _fieldList.FirstOrDefault(f => f.Field == _pkList[i].Field);
 				d_key.Add(fs.RelType + " " + fs.Field);
-				if (fs.Column_default?.StartsWith("nextval(") == true)
+				if (fs.Column_default?.StartsWith("nextval(") ?? false)
 					fs.IsIdentity = true;
 
 			}
@@ -212,7 +201,7 @@ WHERE a.indrelid = '{_schemaName}.{_table.Name}'::regclass AND a.indisprimary
 		/// </summary>
 		private void ModelGenerator()
 		{
-			string _filename = Path.Combine(_modelPath, ModelClassName + ".cs");
+			string _filename = Path.Combine(_options.ModelPath, ModelClassName + ".cs");
 
 			using StreamWriter writer = new StreamWriter(File.Create(_filename), Encoding.UTF8);
 			CreeperGenerator.WriteAuthorHeader.Invoke(writer);
@@ -239,10 +228,10 @@ namespace {3}.{0}.{1}{2}
 	public partial class {7} : ICreeperDbModel
 	{{
 		#region Properties",
-CreeperGenerator.DbStandardSuffix,
-CreeperGenerator.Namespace,
+_options.DbStandardSuffix,
+_options.ModelNamespace,
 NamespaceSuffix,
-_projectName,
+_options.BaseOptions.ProjectName,
 WriteComment(_table.Description, 1),
 _isGeometryTable ? "using Npgsql.LegacyPostgis;" + Environment.NewLine : "",
 _schemaName,
@@ -296,7 +285,7 @@ _dbExecute.ConnectionOptions.DataBaseKind.ToString());
 		/// </summary>
 		/// <param name="writer"></param>
 		/// <param name="comment"></param>
-		private static StringBuilder WriteComment(string comment, int tab)
+		public static StringBuilder WriteComment(string comment, int tab)
 		{
 			var sb = new StringBuilder();
 			if (string.IsNullOrWhiteSpace(comment)) return sb;
@@ -306,7 +295,7 @@ _dbExecute.ConnectionOptions.DataBaseKind.ToString());
 
 			if (comment.Contains("\n"))
 			{
-				comment = comment.Replace("\r\n", string.Concat("\n", tabStr, "/// "));
+				comment = comment.Replace("\r\n", string.Concat(Environment.NewLine, tabStr, "/// "));
 			}
 			sb.AppendLine(tabStr + "/// <summary>");
 			sb.AppendLine(tabStr + $"/// {comment}");

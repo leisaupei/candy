@@ -11,14 +11,14 @@ namespace Creeper.Generator.Common
 		/// <summary>
 		///  将首字母转大写
 		/// </summary>
-		public static string ToUpperPascal(this string s) => string.IsNullOrEmpty(s) ? s : $"{ s.Substring(0, 1).ToUpper()}{s.Substring(1)}";
+		public static string ToUpperPascal(this string s) => string.IsNullOrEmpty(s) ? s : $"{s[0..1].ToUpper()}{s[1..]}";
 
 		/// <summary>
 		///  将首字母转小写
 		/// </summary>
 		/// <param name="s"></param>
 		/// <returns></returns>
-		public static string ToLowerPascal(this string s) => string.IsNullOrEmpty(s) ? s : $"{ s.Substring(0, 1).ToLower()}{s.Substring(1)}";
+		public static string ToLowerPascal(this string s) => string.IsNullOrEmpty(s) ? s : $"{s[0..1].ToLower()}{s[1..]}";
 
 		/// <summary>
 		/// 在数组中插入分隔符

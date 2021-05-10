@@ -10,6 +10,6 @@ namespace Creeper.Generator.Common
 		/// 运行数据库生成逻辑
 		/// </summary>
 		/// <param name="option"></param>
-		void Gen(CreeperGenerateBuilder option);
+		void Gen(CreeperGeneratorBuilder option);
 	}
 }

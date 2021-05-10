@@ -22,7 +22,7 @@ namespace Creeper.PostgreSql.Generator
 
 		public override DataBaseKind DataBaseKind => DataBaseKind.PostgreSql;
 
-		public override void Generate(string modelPath, CreeperGenerateOption option, bool folder, ICreeperDbExecute execute)
+		public override void Generate(GeneratorGlobalOptions options, bool folder, ICreeperDbExecute execute)
 		{
 			var schemaList = GetSchemas(execute);
 			foreach (var schemaName in schemaList)
@@ -30,8 +30,8 @@ namespace Creeper.PostgreSql.Generator
 				List<TableViewModel> tableList = GetTables(execute, schemaName);
 				foreach (var item in tableList)
 				{
-					PostgreSqlTableGenerator td = new PostgreSqlTableGenerator(execute, folder, _postgreSqlRules.FieldIgnore);
-					td.Generate(option.ProjectName, modelPath, schemaName, item, execute.ConnectionOptions.DbName);
+					PostgreSqlTableGenerator td = new PostgreSqlTableGenerator(execute, folder, _postgreSqlRules.FieldIgnore, options);
+					td.Generate(schemaName, item, execute.ConnectionOptions.DbName);
 				}
 			}
 			var enumsDal = new PostgreSqlDbOptionsGenerator(execute, _postgreSqlRules, folder);
@@ -57,11 +57,11 @@ namespace Creeper.PostgreSql.Generator
 					case "user": connectionString += $"username={right};"; break;
 					case "pwd": connectionString += $"password={right};"; break;
 					case "db": connectionString += $"database={right};"; break;
-					case "name": dbName = string.IsNullOrEmpty(right) ? CreeperGenerateOption.MASTER_DATABASE_TYPE_NAME : GenerateHelper.ToUpperPascal(right); break;
+					case "name": dbName = string.IsNullOrEmpty(right) ? CreeperGeneratorBaseOptions.MASTER_DATABASE_TYPE_NAME : right.ToUpperPascal(); break;
 				}
 			}
 			connectionString += $"maximum pool size=32;pooling=true;CommandTimeout=300";
-			dbName = string.IsNullOrEmpty(dbName) ? CreeperGenerateOption.MASTER_DATABASE_TYPE_NAME : dbName;
+			dbName = string.IsNullOrEmpty(dbName) ? CreeperGeneratorBaseOptions.MASTER_DATABASE_TYPE_NAME : dbName;
 			ICreeperDbConnectionOption connections = new PostgreSqlConnectionOption(connectionString, dbName, null);
 			return connections;
 		}
@@ -109,7 +109,7 @@ namespace Creeper.PostgreSql.Generator
 
 		public override Action GetFinallyGen()
 		{
-			return PostgreSqlDbOptionsGenerator.WritePostgreSqlDbOptions;
+			return () => { };
 		}
 	}
 }

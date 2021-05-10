@@ -55,7 +55,7 @@ namespace Creeper.Generator
 			var creeperDbContext = serviceProvider.GetService<ICreeperDbContext>();
 			if (args?.Length > 0)
 			{
-				CreeperGenerateBuilder model = new CreeperGenerateBuilder();
+				CreeperGeneratorBuilder model = new CreeperGeneratorBuilder();
 				for (int i = 0; i < args.Length; i += 2)
 				{
 					//host=localhost;port=5432;user=postgres;pwd=123456;db=postgres;type=name;type=postgresql

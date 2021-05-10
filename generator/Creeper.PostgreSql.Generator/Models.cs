@@ -19,7 +19,7 @@ namespace Creeper.PostgreSql.Generator
 		/// </summary>
 		public static List<string> GeometryTableTypeName { get; } = new List<string>();
 	}
-	
+
 	/// <summary>
 	/// 
 	/// </summary>
@@ -91,10 +91,6 @@ namespace Creeper.PostgreSql.Generator
 		/// </summary>
 		public bool IsUnique { get; set; }
 		/// <summary>
-		/// 
-		/// </summary>
-		public string PgDbTypeString { get; set; }
-		/// <summary>
 		/// C#类型
 		/// </summary>
 		public string CSharpType { get; set; }
@@ -139,18 +135,44 @@ namespace Creeper.PostgreSql.Generator
 		/// 
 		/// </summary>
 		public string Nspname { get; set; }
+		/// <summary>
+		/// 注释
+		/// </summary>
+		public string Description { get; set; }
 	}
 	/// <summary>
 	/// 
 	/// </summary>
 	public class CompositeTypeInfo
-	{/// <summary>
-	 /// 
-	 /// </summary>
-		public string Typname { get; set; }
+	{
 		/// <summary>
-		/// 
+		/// 数据库复合类型名称
+		/// </summary>
+		public string Typename { get; set; }
+		/// <summary>
+		/// 命名空间
 		/// </summary>
 		public string Nspname { get; set; }
+		/// <summary>
+		/// 字段名称
+		/// </summary>
+		public string Attname { get; set; }
+		/// <summary>
+		/// 数据库类型名称 如:varchar
+		/// </summary>
+		public string Typname { get; set; }
+		/// <summary>
+		/// 维度
+		/// </summary>
+		public short Attndims { get; set; }
+		/// <summary>
+		/// 数据库分类类型
+		/// </summary>
+		public string Typtype { get; set; }
+		/// <summary>
+		/// 类型描述
+		/// </summary>
+		public string Description { get; set; }
+
 	}
 }

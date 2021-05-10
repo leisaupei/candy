@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Creeper.Generator.Common;
+using MySql.Data.MySqlClient;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -61,7 +63,7 @@ namespace Creeper.MySql.Generator
 		/// <summary>
 		/// npgsql 数据库类型
 		/// </summary>
-		public NpgsqlDbType PgDbType { get; set; }
+		public MySqlDbType MySqlDbType { get; set; }
 		/// <summary>
 		/// 类型分类
 		/// </summary>

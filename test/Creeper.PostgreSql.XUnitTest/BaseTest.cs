@@ -38,7 +38,7 @@ namespace Creeper.PostgreSql.XUnitTest
 					options.DefaultDbOptionName = typeof(DbMain);
 					options.DbTypeStrategy = DataBaseTypeStrategy.SecondaryFirstOfMainIfEmpty;
 					options.UseCache<CopyCustomDbCache>();
-					options.AddPostgreSql(new PostgreSqlDbOptions.MainPostgreSqlDbOption(TestMainConnectionString, new[] { TestSecondaryConnectionString }));
+					options.AddPostgreSql(new MainPostgreSqlDbOption(TestMainConnectionString, new[] { TestSecondaryConnectionString }));
 				});
 				var serviceProvider = services.BuildServiceProvider();
 				_dbContext = serviceProvider.GetService<ICreeperDbContext>();

@@ -3,10 +3,13 @@ using Newtonsoft.Json;
 
 namespace Creeper.PostgreSql.XUnitTest.Entity.Model
 {
-	[JsonObject(MemberSerialization.OptIn)]
+	/// <summary>
+	/// afasfasfs
+	/// </summary>
 	public partial struct Info
 	{
-		[JsonProperty] public Guid? Id { get; set; }
-		[JsonProperty] public string Name { get; set; }
+		public Guid? Id { get; set; }
+		public string Name { get; set; }
 	}
+
 }
