@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Creeper.Generator.Common
+namespace Creeper.Generator.Common.Extensions
 {
 	public static class Extensions
 	{

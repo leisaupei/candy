@@ -1,6 +1,10 @@
 ﻿using Creeper.DbHelper;
 using Creeper.Driver;
 using Creeper.Generator.Common;
+using Creeper.Generator.Common.Contracts;
+using Creeper.Generator.Common.Extensions;
+using Creeper.Generator.Common.Models;
+using Creeper.Generator.Common.Options;
 using Creeper.Generic;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
@@ -22,7 +26,7 @@ namespace Creeper.PostgreSql.Generator
 
 		public override DataBaseKind DataBaseKind => DataBaseKind.PostgreSql;
 
-		public override void Generate(GeneratorGlobalOptions options, ICreeperDbExecute execute)
+		public override void Generate(CreeperGeneratorGlobalOptions options, ICreeperDbExecute execute)
 		{
 			var schemaList = GetSchemas(execute);
 			foreach (var schemaName in schemaList)
@@ -57,17 +61,17 @@ namespace Creeper.PostgreSql.Generator
 					case "pwd": connectionString += $"password={right};"; break;
 					case "db": connectionString += $"database={right};"; break;
 					case "name":
-						if (string.IsNullOrEmpty(right) || right.ToLower() == CreeperGeneratorBaseOptions.MASTER_DATABASE_TYPE_NAME.ToLower())
-							dbName = CreeperGeneratorBaseOptions.MASTER_DATABASE_TYPE_NAME;
+						if (string.IsNullOrEmpty(right) || right.ToLower() == CreeperGenerateOption.MASTER_DATABASE_TYPE_NAME.ToLower())
+							dbName = CreeperGenerateOption.MASTER_DATABASE_TYPE_NAME;
 						else
 							dbName = right.ToUpperPascal();
 						break;
 				}
 			}
 			connectionString += $"maximum pool size=32;pooling=true;CommandTimeout=300";
-			dbName = string.IsNullOrEmpty(dbName) ? CreeperGeneratorBaseOptions.MASTER_DATABASE_TYPE_NAME : dbName;
-			ICreeperDbConnectionOption connections = new PostgreSqlConnectionOption(connectionString, dbName, null);
-			return connections;
+			dbName = string.IsNullOrEmpty(dbName) ? CreeperGenerateOption.MASTER_DATABASE_TYPE_NAME : dbName;
+			ICreeperDbConnectionOption connection = new PostgreSqlConnectionOption(connectionString, dbName, null);
+			return connection;
 		}
 
 		/// <summary>

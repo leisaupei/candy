@@ -1,5 +1,5 @@
 ﻿using Creeper.Driver;
-using Creeper.Generator.Common;
+using Creeper.Generator.Common.Extensions;
 using Creeper.Generic;
 using NpgsqlTypes;
 using System.Collections.Generic;

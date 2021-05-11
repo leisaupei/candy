@@ -1,43 +1,13 @@
-﻿using Creeper.Driver;
+﻿using Creeper.Generator.Common.Extensions;
 using Creeper.Generic;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
-namespace Creeper.Generator.Common
+namespace Creeper.Generator.Common.Options
 {
-	public class CreeperGeneratorBuilder : CreeperGeneratorBaseOptions
-	{
-		public List<ICreeperDbConnectionOption> Connections { get; set; } = new List<ICreeperDbConnectionOption>();
-	}
-	/// <summary>
-	/// 传入生成配置
-	/// </summary>
-	public class CreeperGeneratorBaseOptions
-	{
-		/// <summary>
-		/// 默认主库名称
-		/// </summary>
-		public const string MASTER_DATABASE_TYPE_NAME = "Main";
-		/// <summary>
-		/// 项目名称
-		/// </summary>
-		public string ProjectName { get; set; }
-		/// <summary>
-		/// 输出路径
-		/// </summary>
-		public string OutputPath { get; set; }
-		/// <summary>
-		/// 数据库(多库字段)
-		/// </summary>
-		public bool Sln { get; set; } = true;
-	}
-
 	/// <summary>
 	/// 项目构建路径配置参数
 	/// </summary>
-	public class GeneratorGlobalOptions
+	public class CreeperGeneratorGlobalOptions
 	{
 		/// <summary>
 		/// model(build)文件目录
@@ -54,7 +24,7 @@ namespace Creeper.Generator.Common
 		/// <summary>
 		/// 基础配置
 		/// </summary>
-		public CreeperGeneratorBaseOptions BaseOptions { get; }
+		public CreeperGenerateOption BaseOptions { get; }
 		/// <summary>
 		/// 项目命名空间
 		/// </summary>
@@ -98,7 +68,7 @@ namespace Creeper.Generator.Common
 		private const string DbOptionsFolderName = "Options";
 		private const string DbNamePrefix = "Db";
 
-		public GeneratorGlobalOptions(CreeperGeneratorBaseOptions baseOptions, string modelNamespace, string dbStandardSuffix, string modelSuffix)
+		public CreeperGeneratorGlobalOptions(CreeperGenerateOption baseOptions, string modelNamespace, string dbStandardSuffix, string modelSuffix)
 		{
 			BaseOptions = baseOptions;
 			ModelNamespace = modelNamespace;
@@ -118,54 +88,106 @@ namespace Creeper.Generator.Common
 			RecreateDir(DbOptionsPath);
 			RecreateDir(ModelPath);
 		}
+
+		/// <summary>
+		/// 获取数据库名称主库别称
+		/// </summary>
+		/// <param name="typeName"></param>
+		/// <returns></returns>
 		public static string GetDbNameNameMain(string typeName = null)
 		{
-			if (string.IsNullOrEmpty(typeName) || typeName.ToLower() == CreeperGeneratorBaseOptions.MASTER_DATABASE_TYPE_NAME.ToLower())
-				return DbNamePrefix + CreeperGeneratorBaseOptions.MASTER_DATABASE_TYPE_NAME;
+			if (string.IsNullOrEmpty(typeName) || typeName.ToLower() == CreeperGenerateOption.MASTER_DATABASE_TYPE_NAME.ToLower())
+				return DbNamePrefix + CreeperGenerateOption.MASTER_DATABASE_TYPE_NAME;
 			return DbNamePrefix + typeName.ToUpperPascal();
 		}
+
+		/// <summary>
+		/// 获取数据库名称从库别称
+		/// </summary>
+		/// <param name="typeName"></param>
+		/// <returns></returns>
 		public static string GetDbNameNameSecondary(string typeName = null)
 		{
-			if (string.IsNullOrEmpty(typeName) || typeName.ToLower() == CreeperGeneratorBaseOptions.MASTER_DATABASE_TYPE_NAME.ToLower())
+			if (string.IsNullOrEmpty(typeName) || typeName.ToLower() == CreeperGenerateOption.MASTER_DATABASE_TYPE_NAME.ToLower())
 				return DbNamePrefix + DataBaseType.Secondary.ToString();
 			return DbNamePrefix + typeName.ToUpperPascal() + DataBaseType.Secondary.ToString(); ;
 		}
+
+		/// <summary>
+		/// 获取放在dboptions的枚举/符合类型命名空间前缀
+		/// </summary>
+		/// <param name="typeName"></param>
+		/// <returns></returns>
 		public string GetMappingNamespaceName(string typeName = null)
 		{
 			var namespaceName = ModelNamespace;
-			if (!string.IsNullOrEmpty(typeName) && typeName.ToLower() != CreeperGeneratorBaseOptions.MASTER_DATABASE_TYPE_NAME.ToLower())
+			if (!string.IsNullOrEmpty(typeName) && typeName.ToLower() != CreeperGenerateOption.MASTER_DATABASE_TYPE_NAME.ToLower())
 				namespaceName += "." + typeName;
 			return namespaceName;
 		}
+
+		/// <summary>
+		/// 获取model的命名空间全程
+		/// </summary>
+		/// <param name="typeName"></param>
+		/// <returns></returns>
 		public string GetModelNamespaceFullName(string typeName = null)
 		{
 			var namespaceName = string.Format("{0}.{1}.{2}", BaseOptions.ProjectName, DbStandardSuffix, ModelNamespace);
-			if (!string.IsNullOrEmpty(typeName) && typeName.ToLower() != CreeperGeneratorBaseOptions.MASTER_DATABASE_TYPE_NAME.ToLower())
+			if (!string.IsNullOrEmpty(typeName) && typeName.ToLower() != CreeperGenerateOption.MASTER_DATABASE_TYPE_NAME.ToLower())
 				namespaceName += "." + typeName;
 			return namespaceName;
 		}
+
+		/// <summary>
+		/// 获取model存放目录
+		/// </summary>
+		/// <param name="typeName"></param>
+		/// <returns></returns>
 		public string GetModelPath(string typeName = null)
 		{
 			var namespaceName = string.Format("{0}.{1}.{2}", BaseOptions.ProjectName, DbStandardSuffix, ModelNamespace);
-			if (!string.IsNullOrEmpty(typeName) && typeName.ToLower() != CreeperGeneratorBaseOptions.MASTER_DATABASE_TYPE_NAME.ToLower())
+			if (!string.IsNullOrEmpty(typeName) && typeName.ToLower() != CreeperGenerateOption.MASTER_DATABASE_TYPE_NAME.ToLower())
 				namespaceName += "." + typeName;
 			return namespaceName;
 		}
+
+		/// <summary>
+		/// 删除目录重新创建
+		/// </summary>
+		/// <param name="path"></param>
 		public static void RecreateDir(string path)
 		{
 			if (Directory.Exists(path))
 				Directory.Delete(path, true);
 			Directory.CreateDirectory(path);
 		}
+
+		/// <summary>
+		/// 创建目录
+		/// </summary>
+		/// <param name="path"></param>
 		public static void CreateDir(string path)
 		{
 			if (!Directory.Exists(path))
 				Directory.CreateDirectory(path);
 		}
+
+		/// <summary>
+		/// 获取dbname文件名称
+		/// </summary>
+		/// <param name="dataBaseKind"></param>
+		/// <returns></returns>
 		public string GetDbNamesFileFullName(DataBaseKind dataBaseKind)
 		{
 			return Path.Combine(DbOptionsPath, dataBaseKind.ToString() + DbNameFileName);
 		}
+
+		/// <summary>
+		/// 获取dboptions文件名称
+		/// </summary>
+		/// <param name="dataBaseKind"></param>
+		/// <returns></returns>
 		public string GetDbOptionsFileFullName(DataBaseKind dataBaseKind)
 		{
 			return Path.Combine(DbOptionsPath, dataBaseKind.ToString() + DbOptionsFileName);

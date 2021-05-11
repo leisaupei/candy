@@ -1,4 +1,4 @@
-﻿namespace Creeper.Generator.Common
+﻿namespace Creeper.Generator.Common.Models
 {
 	/// <summary>
 	/// 

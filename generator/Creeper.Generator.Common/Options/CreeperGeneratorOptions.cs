@@ -1,11 +1,11 @@
 ﻿using Creeper.Driver;
+using Creeper.Generator.Common.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Creeper.Generator.Common
+namespace Creeper.Generator.Common.Options
 {
-
 	public class CreeperGeneratorOptions
 	{
 		internal IList<ICreeperGeneratorExtension> Extensions { get; }

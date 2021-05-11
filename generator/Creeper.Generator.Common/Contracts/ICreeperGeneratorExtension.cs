@@ -1,10 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace Creeper.Generator.Common
+namespace Creeper.Generator.Common.Contracts
 {
 	public interface ICreeperGeneratorExtension
 	{

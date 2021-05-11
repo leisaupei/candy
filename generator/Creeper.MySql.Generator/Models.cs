@@ -1,4 +1,4 @@
-﻿using Creeper.Generator.Common;
+﻿using Creeper.Generator.Common.Extensions;
 using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;

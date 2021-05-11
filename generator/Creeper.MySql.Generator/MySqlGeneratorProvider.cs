@@ -1,6 +1,9 @@
 ﻿using Creeper.DbHelper;
 using Creeper.Driver;
-using Creeper.Generator.Common;
+using Creeper.Generator.Common.Contracts;
+using Creeper.Generator.Common.Extensions;
+using Creeper.Generator.Common.Models;
+using Creeper.Generator.Common.Options;
 using Creeper.Generic;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
@@ -20,7 +23,7 @@ namespace Creeper.MySql.Generator
 
 		public override DataBaseKind DataBaseKind => DataBaseKind.MySql;
 
-		public override void Generate(GeneratorGlobalOptions options, ICreeperDbExecute execute)
+		public override void Generate(CreeperGeneratorGlobalOptions options, ICreeperDbExecute execute)
 		{
 
 			List<TableViewModel> tableList = GetTables(execute);
@@ -46,20 +49,18 @@ namespace Creeper.MySql.Generator
 					case "pwd": connectionString += $"pwd={right};"; break;
 					case "db": connectionString += $"database={right};"; break;
 					case "name":
-						if (string.IsNullOrEmpty(right) || right.ToLower() == CreeperGeneratorBaseOptions.MASTER_DATABASE_TYPE_NAME.ToLower())
-							dbName = CreeperGeneratorBaseOptions.MASTER_DATABASE_TYPE_NAME;
+						if (string.IsNullOrEmpty(right) || right.ToLower() == CreeperGenerateOption.MASTER_DATABASE_TYPE_NAME.ToLower())
+							dbName = CreeperGenerateOption.MASTER_DATABASE_TYPE_NAME;
 						else
 							dbName = right.ToUpperPascal();
 						break;
 				}
 			}
 			connectionString += $"sslmode=none;";
-			dbName = string.IsNullOrEmpty(dbName) ? CreeperGeneratorBaseOptions.MASTER_DATABASE_TYPE_NAME : dbName;
-			ICreeperDbConnectionOption connections = new MySqlConnectionOption(connectionString, dbName);
-			return connections;
+			dbName = string.IsNullOrEmpty(dbName) ? CreeperGenerateOption.MASTER_DATABASE_TYPE_NAME : dbName;
+			ICreeperDbConnectionOption connection = new MySqlConnectionOption(connectionString, dbName);
+			return connection;
 		}
-
-		private static string ToUpperPascal(string s) => string.IsNullOrEmpty(s) ? s : $"{s[0..1].ToUpper()}{s[1..]}";
 
 		/// <summary>
 		/// 获取所有表

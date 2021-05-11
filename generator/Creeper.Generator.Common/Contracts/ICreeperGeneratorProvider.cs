@@ -1,10 +1,8 @@
 ﻿using Creeper.Driver;
+using Creeper.Generator.Common.Options;
 using Creeper.Generic;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Creeper.Generator.Common
+namespace Creeper.Generator.Common.Contracts
 {
 	public interface ICreeperGeneratorProvider
 	{
@@ -27,7 +25,7 @@ namespace Creeper.Generator.Common
 		/// <param name="options">生成配置</param>
 		/// <param name="dbOption">数据库配置</param>
 		/// <param name="folder">是否使用分类文件夹</param>
-		void ModelGenerator(GeneratorGlobalOptions options, ICreeperDbConnectionOption dbOption, bool folder = false);
+		void ModelGenerator(CreeperGeneratorGlobalOptions options, ICreeperDbConnectionOption dbOption, bool folder = false);
 
 	}
 }

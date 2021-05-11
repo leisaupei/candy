@@ -1,4 +1,4 @@
-﻿using Creeper.Generator.Common;
+﻿using Creeper.Generator.Common.Options;
 using System;
 
 namespace Creeper.PostgreSql.Generator

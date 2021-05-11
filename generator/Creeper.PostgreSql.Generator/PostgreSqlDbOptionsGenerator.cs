@@ -1,6 +1,8 @@
 ﻿using Creeper.DbHelper;
 using Creeper.Driver;
 using Creeper.Generator.Common;
+using Creeper.Generator.Common.Extensions;
+using Creeper.Generator.Common.Options;
 using Npgsql;
 using System;
 using System.Collections.Generic;
@@ -18,14 +20,14 @@ namespace Creeper.PostgreSql.Generator
 
 		private readonly ICreeperDbExecute _dbExecute;
 		private readonly PostgreSqlRules _postgreSqlRules;
-		private readonly GeneratorGlobalOptions _options;
+		private readonly CreeperGeneratorGlobalOptions _options;
 		/// <summary>
 		/// 
 		/// </summary>
 		/// <param name="dbExecute"></param>
 		/// <param name="postgreSqlRules"></param>
 		/// <param name="options"></param>
-		public PostgreSqlDbOptionsGenerator(ICreeperDbExecute dbExecute, PostgreSqlRules postgreSqlRules, GeneratorGlobalOptions options)
+		public PostgreSqlDbOptionsGenerator(ICreeperDbExecute dbExecute, PostgreSqlRules postgreSqlRules, CreeperGeneratorGlobalOptions options)
 		{
 			_dbExecute = dbExecute;
 			_postgreSqlRules = postgreSqlRules;
@@ -149,8 +151,8 @@ WHERE {GenerateHelper.ExceptConvert("ns.nspname || '.' || a.typname", _postgreSq
 		{
 			var fileName = _options.GetDbNamesFileFullName(Generic.DataBaseKind.PostgreSql);
 			var lines = File.ReadAllLines(fileName).ToList();
-			var mainDbName = GeneratorGlobalOptions.GetDbNameNameMain(_dbExecute.ConnectionOptions.DbName);
-			var secondaryDbName = GeneratorGlobalOptions.GetDbNameNameSecondary(_dbExecute.ConnectionOptions.DbName);
+			var mainDbName = CreeperGeneratorGlobalOptions.GetDbNameNameMain(_dbExecute.ConnectionOptions.DbName);
+			var secondaryDbName = CreeperGeneratorGlobalOptions.GetDbNameNameSecondary(_dbExecute.ConnectionOptions.DbName);
 			var writeLines = new List<string>
 			{
 				"\t/// <summary>",
@@ -171,11 +173,11 @@ WHERE {GenerateHelper.ExceptConvert("ns.nspname || '.' || a.typname", _postgreSq
 			var fileName = _options.GetDbOptionsFileFullName(Generic.DataBaseKind.PostgreSql);
 			var lines = File.ReadAllLines(fileName).ToList();
 			var writeLines = new List<string>();
-			var dbMainName = GeneratorGlobalOptions.GetDbNameNameMain(_dbExecute.ConnectionOptions.DbName);
+			var dbMainName = CreeperGeneratorGlobalOptions.GetDbNameNameMain(_dbExecute.ConnectionOptions.DbName);
 			var className = dbMainName.TrimStart('D', 'b');
 
 			writeLines.Add($"\t#region {_dbExecute.ConnectionOptions.DbName}");
-			writeLines.Add(string.Format("\tpublic class {0}PostgreSqlDbOption : BasePostgreSqlDbOption<{1}, {2}>", className, dbMainName, GeneratorGlobalOptions.GetDbNameNameSecondary(_dbExecute.ConnectionOptions.DbName)));
+			writeLines.Add(string.Format("\tpublic class {0}PostgreSqlDbOption : BasePostgreSqlDbOption<{1}, {2}>", className, dbMainName, CreeperGeneratorGlobalOptions.GetDbNameNameSecondary(_dbExecute.ConnectionOptions.DbName)));
 			writeLines.Add("\t{");
 			writeLines.Add(string.Format("\t\tpublic {0}PostgreSqlDbOption(string mainConnectionString, string[] secondaryConnectionStrings) : base(mainConnectionString, secondaryConnectionStrings) {{ }}", className));
 			writeLines.Add("\t\tpublic override DbConnectionOptions Options => new DbConnectionOptions()");

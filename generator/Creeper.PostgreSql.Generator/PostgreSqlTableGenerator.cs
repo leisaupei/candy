@@ -1,5 +1,7 @@
 ﻿using Creeper.Driver;
 using Creeper.Generator.Common;
+using Creeper.Generator.Common.Models;
+using Creeper.Generator.Common.Options;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,7 +14,7 @@ namespace Creeper.PostgreSql.Generator
 	/// </summary>
 	public class PostgreSqlTableGenerator
 	{
-		private readonly GeneratorGlobalOptions _options;
+		private readonly CreeperGeneratorGlobalOptions _options;
 		/// <summary>
 		/// schema 名称
 		/// </summary>
@@ -77,7 +79,7 @@ namespace Creeper.PostgreSql.Generator
 		/// <param name="schemaName"></param>
 		/// <param name="table"></param>
 		/// <param name="type"></param>
-		public PostgreSqlTableGenerator(ICreeperDbExecute dbExecute, FieldIgnore fieldIgnore, GeneratorGlobalOptions options)
+		public PostgreSqlTableGenerator(ICreeperDbExecute dbExecute, FieldIgnore fieldIgnore, CreeperGeneratorGlobalOptions options)
 		{
 			_dbExecute = dbExecute;
 			_fieldIgnore = fieldIgnore;
@@ -230,7 +232,7 @@ _options.OptionsNamespace,
 _isGeometryTable ? "using Npgsql.LegacyPostgis;" + Environment.NewLine : "",
 _schemaName,
 ModelClassName,
-GeneratorGlobalOptions.GetDbNameNameMain(_dbExecute.ConnectionOptions.DbName),
+CreeperGeneratorGlobalOptions.GetDbNameNameMain(_dbExecute.ConnectionOptions.DbName),
 _table.Name,
 _dbExecute.ConnectionOptions.DataBaseKind.ToString());
 

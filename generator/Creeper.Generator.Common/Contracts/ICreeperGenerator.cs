@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Creeper.Generator.Common.Options;
 
-namespace Creeper.Generator.Common
+namespace Creeper.Generator.Common.Contracts
 {
 	public interface ICreeperGenerator
 	{
@@ -10,6 +8,6 @@ namespace Creeper.Generator.Common
 		/// 运行数据库生成逻辑
 		/// </summary>
 		/// <param name="option"></param>
-		void Gen(CreeperGeneratorBuilder option);
+		void Gen(CreeperGenerateOption option);
 	}
 }

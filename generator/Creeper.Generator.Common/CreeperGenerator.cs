@@ -1,4 +1,6 @@
 ﻿using Creeper.Driver;
+using Creeper.Generator.Common.Contracts;
+using Creeper.Generator.Common.Options;
 using Creeper.Generic;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -36,7 +38,7 @@ namespace Creeper.Generator.Common
 			writer.WriteLine(" * ################################################################################");
 			writer.WriteLine(" */");
 		}
-		public void Gen(CreeperGeneratorBuilder option)
+		public void Gen(CreeperGenerateOption option)
 		{
 			if (!Directory.Exists(option.OutputPath))
 				Directory.CreateDirectory(option.OutputPath);
@@ -44,7 +46,7 @@ namespace Creeper.Generator.Common
 			var packageReference = option.Connections.GroupBy(a => a.DataBaseKind.ToString()).Select(a => a.Key)
 				.Select(a => string.Format("\t\t<PackageReference Include=\"Creeper.{2}\" Version=\"{0}\" />{1}", _cfg["CreeperNugetVersion"], Environment.NewLine, a)).ToList();
 
-			var generateOptions = new GeneratorGlobalOptions(option, _modelNamespace, _dbStandardSuffix, _modelSuffix);
+			var generateOptions = new CreeperGeneratorGlobalOptions(option, _modelNamespace, _dbStandardSuffix, _modelSuffix);
 			GenerateCsproj(generateOptions, packageReference);
 
 			CreateSln(generateOptions);
@@ -54,10 +56,11 @@ namespace Creeper.Generator.Common
 				_generatorProviderFactory[connection.DataBaseKind].ModelGenerator(generateOptions, connection, option.Connections.Count > 1);
 			}
 		}
+
 		/// <summary>
 		/// 
 		/// </summary>
-		private void GenerateCsproj(GeneratorGlobalOptions options, List<string> packageReference)
+		private void GenerateCsproj(CreeperGeneratorGlobalOptions options, List<string> packageReference)
 		{
 			if (File.Exists(options.CsProjFileFullName))
 				return;
@@ -81,7 +84,7 @@ namespace Creeper.Generator.Common
 		/// <summary>
 		/// 创建sln解决方案文件
 		/// </summary>
-		private void CreateSln(GeneratorGlobalOptions options)
+		private void CreateSln(CreeperGeneratorGlobalOptions options)
 		{
 			if (!options.BaseOptions.Sln) return;
 

@@ -1,4 +1,6 @@
 ﻿using Creeper.Generator.Common;
+using Creeper.Generator.Common.Contracts;
+using Creeper.Generator.Common.Options;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
 using System.Collections.Generic;

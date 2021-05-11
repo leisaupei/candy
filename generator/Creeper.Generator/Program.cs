@@ -6,7 +6,8 @@
  */
 using Creeper.DbHelper;
 using Creeper.Driver;
-using Creeper.Generator.Common;
+using Creeper.Generator.Common.Contracts;
+using Creeper.Generator.Common.Options;
 using Creeper.Generic;
 using Creeper.PostgreSql;
 using Creeper.PostgreSql.Generator;
@@ -55,7 +56,7 @@ namespace Creeper.Generator
 			var creeperDbContext = serviceProvider.GetService<ICreeperDbContext>();
 			if (args?.Length > 0)
 			{
-				CreeperGeneratorBuilder model = new CreeperGeneratorBuilder();
+				CreeperGenerateOption model = new CreeperGenerateOption();
 				for (int i = 0; i < args.Length; i += 2)
 				{
 					//host=localhost;port=5432;user=postgres;pwd=123456;db=postgres;type=name;type=postgresql
