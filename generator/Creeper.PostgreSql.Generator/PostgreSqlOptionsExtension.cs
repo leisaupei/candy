@@ -6,7 +6,7 @@ namespace Creeper.PostgreSql.Generator
 	public static class PostgreSqlOptionsExtension
 	{
 
-		public static CreeperGeneratorOptions UsePostgreSqlRules(this CreeperGeneratorOptions options, Action<PostgreSqlRules> action)
+		public static CreeperGeneratorOptions UsePostgreSqlRules(this CreeperGeneratorOptions options, Action<PostgreSqlGeneratorRules> action)
 		{
 
 			options.RegisterExtension(new PostgreSqlGeneratorExtension(action));

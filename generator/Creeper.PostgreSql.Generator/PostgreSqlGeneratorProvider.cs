@@ -17,9 +17,9 @@ namespace Creeper.PostgreSql.Generator
 {
 	public class PostgreSqlGeneratorProvider : CreeperGeneratorProviderBase
 	{
-		private readonly PostgreSqlRules _postgreSqlRules;
+		private readonly PostgreSqlGeneratorRules _postgreSqlRules;
 
-		public PostgreSqlGeneratorProvider(IOptions<PostgreSqlRules> optionsAccessor)
+		public PostgreSqlGeneratorProvider(IOptions<PostgreSqlGeneratorRules> optionsAccessor)
 		{
 			_postgreSqlRules = optionsAccessor.Value;
 		}

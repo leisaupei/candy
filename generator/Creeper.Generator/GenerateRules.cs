@@ -9,6 +9,6 @@ namespace Creeper.Generator
 {
 	public class GenerateRules
 	{
-		public PostgreSqlRules PostgreSqlRules { get; set; }
+		public PostgreSqlGeneratorRules PostgreSqlRules { get; set; }
 	}
 }

@@ -106,7 +106,7 @@ namespace Creeper.Generator
 			services.AddSingleton(cfg);
 
 			//postgresql 
-			var postgreSqlRules = cfg.GetSection("GenerateRules:PostgreSqlRules").Get<PostgreSqlRules>();
+			var postgreSqlRules = cfg.GetSection("GenerateRules:PostgreSqlRules").Get<PostgreSqlGeneratorRules>();
 			services.AddCreeperGenerator(option =>
 			{
 				option.UsePostgreSqlRules(o =>

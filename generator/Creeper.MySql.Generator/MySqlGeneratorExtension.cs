@@ -9,9 +9,9 @@ namespace Creeper.MySql.Generator
 {
 	public class MySqlGeneratorExtension : ICreeperGeneratorExtension
 	{
-		private readonly Action<MySqlRules> _mySqlRulesAction;
+		private readonly Action<MySqlGeneratorRules> _mySqlRulesAction;
 
-		public MySqlGeneratorExtension(Action<MySqlRules> mySqlRulesAction)
+		public MySqlGeneratorExtension(Action<MySqlGeneratorRules> mySqlRulesAction)
 		{
 			_mySqlRulesAction = mySqlRulesAction;
 		}

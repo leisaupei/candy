@@ -16,9 +16,11 @@ namespace Creeper.MySql.Generator
 {
 	public class MySqlGeneratorProvider : CreeperGeneratorProviderBase
 	{
+		private readonly MySqlGeneratorRules _mySqlRule;
 
-		public MySqlGeneratorProvider()
+		public MySqlGeneratorProvider(IOptions<MySqlGeneratorRules> mySqlRuleAccessor)
 		{
+			_mySqlRule = mySqlRuleAccessor.Value;
 		}
 
 		public override DataBaseKind DataBaseKind => DataBaseKind.MySql;
@@ -27,6 +29,11 @@ namespace Creeper.MySql.Generator
 		{
 
 			List<TableViewModel> tableList = GetTables(execute);
+			foreach (var item in tableList)
+			{
+				MySqlTableGenerator td = new MySqlTableGenerator(execute, _mySqlRule.FieldIgnore, options);
+				td.Generate(item);
+			}
 		}
 
 		public override ICreeperDbConnectionOption GetDbConnectionOptionFromString(string conn)
@@ -73,11 +80,11 @@ namespace Creeper.MySql.Generator
 			var db = connection.Database;
 
 			var sql = $@"SELECT 
-`table_name` AS `name`, 
-(case `table_type` when 'base table' then 'table' else lower(`table_type`) end) as `type`, 
-`table_comment` as `description`
-FROM `information_schema`.`TABLES`
-where `table_schema` = '{db}' and `table_type` in ('base table', 'view'); ";
+`TABLE_NAME` AS `name`, 
+(CASE `TABLE_TYPE` WHEN 'BASE TABLE' THEN 'table' ELSE lower(`TABLE_TYPE`) END) AS `type`, 
+`TABLE_COMMENT` AS `description`
+FROM `INFORMATION_SECHEMA`.`TABLES`
+WHERE `TABLE_SCHEMA` = '{db}' AND `TABLE_TYPE` IN ('BASE TABLE', 'VIEW'); ";
 			return execute.ExecuteDataReaderList<TableViewModel>(sql);
 		}
 	}

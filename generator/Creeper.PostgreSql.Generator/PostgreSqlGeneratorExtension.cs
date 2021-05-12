@@ -9,9 +9,9 @@ namespace Creeper.PostgreSql.Generator
 {
 	public class PostgreSqlGeneratorExtension : ICreeperGeneratorExtension
 	{
-		private readonly Action<PostgreSqlRules> _postgreSqlRulesAction;
+		private readonly Action<PostgreSqlGeneratorRules> _postgreSqlRulesAction;
 
-		public PostgreSqlGeneratorExtension(Action<PostgreSqlRules> postgreSqlRulesAction)
+		public PostgreSqlGeneratorExtension(Action<PostgreSqlGeneratorRules> postgreSqlRulesAction)
 		{
 			_postgreSqlRulesAction = postgreSqlRulesAction;
 		}

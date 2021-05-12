@@ -12,18 +12,13 @@ namespace Creeper.MySql.Generator
 	public class TableFieldModel
 	{
 		/// <summary>
-		/// oid
-		/// </summary>
-		public int Oid { get; set; }
-		/// <summary>
 		/// 字段名称
 		/// </summary>
-		public string Field { get; set; }
-
+		public string Name { get; set; }
 		/// <summary>
 		/// 字段名称 
 		/// </summary>
-		public string FieldUpCase => Field.ToUpperPascal();
+		public string NameUpCase => Name.ToUpperPascal();
 		/// <summary>
 		/// 字段数据库长度
 		/// </summary> 
@@ -33,65 +28,26 @@ namespace Creeper.MySql.Generator
 		/// </summary>
 		public string Comment { get; set; }
 		/// <summary>
-		/// C#类型
-		/// </summary>
-		public string RelType { get; set; }
-		/// <summary>
-		/// 数据库类型
-		/// </summary>
-		public string DbType { get; set; }
-		/// <summary>
 		/// 数据类型
 		/// </summary>
-		public string DataType { get; set; }
-		/// <summary>
-		/// 是否自增
-		/// </summary>
-		public bool IsIdentity { get; set; }
-		/// <summary>
-		/// 是否数组
-		/// </summary>
-		public bool IsArray { get; set; }
-		/// <summary>
-		/// 是否枚举
-		/// </summary>
-		public bool IsEnum { get; set; }
+		public string DbDataType { get; set; }
 		/// <summary>
 		/// 是否非空
 		/// </summary>
 		public bool IsNotNull { get; set; }
 		/// <summary>
-		/// npgsql 数据库类型
+		/// 是否主键
 		/// </summary>
-		public MySqlDbType MySqlDbType { get; set; }
-		/// <summary>
-		/// 类型分类
-		/// </summary>
-		public string Typcategory { get; set; }
-		/// <summary>
-		/// 类型schema(命名空间)
-		/// </summary>
-		public string Nspname { get; set; }
-		/// <summary>
-		/// 是否唯一键
-		/// </summary>
-		public bool IsUnique { get; set; }
-		/// <summary>
-		/// 
-		/// </summary>
-		public string PgDbTypeString { get; set; }
+		public bool IsPrimaryKey { get; set; }
 		/// <summary>
 		/// C#类型
 		/// </summary>
-		public string CSharpType { get; set; }
+		public string RelType { get; set; }
 		/// <summary>
-		/// 维度
+		/// 是否自增
 		/// </summary>
-		public int Dimensions { get; set; }
-		/// <summary>
-		/// 默认值
-		/// </summary>
-		public string Column_default { get; set; }
+		public bool IsIdentity { get; set; }
+
 	}
 	/// <summary>
 	/// 

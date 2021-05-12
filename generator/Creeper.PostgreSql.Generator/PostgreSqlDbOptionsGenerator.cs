@@ -19,7 +19,7 @@ namespace Creeper.PostgreSql.Generator
 	{
 
 		private readonly ICreeperDbExecute _dbExecute;
-		private readonly PostgreSqlRules _postgreSqlRules;
+		private readonly PostgreSqlGeneratorRules _postgreSqlRules;
 		private readonly CreeperGeneratorGlobalOptions _options;
 		/// <summary>
 		/// 
@@ -27,7 +27,7 @@ namespace Creeper.PostgreSql.Generator
 		/// <param name="dbExecute"></param>
 		/// <param name="postgreSqlRules"></param>
 		/// <param name="options"></param>
-		public PostgreSqlDbOptionsGenerator(ICreeperDbExecute dbExecute, PostgreSqlRules postgreSqlRules, CreeperGeneratorGlobalOptions options)
+		public PostgreSqlDbOptionsGenerator(ICreeperDbExecute dbExecute, PostgreSqlGeneratorRules postgreSqlRules, CreeperGeneratorGlobalOptions options)
 		{
 			_dbExecute = dbExecute;
 			_postgreSqlRules = postgreSqlRules;
