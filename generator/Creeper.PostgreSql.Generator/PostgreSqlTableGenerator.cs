@@ -44,21 +44,6 @@ namespace Creeper.PostgreSql.Generator
 		private List<TableFieldModel> _fieldList = new List<TableFieldModel>();
 
 		/// <summary>
-		/// 主键
-		/// </summary>
-		private List<PrimarykeyInfo> _pkList = new List<PrimarykeyInfo>();
-
-		///// <summary>
-		///// 生成项目多库
-		///// </summary>
-		//private string _dataBaseTypeName;
-
-		///// <summary>
-		///// 命名空间后缀
-		///// </summary>
-		//private string NamespaceSuffix => _folder ? "." + _dataBaseTypeName : "";
-
-		/// <summary>
 		/// Model名称
 		/// </summary>
 		private string ModelClassName => DalClassName + _options.ModelSuffix;
@@ -90,12 +75,9 @@ namespace Creeper.PostgreSql.Generator
 		{
 			_schemaName = schemaName;
 			_table = table;
-			Console.WriteLine($"Generating {_schemaName}.{_table.Name}...");
+			Console.WriteLine($"Generating postgresql {_schemaName}.{_table.Name}...");
 			GetFieldList();
-			if (table.Type == "table")
-			{
-				GetPrimaryKey();
-			}
+
 			if (table.Type == "view")
 				_isView = true;
 
@@ -108,9 +90,8 @@ namespace Creeper.PostgreSql.Generator
 		private void GetFieldList()
 		{
 			var sql = $@"
-SELECT a.oid, 
-	c.attnum as num, 
-	c.attname AS field,
+SELECT 
+	c.attname AS name,
 	c.attnotnull AS isnotnull, 
 	d.description AS comment, 
 	e.typcategory, 
@@ -118,9 +99,12 @@ SELECT a.oid,
 	format_type(c.atttypid,c.atttypmod) AS type_comment, 
 	c.attndims as dimensions,  
 	(CASE WHEN f.character_maximum_length IS NULL THEN c.attlen ELSE f.character_maximum_length END) AS length,  
-	(CASE WHEN e.typelem = 0 THEN e.typname WHEN e.typcategory = 'G' THEN format_type (c.atttypid, c.atttypmod) ELSE e2.typname END ) AS dbtype,  
-	(CASE WHEN e.typelem = 0 THEN e.typtype ELSE e2.typtype END) AS datatype, ns.nspname, COALESCE(pc.contype = 'u',false) as isunique ,
-	f.column_default
+	(CASE WHEN e.typelem = 0 THEN e.typname WHEN e.typcategory = 'G' THEN format_type (c.atttypid, c.atttypmod) ELSE e2.typname END) AS dbtype,  
+	(CASE WHEN e.typelem = 0 THEN e.typtype ELSE e2.typtype END) AS dbdatatype, 
+	ns.nspname, 
+	COALESCE(pc.contype = 'u',false) as isunique ,
+	f.column_default,
+	COALESCE(idx.indisprimary, false) as isprimarykey
 FROM pg_class a  
 INNER JOIN pg_namespace b ON a.relnamespace = b.oid  
 INNER JOIN pg_attribute c ON attrelid = a.oid  
@@ -129,18 +113,19 @@ INNER JOIN pg_type e ON e.oid = c.atttypid
 LEFT JOIN pg_type e2 ON e2.oid = e.typelem  
 INNER JOIN information_schema.COLUMNS f ON f.table_schema = b.nspname AND f.TABLE_NAME = a.relname AND COLUMN_NAME = c.attname  
 LEFT JOIN pg_namespace ns ON ns.oid = e.typnamespace and ns.nspname <> 'pg_catalog'  
-LEFT JOIN pg_constraint pc ON pc.conrelid = a.oid and pc.conkey[1] = c.attnum and pc.contype = 'u'  
+LEFT JOIN pg_constraint pc ON pc.conrelid = a.oid and pc.conkey[1] = c.attnum and pc.contype = 'u'
+LEFT JOIN pg_index idx ON c.attrelid = idx.indrelid AND c.attnum = ANY (idx.indkey)  
 WHERE (b.nspname='{_schemaName}' and a.relname='{_table.Name}')  
+ORDER BY c.attnum ASC
 ";
 			_fieldList = _dbExecute.ExecuteDataReaderList<TableFieldModel>(sql);
 
 			foreach (var f in _fieldList)
 			{
-				f.IsArray = f.Dimensions > 0;
-				f.DbType = f.DbType.StartsWith("_", StringComparison.Ordinal) ? f.DbType[1..] : f.DbType;
-				f.PgDbType = Types.ConvertDbTypeToNpgsqlDbType(f.DataType, f.DbType, f.IsArray);
-				f.IsEnum = f.DataType == "e";
-				string _type = Types.ConvertPgDbTypeToCSharpType(f.DataType, f.DbType);
+				f.DbType = f.DbType.TrimStart('_');
+				f.NpgsqlDbType = Types.ConvertDbTypeToNpgsqlDbType(f.DbDataType, f.DbType, f.IsArray);
+				f.CSharpType = Types.ConvertPgDbTypeToCSharpType(f.DbDataType, f.DbType);
+
 				if (f.DbType == "xml")
 					MappingOptions.XmlTypeName.Add(_dbExecute.ConnectionOptions.DbName);
 				if (f.DbType == "geometry")
@@ -150,48 +135,24 @@ WHERE (b.nspname='{_schemaName}' and a.relname='{_table.Name}')
 				}
 
 				if (f.IsEnum)
-					_type = Types.DeletePublic(f.Nspname, _type);
-				f.CSharpType = _type;
+					f.CSharpType = Types.DeletePublic(f.Nspname, f.CSharpType);
 
-				if (f.DataType == "c")
-					f.RelType = Types.DeletePublic(f.Nspname, _type);
+				if (f.DbDataType == "c")
+					f.RelType = Types.DeletePublic(f.Nspname, f.CSharpType);
 				else
 				{
-					string _notnull = "";
-					if (!_notAddQues.Contains(_type) && !f.IsArray)
+					string notnull = "";
+					if (!_notAddQues.Contains(f.CSharpType) && !f.IsArray)
 					{
-						_notnull = f.IsNotNull ? "" : "?";
+						notnull = f.IsNotNull ? "" : "?";
 					}
-					string _array = f.IsArray ? "[".PadRight(Math.Max(0, f.Dimensions), ',') + "]" : "";
-					f.RelType = $"{_type}{_notnull}{_array}";
+					string array = f.IsArray ? "[".PadRight(Math.Max(0, f.Dimensions), ',') + "]" : "";
+					f.RelType = $"{f.CSharpType}{notnull}{array}";
 				}
+
 
 				if (f.Column_default?.StartsWith("nextval(") ?? false)
 					f.IsIdentity = true;
-			}
-		}
-
-		/// <summary>
-		/// 获取主键
-		/// </summary>
-		private void GetPrimaryKey()
-		{
-			var sqlPk = $@"
-SELECT b.attname AS field,format_type (b.atttypid, b.atttypmod) AS typename 
-FROM pg_index a  
-INNER JOIN pg_attribute b ON b.attrelid = a.indrelid AND b.attnum = ANY (a.indkey)  
-WHERE a.indrelid = '{_schemaName}.{_table.Name}'::regclass AND a.indisprimary
-";
-			_pkList = _dbExecute.ExecuteDataReaderList<PrimarykeyInfo>(sqlPk);
-
-			List<string> d_key = new List<string>();
-			for (var i = 0; i < _pkList.Count; i++)
-			{
-				TableFieldModel fs = _fieldList.FirstOrDefault(f => f.Field == _pkList[i].Field);
-				d_key.Add(fs.RelType + " " + fs.Field);
-				if (fs.Column_default?.StartsWith("nextval(") ?? false)
-					fs.IsIdentity = true;
-
 			}
 		}
 
@@ -242,14 +203,14 @@ _dbExecute.ConnectionOptions.DataBaseKind.ToString());
 
 				#region CreeperDbColumn
 				var element = new List<string>();
-				if (_pkList.Any(a => a.Field == item.Field))
+				if (item.IsPrimaryKey)
 					element.Add("Primary = true");
 
 				if (item.IsIdentity)
 					element.Add("Identity = true");
 
 				#region Ignore
-				var fullFieldName = string.Concat(_schemaName, '.', _table.Name, '.', item.Field);
+				var fullFieldName = string.Concat(_schemaName, '.', _table.Name, '.', item.Name);
 				var ignores = new List<string>();
 				if (_fieldIgnore.Insert.Contains(fullFieldName.ToLower()))
 					ignores.Add("IgnoreWhen.Insert");
@@ -264,7 +225,7 @@ _dbExecute.ConnectionOptions.DataBaseKind.ToString());
 				writer.Write(WriteComment(item.Comment, 2));
 				if (element.Count > 0)
 					writer.WriteLine(@"{1}{1}[CreeperDbColumn({0})]", string.Join(", ", element), '\t');
-				writer.WriteLine(@"{2}{2}public {0} {1} {{ get; set; }}", item.RelType, item.FieldUpCase, '\t');
+				writer.WriteLine(@"{2}{2}public {0} {1} {{ get; set; }}", item.RelType, item.NameUpCase, '\t');
 				if (i != _fieldList.Count - 1)
 					writer.WriteLine();
 			}

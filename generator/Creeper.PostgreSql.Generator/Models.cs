@@ -26,18 +26,14 @@ namespace Creeper.PostgreSql.Generator
 	public class TableFieldModel
 	{
 		/// <summary>
-		/// oid
-		/// </summary>
-		public int Oid { get; set; }
-		/// <summary>
 		/// 字段名称
 		/// </summary>
-		public string Field { get; set; }
+		public string Name { get; set; }
 
 		/// <summary>
 		/// 字段名称 
 		/// </summary>
-		public string FieldUpCase => Field.ToUpperPascal();
+		public string NameUpCase => Name.ToUpperPascal();
 		/// <summary>
 		/// 字段数据库长度
 		/// </summary> 
@@ -57,7 +53,7 @@ namespace Creeper.PostgreSql.Generator
 		/// <summary>
 		/// 数据类型
 		/// </summary>
-		public string DataType { get; set; }
+		public string DbDataType { get; set; }
 		/// <summary>
 		/// 是否自增
 		/// </summary>
@@ -65,11 +61,11 @@ namespace Creeper.PostgreSql.Generator
 		/// <summary>
 		/// 是否数组
 		/// </summary>
-		public bool IsArray { get; set; }
+		public bool IsArray => Dimensions > 0;
 		/// <summary>
 		/// 是否枚举
 		/// </summary>
-		public bool IsEnum { get; set; }
+		public bool IsEnum => DbDataType == "e";
 		/// <summary>
 		/// 是否非空
 		/// </summary>
@@ -77,7 +73,11 @@ namespace Creeper.PostgreSql.Generator
 		/// <summary>
 		/// npgsql 数据库类型
 		/// </summary>
-		public NpgsqlDbType PgDbType { get; set; }
+		public NpgsqlDbType NpgsqlDbType { get; set; }
+		/// <summary>
+		/// 是否主键
+		/// </summary>
+		public bool IsPrimaryKey { get; set; }
 		/// <summary>
 		/// 类型分类
 		/// </summary>
@@ -103,21 +103,7 @@ namespace Creeper.PostgreSql.Generator
 		/// </summary>
 		public string Column_default { get; set; }
 	}
-	/// <summary>
-	/// 
-	/// </summary>
-	public class PrimarykeyInfo
-	{
-		/// <summary>
-		/// 
-		/// </summary>
-		public string Field { get; set; }
-		/// <summary>
-		/// 
-		/// </summary>
-		public string TypeName { get; set; }
-		public string FieldUpCase => Field.ToUpperPascal();
-	}
+
 	/// <summary>
 	/// 
 	/// </summary>
