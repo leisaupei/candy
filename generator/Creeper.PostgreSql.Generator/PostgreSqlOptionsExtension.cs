@@ -1,7 +1,8 @@
 ﻿using Creeper.Generator.Common.Options;
+using Creeper.PostgreSql.Generator;
 using System;
 
-namespace Creeper.PostgreSql.Generator
+namespace Microsoft.Extensions.DependencyInjection
 {
 	public static class PostgreSqlOptionsExtension
 	{

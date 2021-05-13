@@ -9,6 +9,7 @@ using Creeper.Driver;
 using Creeper.Generator.Common.Contracts;
 using Creeper.Generator.Common.Options;
 using Creeper.Generic;
+using Creeper.MySql.Generator;
 using Creeper.PostgreSql;
 using Creeper.PostgreSql.Generator;
 using Microsoft.Extensions.Configuration;
@@ -99,6 +100,7 @@ namespace Creeper.Generator
 			IConfiguration cfg = new ConfigurationBuilder()
 				.AddJsonFile("appsettings.json", true, false)
 				.AddJsonFile("appsettings.postgresql.json", true, false)
+				.AddJsonFile("appsettings.mysql.json", true, false)
 				.Build();
 
 			IServiceCollection services = new ServiceCollection();
@@ -107,8 +109,15 @@ namespace Creeper.Generator
 
 			//postgresql 
 			var postgreSqlRules = cfg.GetSection("GenerateRules:PostgreSqlRules").Get<PostgreSqlGeneratorRules>();
+			//mysql
+			var mySqlRules = cfg.GetSection("GenerateRules:MySqlRules").Get<MySqlGeneratorRules>();
 			services.AddCreeperGenerator(option =>
 			{
+				option.UseMySqlRules(o =>
+				{
+					o.Excepts = mySqlRules.Excepts;
+					o.FieldIgnore = mySqlRules.FieldIgnore;
+				});
 				option.UsePostgreSqlRules(o =>
 				{
 					o.Excepts = postgreSqlRules.Excepts;

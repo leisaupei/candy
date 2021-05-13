@@ -32,7 +32,7 @@ namespace Microsoft.Extensions.DependencyInjection
 		public static CreeperOptions AddPostgreSqlDbOption(this CreeperOptions options)
 		{
 			options.TryAddDbTypeConverter<PostgreSqlTypeConverter>();
-			options.RegisterExtension(new Creeper.PostgreSql.Extensions.PostgreSqlCreeperOptionsExtensions());
+			options.RegisterExtension(new PostgreSqlCreeperOptionsExtensions());
 			return options;
 		}
 	}
