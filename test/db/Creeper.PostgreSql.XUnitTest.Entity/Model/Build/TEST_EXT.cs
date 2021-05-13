@@ -12,24 +12,16 @@ using System.Threading;
 using Creeper.Attributes;
 using Creeper.Generic;
 using Creeper.PostgreSql.XUnitTest.Entity.Options;
-
-namespace Creeper.PostgreSql.XUnitTest.Entity.Model
+namespace Creeper.PostgreSql.XUnitTest.Entity.Model.Demo
 {
-	[CreeperDbTable(@"""public"".""teacher""", typeof(DbMain), DataBaseKind.PostgreSql)]
-	public partial class TeacherModel : ICreeperDbModel
+	[CreeperDbTable(@"`test_ext`", typeof(DbDemo), DataBaseKind.MySql)]
+	public partial class TEST_EXT : ICreeperDbModel
 	{
 		#region Properties
-		/// <summary>
-		/// 学号
-		/// </summary>
-		public string Teacher_no { get; set; }
-
-		public Guid People_id { get; set; }
-
-		public DateTime Create_time { get; set; }
-
 		[CreeperDbColumn(Primary = true)]
-		public Guid Id { get; set; }
+		public  Id { get; set; }
+
+		public  Bio { get; set; }
 		#endregion
 	}
 }

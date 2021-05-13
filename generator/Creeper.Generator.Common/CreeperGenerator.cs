@@ -46,7 +46,7 @@ namespace Creeper.Generator.Common
 			var packageReference = option.Connections.GroupBy(a => a.DataBaseKind.ToString()).Select(a => a.Key)
 				.Select(a => string.Format("\t\t<PackageReference Include=\"Creeper.{2}\" Version=\"{0}\" />{1}", _cfg["CreeperNugetVersion"], Environment.NewLine, a)).ToList();
 
-			var generateOptions = new CreeperGeneratorGlobalOptions(option, _modelNamespace, _dbStandardSuffix, _modelSuffix);
+			var generateOptions = new CreeperGeneratorGlobalOptions(option, _modelNamespace, _dbStandardSuffix, _modelSuffix, option.Connections.Count > 0);
 			GenerateCsproj(generateOptions, packageReference);
 
 			CreateSln(generateOptions);

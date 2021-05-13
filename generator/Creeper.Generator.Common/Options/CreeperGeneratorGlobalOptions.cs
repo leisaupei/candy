@@ -1,5 +1,6 @@
 ﻿using Creeper.Generator.Common.Extensions;
 using Creeper.Generic;
+using System;
 using System.IO;
 
 namespace Creeper.Generator.Common.Options
@@ -38,6 +39,10 @@ namespace Creeper.Generator.Common.Options
 		/// </summary>
 		public string ModelSuffix { get; }
 		/// <summary>
+		/// 是否多个数据库生成
+		/// </summary>
+		public bool Multiple { get; }
+		/// <summary>
 		/// .csproj文件名称
 		/// </summary>
 		public string CsProjFileName { get; }
@@ -68,13 +73,13 @@ namespace Creeper.Generator.Common.Options
 		private const string DbOptionsFolderName = "Options";
 		private const string DbNamePrefix = "Db";
 
-		public CreeperGeneratorGlobalOptions(CreeperGenerateOption baseOptions, string modelNamespace, string dbStandardSuffix, string modelSuffix)
+		public CreeperGeneratorGlobalOptions(CreeperGenerateOption baseOptions, string modelNamespace, string dbStandardSuffix, string modelSuffix, bool multiple)
 		{
 			BaseOptions = baseOptions;
 			ModelNamespace = modelNamespace;
 			DbStandardSuffix = dbStandardSuffix;
 			ModelSuffix = modelSuffix;
-
+			Multiple = multiple;
 			RootPath = Path.Combine(BaseOptions.OutputPath, BaseOptions.ProjectName + "." + DbStandardSuffix);
 			DbOptionsPath = Path.Combine(RootPath, DbOptionsFolderName);
 			ModelPath = Path.Combine(RootPath, ModelNamespace, "Build");
@@ -87,6 +92,18 @@ namespace Creeper.Generator.Common.Options
 			CreateDir(RootPath);
 			RecreateDir(DbOptionsPath);
 			RecreateDir(ModelPath);
+		}
+
+		public string GetMultipleModelPath(string dbName = null)
+		{
+			if (!Multiple)
+				return ModelPath;
+			else
+			{
+				if (string.IsNullOrEmpty(dbName))
+					throw new ArgumentNullException(nameof(dbName), "实体类二级目录为空");
+				return Path.Combine(ModelPath, dbName);
+			}
 		}
 
 		/// <summary>

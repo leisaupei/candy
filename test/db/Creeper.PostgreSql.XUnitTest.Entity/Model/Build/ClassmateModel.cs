@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections;
 using System.Net.NetworkInformation;
-using NpgsqlTypes;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Xml;

@@ -78,12 +78,11 @@ namespace Creeper.MySql.Generator
 		{
 			using var connection = execute.ConnectionOptions.GetConnection();
 			var db = connection.Database;
-
 			var sql = $@"SELECT 
 `TABLE_NAME` AS `name`, 
 (CASE `TABLE_TYPE` WHEN 'BASE TABLE' THEN 'table' ELSE lower(`TABLE_TYPE`) END) AS `type`, 
 `TABLE_COMMENT` AS `description`
-FROM `INFORMATION_SECHEMA`.`TABLES`
+FROM  `information_schema`.`TABLES`
 WHERE `TABLE_SCHEMA` = '{db}' AND `TABLE_TYPE` IN ('BASE TABLE', 'VIEW'); ";
 			return execute.ExecuteDataReaderList<TableViewModel>(sql);
 		}

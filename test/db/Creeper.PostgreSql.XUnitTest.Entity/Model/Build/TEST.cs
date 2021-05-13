@@ -12,25 +12,31 @@ using System.Threading;
 using Creeper.Attributes;
 using Creeper.Generic;
 using Creeper.PostgreSql.XUnitTest.Entity.Options;
-
-namespace Creeper.PostgreSql.XUnitTest.Entity.Model
+namespace Creeper.PostgreSql.XUnitTest.Entity.Model.Demo
 {
-	[CreeperDbTable(@"""test"".""iden_pk""", typeof(DbMain), DataBaseKind.PostgreSql)]
-	public partial class TestIdenPkModel : ICreeperDbModel
+	/// <summary>
+	/// 测试用表
+	/// </summary>
+	[CreeperDbTable(@"`test`", typeof(DbDemo), DataBaseKind.MySql)]
+	public partial class TEST : ICreeperDbModel
 	{
 		#region Properties
-		[CreeperDbColumn(Primary = true, Identity = true)]
-		public int Id { get; set; }
+		/// <summary>
+		/// 主键id
+		/// 唯一键
+		/// </summary>
+		[CreeperDbColumn(Primary = true)]
+		public  Id { get; set; }
 
 		/// <summary>
-		/// 名字
+		/// 姓名
 		/// </summary>
-		public string Name { get; set; }
+		public  Name { get; set; }
 
 		/// <summary>
 		/// 年龄
 		/// </summary>
-		public int? Age { get; set; }
+		public  Age { get; set; }
 		#endregion
 	}
 }
