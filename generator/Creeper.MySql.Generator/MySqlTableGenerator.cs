@@ -1,5 +1,6 @@
 ﻿using Creeper.Driver;
 using Creeper.Generator.Common;
+using Creeper.Generator.Common.Extensions;
 using Creeper.Generator.Common.Models;
 using Creeper.Generator.Common.Options;
 using System;
@@ -43,7 +44,7 @@ namespace Creeper.MySql.Generator
 		/// <summary>
 		/// Model名称
 		/// </summary>
-		private string ModelClassName => _table.Name.ToUpper() + (_isView ? "View" : null);
+		private string ModelClassName => _table.Name.ToUpperPascal() + (_isView ? "View" : null) + _options.ModelSuffix;
 
 		private static readonly string[] _notAddQues = { "string", "JToken", "byte[]", "object", "IPAddress", "Dictionary<string, string>", "NpgsqlTsQuery", "NpgsqlTsVector", "BitArray", "PhysicalAddress", "XmlDocument", "PostgisGeometry" };
 
@@ -100,7 +101,7 @@ WHERE `TABLE_SCHEMA`='{db}' AND `TABLE_NAME`='{_table.Name}' ORDER BY `ORDINAL_P
 
 			foreach (var f in _fieldList)
 			{
-
+				f.RelType = Types.ConvertMySqlDataTypeToCSharpType(f.DbDataType);
 			}
 		}
 
@@ -109,7 +110,7 @@ WHERE `TABLE_SCHEMA`='{db}' AND `TABLE_NAME`='{_table.Name}' ORDER BY `ORDINAL_P
 		/// </summary>
 		private void ModelGenerator()
 		{
-			string _filename = Path.Combine(_options.ModelPath, ModelClassName + ".cs");
+			string _filename = Path.Combine(_options.GetMultipleModelPath(_dbExecute.ConnectionOptions.DbName), ModelClassName + ".cs");
 
 			using StreamWriter writer = new StreamWriter(File.Create(_filename), Encoding.UTF8);
 			CreeperGenerator.WriteAuthorHeader.Invoke(writer);

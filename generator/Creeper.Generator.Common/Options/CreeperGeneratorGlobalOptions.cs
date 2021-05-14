@@ -94,16 +94,63 @@ namespace Creeper.Generator.Common.Options
 			RecreateDir(ModelPath);
 		}
 
-		public string GetMultipleModelPath(string dbName = null)
+		/// <summary>
+		/// 获取多库符合类型文件名(包含路径)
+		/// </summary>
+		/// <param name="dbName"></param>
+		/// <returns></returns>
+		public string GetMultipleCompositesCsFullName(string dbName = null)
 		{
 			if (!Multiple)
-				return ModelPath;
+				return EnumCsFullName;
 			else
 			{
-				if (string.IsNullOrEmpty(dbName))
-					throw new ArgumentNullException(nameof(dbName), "实体类二级目录为空");
-				return Path.Combine(ModelPath, dbName);
+				CheckDbName(dbName);
+				dbName = dbName.ToUpperPascal();
+				return Path.Combine(Path.GetDirectoryName(EnumCsFullName), dbName, CompositesFileName);
 			}
+
+		}
+		/// <summary>
+		/// 获取多库枚举类型文件名(包含路径)
+		/// </summary>
+		/// <param name="dbName"></param>
+		/// <returns></returns>
+		public string GetMultipleEnumCsFullName(string dbName = null)
+		{
+			if (!Multiple)
+				return EnumCsFullName;
+			else
+			{
+				CheckDbName(dbName);
+				dbName = dbName.ToUpperPascal();
+				return Path.Combine(Path.GetDirectoryName(EnumCsFullName), dbName, EnumFileName);
+			}
+
+		}
+
+		/// <summary>
+		/// 获取多库Model路径
+		/// </summary>
+		/// <param name="dbName"></param>
+		/// <returns></returns>
+		public string GetMultipleModelPath(string dbName = null)
+		{
+			var path = ModelPath;
+			if (Multiple)
+			{
+				CheckDbName(dbName);
+				dbName = dbName.ToUpperPascal();
+				path = Path.Combine(ModelPath, dbName);
+			}
+			CreateDir(path);
+			return path;
+		}
+
+		private static void CheckDbName(string dbName)
+		{
+			if (string.IsNullOrEmpty(dbName))
+				throw new ArgumentNullException(nameof(dbName), "实体类二级目录为空");
 		}
 
 		/// <summary>
@@ -138,9 +185,14 @@ namespace Creeper.Generator.Common.Options
 		public string GetMappingNamespaceName(string typeName = null)
 		{
 			var namespaceName = ModelNamespace;
-			if (!string.IsNullOrEmpty(typeName) && typeName.ToLower() != CreeperGenerateOption.MASTER_DATABASE_TYPE_NAME.ToLower())
-				namespaceName += "." + typeName;
-			return namespaceName;
+			if (!Multiple)
+				return namespaceName;
+			else
+			{
+				CheckDbName(typeName);
+				typeName = typeName.ToUpperPascal();
+				return namespaceName += "." + typeName;
+			}
 		}
 
 		/// <summary>
@@ -151,29 +203,21 @@ namespace Creeper.Generator.Common.Options
 		public string GetModelNamespaceFullName(string typeName = null)
 		{
 			var namespaceName = string.Format("{0}.{1}.{2}", BaseOptions.ProjectName, DbStandardSuffix, ModelNamespace);
-			if (!string.IsNullOrEmpty(typeName) && typeName.ToLower() != CreeperGenerateOption.MASTER_DATABASE_TYPE_NAME.ToLower())
-				namespaceName += "." + typeName;
-			return namespaceName;
-		}
-
-		/// <summary>
-		/// 获取model存放目录
-		/// </summary>
-		/// <param name="typeName"></param>
-		/// <returns></returns>
-		public string GetModelPath(string typeName = null)
-		{
-			var namespaceName = string.Format("{0}.{1}.{2}", BaseOptions.ProjectName, DbStandardSuffix, ModelNamespace);
-			if (!string.IsNullOrEmpty(typeName) && typeName.ToLower() != CreeperGenerateOption.MASTER_DATABASE_TYPE_NAME.ToLower())
-				namespaceName += "." + typeName;
-			return namespaceName;
+			if (!Multiple)
+				return namespaceName;
+			else
+			{
+				CheckDbName(typeName);
+				typeName = typeName.ToUpperPascal();
+				return namespaceName += "." + typeName;
+			}
 		}
 
 		/// <summary>
 		/// 删除目录重新创建
 		/// </summary>
 		/// <param name="path"></param>
-		public static void RecreateDir(string path)
+		private static void RecreateDir(string path)
 		{
 			if (Directory.Exists(path))
 				Directory.Delete(path, true);
@@ -184,7 +228,7 @@ namespace Creeper.Generator.Common.Options
 		/// 创建目录
 		/// </summary>
 		/// <param name="path"></param>
-		public static void CreateDir(string path)
+		private static void CreateDir(string path)
 		{
 			if (!Directory.Exists(path))
 				Directory.CreateDirectory(path);

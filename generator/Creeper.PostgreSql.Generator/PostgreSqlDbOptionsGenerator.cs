@@ -63,7 +63,7 @@ ORDER BY oid asc
 			if (list.Count == 0)
 				return list;
 
-			using (StreamWriter writer = new StreamWriter(File.Create(_options.EnumCsFullName), Encoding.UTF8))
+			using (StreamWriter writer = new StreamWriter(File.Create(_options.GetMultipleEnumCsFullName(_dbExecute.ConnectionOptions.DbName)), Encoding.UTF8))
 			{
 				CreeperGenerator.WriteAuthorHeader.Invoke(writer);
 				writer.WriteLine("using System;");
@@ -133,7 +133,7 @@ WHERE {GenerateHelper.ExceptConvert("ns.nspname || '.' || a.typname", _postgreSq
 				sb.AppendLine("\t}");
 			}
 
-			using StreamWriter writer = new StreamWriter(File.Create(_options.CompositesCsFullName), Encoding.UTF8);
+			using StreamWriter writer = new StreamWriter(File.Create(_options.GetMultipleCompositesCsFullName(_dbExecute.ConnectionOptions.DbName)), Encoding.UTF8);
 			CreeperGenerator.WriteAuthorHeader.Invoke(writer);
 			writer.WriteLine("using System;");
 			writer.WriteLine("using Newtonsoft.Json;");

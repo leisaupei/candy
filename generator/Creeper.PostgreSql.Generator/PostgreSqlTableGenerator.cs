@@ -161,7 +161,7 @@ ORDER BY c.attnum ASC
 		/// </summary>
 		private void ModelGenerator()
 		{
-			string _filename = Path.Combine(_options.ModelPath, ModelClassName + ".cs");
+			string _filename = Path.Combine(_options.GetMultipleModelPath(_dbExecute.ConnectionOptions.DbName), ModelClassName + ".cs");
 
 			using StreamWriter writer = new StreamWriter(File.Create(_filename), Encoding.UTF8);
 			CreeperGenerator.WriteAuthorHeader.Invoke(writer);
