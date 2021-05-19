@@ -14,7 +14,7 @@ using Xunit.Extensions.Ordering;
 namespace Creeper.PostgreSql.XUnitTest
 {
 	[Order(4)]
-	public class TypeMap : BaseTest
+	public class CLRTest : BaseTest
 	{
 		private const string _name = "lsp";
 		[Fact]
@@ -162,6 +162,7 @@ namespace Creeper.PostgreSql.XUnitTest
 		public void Enum()
 		{
 			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Enum_type, EtDataState.删除).ToAffectedRows();
+			var test = _dbContext.Select<TypeTestModel>().Where(a => a.Id == Guid.Empty).FirstOrDefault(a => a.Enum_type);
 			Assert.True(affrows > 0);
 		}
 

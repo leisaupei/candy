@@ -57,11 +57,11 @@ namespace Creeper.Generator.Common.Options
 		/// <summary>
 		/// 枚举文件_Enum.cs全称(包含文件路径)
 		/// </summary>
-		public string EnumCsFullName { get; }
+		public string EnumFileFullName { get; }
 		/// <summary>
 		/// _Composites.cs全称(包含文件路径)
 		/// </summary>
-		public string CompositesCsFullName { get; }
+		public string CompositesFileFullName { get; }
 		/// <summary>
 		/// options目录.cs文件命名空间
 		/// </summary>
@@ -70,7 +70,7 @@ namespace Creeper.Generator.Common.Options
 		private const string DbOptionsFileName = "DbOptions.cs";
 		private const string EnumFileName = "_Enums.cs";
 		private const string CompositesFileName = "_Composites.cs";
-		private const string DbOptionsFolderName = "Options";
+		private const string DbOptionsDirectory = "Options";
 		private const string DbNamePrefix = "Db";
 
 		public CreeperGeneratorGlobalOptions(CreeperGenerateOption baseOptions, string modelNamespace, string dbStandardSuffix, string modelSuffix, bool multiple)
@@ -81,14 +81,14 @@ namespace Creeper.Generator.Common.Options
 			ModelSuffix = modelSuffix;
 			Multiple = multiple;
 			RootPath = Path.Combine(BaseOptions.OutputPath, BaseOptions.ProjectName + "." + DbStandardSuffix);
-			DbOptionsPath = Path.Combine(RootPath, DbOptionsFolderName);
+			DbOptionsPath = Path.Combine(RootPath, DbOptionsDirectory);
 			ModelPath = Path.Combine(RootPath, ModelNamespace, "Build");
 			CsProjFileName = string.Format("{0}.{1}.csproj", BaseOptions.ProjectName, DbStandardSuffix);
 			CsProjFileFullName = Path.Combine(RootPath, CsProjFileName);
 			SlnFileFullName = Path.Combine(BaseOptions.OutputPath, $"{BaseOptions.ProjectName}.sln");
-			EnumCsFullName = Path.Combine(ModelPath, EnumFileName);
-			CompositesCsFullName = Path.Combine(ModelPath, CompositesFileName);
-			OptionsNamespace = string.Format("{0}.{1}.{2}", BaseOptions.ProjectName, DbStandardSuffix, DbOptionsFolderName);
+			EnumFileFullName = Path.Combine(ModelPath, EnumFileName);
+			CompositesFileFullName = Path.Combine(ModelPath, CompositesFileName);
+			OptionsNamespace = string.Format("{0}.{1}.{2}", BaseOptions.ProjectName, DbStandardSuffix, DbOptionsDirectory);
 			CreateDir(RootPath);
 			RecreateDir(DbOptionsPath);
 			RecreateDir(ModelPath);
@@ -102,12 +102,11 @@ namespace Creeper.Generator.Common.Options
 		public string GetMultipleCompositesCsFullName(string dbName = null)
 		{
 			if (!Multiple)
-				return EnumCsFullName;
+				return CompositesFileFullName;
 			else
 			{
 				CheckDbName(dbName);
-				dbName = dbName.ToUpperPascal();
-				return Path.Combine(Path.GetDirectoryName(EnumCsFullName), dbName, CompositesFileName);
+				return Path.Combine(Path.GetDirectoryName(CompositesFileFullName), dbName.ToUpperPascal(), CompositesFileName);
 			}
 
 		}
@@ -119,12 +118,11 @@ namespace Creeper.Generator.Common.Options
 		public string GetMultipleEnumCsFullName(string dbName = null)
 		{
 			if (!Multiple)
-				return EnumCsFullName;
+				return EnumFileFullName;
 			else
 			{
 				CheckDbName(dbName);
-				dbName = dbName.ToUpperPascal();
-				return Path.Combine(Path.GetDirectoryName(EnumCsFullName), dbName, EnumFileName);
+				return Path.Combine(Path.GetDirectoryName(EnumFileFullName), dbName.ToUpperPascal(), EnumFileName);
 			}
 
 		}
@@ -140,8 +138,7 @@ namespace Creeper.Generator.Common.Options
 			if (Multiple)
 			{
 				CheckDbName(dbName);
-				dbName = dbName.ToUpperPascal();
-				path = Path.Combine(ModelPath, dbName);
+				path = Path.Combine(ModelPath, dbName.ToUpperPascal());
 			}
 			CreateDir(path);
 			return path;
@@ -158,11 +155,15 @@ namespace Creeper.Generator.Common.Options
 		/// </summary>
 		/// <param name="typeName"></param>
 		/// <returns></returns>
-		public static string GetDbNameNameMain(string typeName = null)
+		public string GetDbNameNameMain(string typeName = null)
 		{
-			if (string.IsNullOrEmpty(typeName) || typeName.ToLower() == CreeperGenerateOption.MASTER_DATABASE_TYPE_NAME.ToLower())
+			if (!Multiple)
 				return DbNamePrefix + CreeperGenerateOption.MASTER_DATABASE_TYPE_NAME;
-			return DbNamePrefix + typeName.ToUpperPascal();
+			else
+			{
+				CheckDbName(typeName);
+				return DbNamePrefix + typeName.ToUpperPascal();
+			}
 		}
 
 		/// <summary>
@@ -170,11 +171,15 @@ namespace Creeper.Generator.Common.Options
 		/// </summary>
 		/// <param name="typeName"></param>
 		/// <returns></returns>
-		public static string GetDbNameNameSecondary(string typeName = null)
+		public string GetDbNameNameSecondary(string typeName = null)
 		{
-			if (string.IsNullOrEmpty(typeName) || typeName.ToLower() == CreeperGenerateOption.MASTER_DATABASE_TYPE_NAME.ToLower())
+			if (!Multiple)
 				return DbNamePrefix + DataBaseType.Secondary.ToString();
-			return DbNamePrefix + typeName.ToUpperPascal() + DataBaseType.Secondary.ToString(); ;
+			else
+			{
+				CheckDbName(typeName);
+				return DbNamePrefix + typeName.ToUpperPascal() + DataBaseType.Secondary.ToString();
+			}
 		}
 
 		/// <summary>
@@ -185,14 +190,12 @@ namespace Creeper.Generator.Common.Options
 		public string GetMappingNamespaceName(string typeName = null)
 		{
 			var namespaceName = ModelNamespace;
-			if (!Multiple)
-				return namespaceName;
-			else
+			if (Multiple)
 			{
 				CheckDbName(typeName);
-				typeName = typeName.ToUpperPascal();
-				return namespaceName += "." + typeName;
+				namespaceName += "." + typeName.ToUpperPascal();
 			}
+			return namespaceName;
 		}
 
 		/// <summary>
@@ -203,14 +206,12 @@ namespace Creeper.Generator.Common.Options
 		public string GetModelNamespaceFullName(string typeName = null)
 		{
 			var namespaceName = string.Format("{0}.{1}.{2}", BaseOptions.ProjectName, DbStandardSuffix, ModelNamespace);
-			if (!Multiple)
-				return namespaceName;
-			else
+			if (Multiple)
 			{
 				CheckDbName(typeName);
-				typeName = typeName.ToUpperPascal();
-				return namespaceName += "." + typeName;
+				namespaceName += "." + typeName.ToUpperPascal();
 			}
+			return namespaceName;
 		}
 
 		/// <summary>

@@ -1,6 +1,6 @@
 using Creeper.Driver;
 
-namespace Creeper.PostgreSql.XUnitTest.Entity.Options
+namespace Creeper.MySql.XUnitTest.Entity.Options
 {
 	/// <summary>
 	/// DbMain主库

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Creeper.Generator.Common.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -36,6 +37,19 @@ namespace Creeper.Generator.Common
 			else
 				return " 1=1 ";
 		}
-
+		/// <summary>
+		/// 去除下划线并首字母大写
+		/// </summary>
+		/// <param name="str"></param>
+		/// <param name="len"></param>
+		/// <returns></returns>
+		public static string ExceptUnderlineToUpper(string str)
+		{
+			var strArr = str.Split('_');
+			str = string.Empty;
+			foreach (var item in strArr)
+				str = string.Concat(str, item.ToUpperPascal());
+			return str;
+		}
 	}
 }

@@ -1,4 +1,5 @@
-﻿using Creeper.Generator.Common.Extensions;
+﻿using Creeper.Generator.Common;
+using Creeper.Generator.Common.Extensions;
 using NpgsqlTypes;
 using System;
 using System.Collections.Generic;
@@ -314,26 +315,13 @@ namespace Creeper.PostgreSql.Generator
 		/// <returns></returns>
 		public static string DeletePublic(string schemaName, string tableName, bool isTableName = false, bool isView = false)
 		{
-			tableName = ExceptUnderlineToUpper(tableName);
+			tableName = CreeperGenerator.ExceptUnderlineToUpper(tableName);
 			if (isTableName)
 				return schemaName.ToLower() == "public" ? tableName.ToUpperPascal() : schemaName.ToLower() + "." + tableName;
 			if (isView)
 				tableName += "View";
 			return schemaName.ToLower() == "public" ? tableName.ToUpperPascal() : schemaName.ToUpperPascal() + tableName;
 		}
-		/// <summary>
-		/// 去除下划线并首字母大写
-		/// </summary>
-		/// <param name="str"></param>
-		/// <param name="len"></param>
-		/// <returns></returns>
-		public static string ExceptUnderlineToUpper(string str)
-		{
-			var strArr = str.Split('_');
-			str = string.Empty;
-			foreach (var item in strArr)
-				str = string.Concat(str, item.ToUpperPascal());
-			return str;
-		}
+
 	}
 }

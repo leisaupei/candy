@@ -1,5 +1,6 @@
 ﻿using Creeper.Driver;
 using Creeper.Generator.Common.Contracts;
+using Creeper.Generator.Common.Extensions;
 using Creeper.Generator.Common.Options;
 using Creeper.Generic;
 using Microsoft.Extensions.Configuration;
@@ -38,6 +39,42 @@ namespace Creeper.Generator.Common
 			writer.WriteLine(" * ################################################################################");
 			writer.WriteLine(" */");
 		}
+
+		/// <summary>
+		/// 写评论
+		/// </summary>
+		/// <param name="writer"></param>
+		/// <param name="comment"></param>
+		public static StringBuilder WriteComment(string comment, int tab)
+		{
+			var sb = new StringBuilder();
+			if (string.IsNullOrWhiteSpace(comment)) return sb;
+			var tabStr = string.Empty;
+			for (int i = 0; i < tab; i++)
+				tabStr += "\t";
+			if (comment.Contains("\n"))
+			{
+				comment = comment.Replace("\r\n", string.Concat(Environment.NewLine, tabStr, "/// "));
+			}
+			sb.AppendLine(tabStr + "/// <summary>");
+			sb.AppendLine(tabStr + $"/// {comment}");
+			sb.AppendLine(tabStr + "/// </summary>");
+			return sb;
+		}
+		/// <summary>
+		/// 去除下划线并首字母大写
+		/// </summary>
+		/// <param name="str"></param>
+		/// <param name="len"></param>
+		/// <returns></returns>
+		public static string ExceptUnderlineToUpper(string str)
+		{
+			var strArr = str.Split('_');
+			str = string.Empty;
+			foreach (var item in strArr)
+				str = string.Concat(str, item.ToUpperPascal());
+			return str;
+		}
 		public void Gen(CreeperGenerateOption option)
 		{
 			if (!Directory.Exists(option.OutputPath))
@@ -46,7 +83,7 @@ namespace Creeper.Generator.Common
 			var packageReference = option.Connections.GroupBy(a => a.DataBaseKind.ToString()).Select(a => a.Key)
 				.Select(a => string.Format("\t\t<PackageReference Include=\"Creeper.{2}\" Version=\"{0}\" />{1}", _cfg["CreeperNugetVersion"], Environment.NewLine, a)).ToList();
 
-			var generateOptions = new CreeperGeneratorGlobalOptions(option, _modelNamespace, _dbStandardSuffix, _modelSuffix, option.Connections.Count > 0);
+			var generateOptions = new CreeperGeneratorGlobalOptions(option, _modelNamespace, _dbStandardSuffix, _modelSuffix, option.Connections.Count > 1);
 			GenerateCsproj(generateOptions, packageReference);
 
 			CreateSln(generateOptions);

@@ -8,6 +8,7 @@ using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace Creeper.Driver
 {
@@ -16,6 +17,8 @@ namespace Creeper.Driver
 	/// </summary>
 	public abstract class CreeperDbTypeConvertBase : ICreeperDbTypeConverter
 	{
+		protected static readonly Regex ParamPattern = new Regex(@"(^(\-|\+)?\d+(\.\d+)?$)|(^SELECT\s.+\sFROM\s)|(true)|(false)", RegexOptions.IgnoreCase);
+
 		/// <summary>
 		/// 
 		/// </summary>
@@ -33,7 +36,10 @@ namespace Creeper.Driver
 		/// <typeparam name="T"></typeparam>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		public abstract T ConvertDbData<T>(object value);
+		public T ConvertDbData<T>(object value)
+		{
+			return (T)ConvertDbData(value, typeof(T).GetOriginalType());
+		}
 
 		/// <summary>
 		/// 
@@ -97,7 +103,7 @@ namespace Creeper.Driver
 		/// <param name="dr"></param>
 		/// <param name="columnIndex"></param>
 		/// <returns></returns>
-		protected object GetValueTuple(Type objType, IDataReader dr, ref int columnIndex)
+		private object GetValueTuple(Type objType, IDataReader dr, ref int columnIndex)
 		{
 			if (objType.IsTuple())
 			{
@@ -162,10 +168,12 @@ namespace Creeper.Driver
 		private object CheckType(object value, Type valueType)
 		{
 			if (value.IsNullOrDBNull()) return null;
-			valueType = valueType.GetOriginalType();
+			valueType = GetOriginalType(valueType);
 
 			return ConvertDbData(value, valueType);
 		}
+
+		protected Type GetOriginalType(Type type) => type.GetOriginalType();
 
 		/// <summary>
 		/// 
@@ -173,7 +181,9 @@ namespace Creeper.Driver
 		/// <param name="sqlBuilder"></param>
 		/// <returns></returns>
 		public abstract string ConvertSqlToString(ISqlBuilder sqlBuilder);
+
 		public abstract DbParameter GetDbParameter(string name, object value);
+
 		public abstract DbConnection GetDbConnection(string connectionString);
 	}
 }

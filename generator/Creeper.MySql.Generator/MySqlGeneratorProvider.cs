@@ -34,6 +34,8 @@ namespace Creeper.MySql.Generator
 				MySqlTableGenerator td = new MySqlTableGenerator(execute, _mySqlRule.FieldIgnore, options);
 				td.Generate(item);
 			}
+			MySqlDbOptionsGenerator dbOptionsGenerator = new MySqlDbOptionsGenerator(execute, _mySqlRule, options);
+			dbOptionsGenerator.Generate();
 		}
 
 		public override ICreeperDbConnectionOption GetDbConnectionOptionFromString(string conn)
@@ -78,12 +80,12 @@ namespace Creeper.MySql.Generator
 		{
 			using var connection = execute.ConnectionOptions.GetConnection();
 			var db = connection.Database;
-			var sql = $@"SELECT 
+			var sql = $@"SELECT
 `TABLE_NAME` AS `name`, 
 (CASE `TABLE_TYPE` WHEN 'BASE TABLE' THEN 'table' ELSE lower(`TABLE_TYPE`) END) AS `type`, 
-`TABLE_COMMENT` AS `description`
+(CASE WHEN `TABLE_COMMENT` = 'VIEW' AND `TABLE_TYPE` = 'VIEW' THEN '' ELSE `TABLE_COMMENT` END) AS `description`
 FROM  `information_schema`.`TABLES`
-WHERE `TABLE_SCHEMA` = '{db}' AND `TABLE_TYPE` IN ('BASE TABLE', 'VIEW'); ";
+WHERE `TABLE_SCHEMA` = '{db}' AND `TABLE_TYPE` IN ('BASE TABLE', 'VIEW');";
 			return execute.ExecuteDataReaderList<TableViewModel>(sql);
 		}
 	}

@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Creeper.MySql\Creeper.MySql.csproj" />
+    <ProjectReference Include="..\db\Creeper.MySql.XUnitTest.Entity\Creeper.MySql.XUnitTest.Entity.csproj" />
   </ItemGroup>
 
 </Project>

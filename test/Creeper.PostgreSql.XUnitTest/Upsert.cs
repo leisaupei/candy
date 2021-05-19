@@ -31,11 +31,11 @@ namespace Creeper.PostgreSql.XUnitTest
 		[Theory, Description("随机唯一主键")]
 		[InlineData("00000000-0000-0000-0000-000000000000")]
 		[InlineData("7707d5e2-0ed0-4f80-931a-1d766028df08")]
-		public void GuidPrimaryKey(string id)
+		public void GuidPrimaryKey(Guid id)
 		{
 			var affrows = _dbContext.UpsertOnly(new TestUuidPkModel
 			{
-				Id = Guid.Parse(id),
+				Id = id,
 				Age = 20,
 				Name = "小明"
 			});
@@ -44,11 +44,11 @@ namespace Creeper.PostgreSql.XUnitTest
 		[Theory, Description("Guid主键, 包含一个自增字段")]
 		[InlineData("00000000-0000-0000-0000-000000000000")]
 		[InlineData("7707d5e2-0ed0-4f80-931a-1d766028df08")]
-		public void GuidPrimaryKeyWithIdentityField(string id)
+		public void GuidPrimaryKeyWithIdentityField(Guid id)
 		{
 			var affrows = _dbContext.UpsertOnly(new TestIdenNopkModel
 			{
-				Id = Guid.Parse(id),
+				Id = id,
 				Age = 20,
 				Name = "小云"
 			});
@@ -58,11 +58,11 @@ namespace Creeper.PostgreSql.XUnitTest
 		[InlineData("00000000-0000-0000-0000-000000000000", 0)]
 		[InlineData("7707d5e2-0ed0-4f80-931a-1d766028df08", 1)]
 		[InlineData("00000000-0000-0000-0000-000000000000", 2)]
-		public void GuidIdentityPrimaryKey(string id, int idenId)
+		public void GuidIdentityPrimaryKey(Guid id, int idenId)
 		{
 			var affrows = _dbContext.UpsertOnly(new TestUuidIdenPkModel
 			{
-				Id = Guid.Parse(id),
+				Id = id,
 				Id_sec = idenId,
 				Age = 20,
 				Name = "小明"

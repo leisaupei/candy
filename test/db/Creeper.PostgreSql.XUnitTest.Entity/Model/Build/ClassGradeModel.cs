@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Xml;
 using System.Net;
+using NpgsqlTypes;
 using System.Threading.Tasks;
 using System.Threading;
 using Creeper.Attributes;

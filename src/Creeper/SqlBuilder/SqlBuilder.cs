@@ -269,15 +269,19 @@ namespace Creeper.SqlBuilder
 		/// </summary>
 		/// <returns></returns>
 		protected int ToAffectedRows()
-			=> DbExecute.ExecuteNonQuery(CommandText, CommandType.Text, Params.ToArray());
-
+		{
+			ReturnType = PipeReturnType.Rows;
+			return DbExecute.ExecuteNonQuery(CommandText, CommandType.Text, Params.ToArray());
+		}
 		/// <summary>
 		/// 返回行数
 		/// </summary>
 		/// <returns></returns>
 		protected ValueTask<int> ToAffectedRowsAsync(CancellationToken cancellationToken)
-			=> DbExecute.ExecuteNonQueryAsync(CommandText, CommandType.Text, Params.ToArray(), cancellationToken);
-
+		{
+			ReturnType = PipeReturnType.Rows;
+			return DbExecute.ExecuteNonQueryAsync(CommandText, CommandType.Text, Params.ToArray(), cancellationToken);
+		}
 		#endregion
 
 		/// <summary>

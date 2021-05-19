@@ -329,6 +329,8 @@ namespace Creeper.SqlBuilder
 			var ret = string.Empty;
 			if (ReturnType != PipeReturnType.Rows)
 			{
+				if (DbExecute.ConnectionOptions.DataBaseKind == DataBaseKind.MySql)
+					throw new NotSupportedException("Mysql not supported returning method.");
 				Fields = EntityHelper.GetFieldsAlias<TModel>(MainAlias, DbConverter);
 				ret = $"RETURNING {Fields}";
 			}

@@ -174,6 +174,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Xml;
 using System.Net;
+using NpgsqlTypes;
 using System.Threading.Tasks;
 using System.Threading;
 using Creeper.Attributes;
@@ -188,11 +189,11 @@ namespace {0}
 		#region Properties",
 _options.GetModelNamespaceFullName(_dbExecute.ConnectionOptions.DbName),
 _options.OptionsNamespace,
- WriteComment(_table.Description, 1),
+CreeperGenerator.WriteComment(_table.Description, 1),
 _isGeometryTable ? "using Npgsql.LegacyPostgis;" + Environment.NewLine : "",
 _schemaName,
 ModelClassName,
-CreeperGeneratorGlobalOptions.GetDbNameNameMain(_dbExecute.ConnectionOptions.DbName),
+_options.GetDbNameNameMain(_dbExecute.ConnectionOptions.DbName),
 _table.Name,
 _dbExecute.ConnectionOptions.DataBaseKind.ToString());
 
@@ -221,7 +222,7 @@ _dbExecute.ConnectionOptions.DataBaseKind.ToString());
 
 				#endregion
 
-				writer.Write(WriteComment(item.Comment, 2));
+				writer.Write(CreeperGenerator.WriteComment(item.Comment, 2));
 				if (element.Count > 0)
 					writer.WriteLine(@"{1}{1}[CreeperDbColumn({0})]", string.Join(", ", element), '\t');
 				writer.WriteLine(@"{2}{2}public {0} {1} {{ get; set; }}", item.RelType, item.NameUpCase, '\t');
@@ -234,30 +235,5 @@ _dbExecute.ConnectionOptions.DataBaseKind.ToString());
 
 			writer.Flush();
 		}
-
-		#region Private Method
-		/// <summary>
-		/// 写评论
-		/// </summary>
-		/// <param name="writer"></param>
-		/// <param name="comment"></param>
-		public static StringBuilder WriteComment(string comment, int tab)
-		{
-			var sb = new StringBuilder();
-			if (string.IsNullOrWhiteSpace(comment)) return sb;
-			var tabStr = string.Empty;
-			for (int i = 0; i < tab; i++)
-				tabStr += "\t";
-			if (comment.Contains("\n"))
-			{
-				comment = comment.Replace("\r\n", string.Concat(Environment.NewLine, tabStr, "/// "));
-			}
-			sb.AppendLine(tabStr + "/// <summary>");
-			sb.AppendLine(tabStr + $"/// {comment}");
-			sb.AppendLine(tabStr + "/// </summary>");
-			return sb;
-		}
-
-		#endregion
 	}
 }

@@ -25,12 +25,7 @@ namespace Creeper.MySql.Generator
 
 		private readonly ICreeperDbExecute _dbExecute;
 		private readonly FieldIgnore _fieldIgnore;
-
-		/// <summary>
-		/// 是不是空间表
-		/// </summary>
 		private bool _isGeometryTable = false;
-
 		/// <summary>
 		/// 是否视图
 		/// </summary>
@@ -41,12 +36,13 @@ namespace Creeper.MySql.Generator
 		/// </summary>
 		private List<TableFieldModel> _fieldList = new List<TableFieldModel>();
 
+		private string TableNameUpCase => CreeperGenerator.ExceptUnderlineToUpper(_table.Name.ToUpperPascal());
 		/// <summary>
 		/// Model名称
 		/// </summary>
-		private string ModelClassName => _table.Name.ToUpperPascal() + (_isView ? "View" : null) + _options.ModelSuffix;
+		private string ModelClassName => TableNameUpCase + (_isView ? "View" : null) + _options.ModelSuffix;
 
-		private static readonly string[] _notAddQues = { "string", "JToken", "byte[]", "object", "IPAddress", "Dictionary<string, string>", "NpgsqlTsQuery", "NpgsqlTsVector", "BitArray", "PhysicalAddress", "XmlDocument", "PostgisGeometry" };
+		private static readonly string[] _notAddQues = { "string", "JToken", "byte[]", "object", "IPAddress", "Dictionary<string, string>", "System.Drawing.Point[]", "System.Drawing.Point[][]" };
 
 		/// <summary>
 		/// 构建函数
@@ -91,17 +87,29 @@ SELECT
 	`COLUMN_COMMENT` as `comment`,
 	`COLUMN_NAME` AS `name`,
 	`IS_NULLABLE` = 'YES' AS `isnullable`,
-	`DATA_TYPE` as `dbdatatype`,
+	`DATA_TYPE` AS `dbdatatype`,
 	`CHARACTER_MAXIMUM_LENGTH` as `length`,
-	`COLUMN_KEY` = 'PRI' as `isprimarykey`
- FROM `INFORMATION_SCHEMA`.`COLUMNS` 
+	`COLUMN_KEY` = 'PRI' as `isprimarykey`,
+	`COLUMN_TYPE` AS `columntype`
+FROM `INFORMATION_SCHEMA`.`COLUMNS` 
 WHERE `TABLE_SCHEMA`='{db}' AND `TABLE_NAME`='{_table.Name}' ORDER BY `ORDINAL_POSITION`
 ";
 			_fieldList = _dbExecute.ExecuteDataReaderList<TableFieldModel>(sql);
 
 			foreach (var f in _fieldList)
 			{
-				f.RelType = Types.ConvertMySqlDataTypeToCSharpType(f.DbDataType);
+				f.RelType = Types.ConvertMySqlDataTypeToCSharpType(f.DbDataType, f.Length);
+				if (f.DbDataType == "enum")
+				{
+					f.RelType = TableNameUpCase + GenerateHelper.ExceptUnderlineToUpper(f.Name);
+				}
+
+				if (f.IsNullable && !_notAddQues.Contains(f.RelType))
+					f.RelType += "?";
+				if (f.DbDataType == "geometry")
+					_isGeometryTable = true;
+
+
 			}
 		}
 
@@ -116,18 +124,10 @@ WHERE `TABLE_SCHEMA`='{db}' AND `TABLE_NAME`='{_table.Name}' ORDER BY `ORDINAL_P
 			CreeperGenerator.WriteAuthorHeader.Invoke(writer);
 			writer.WriteLine(@"using Creeper.Driver;
 using System;
-using System.Collections.Generic;
-using System.Collections;
-using System.Net.NetworkInformation;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System.Xml;
-using System.Net;
-using System.Threading.Tasks;
-using System.Threading;
 using Creeper.Attributes;
 using Creeper.Generic;
 using {1};
+
 namespace {0}
 {{
 {2}	[CreeperDbTable(@""`{5}`"", typeof({4}), DataBaseKind.{6})]
@@ -138,7 +138,7 @@ _options.GetModelNamespaceFullName(_dbExecute.ConnectionOptions.DbName),
 _options.OptionsNamespace,
  WriteComment(_table.Description, 1),
 ModelClassName,
-CreeperGeneratorGlobalOptions.GetDbNameNameMain(_dbExecute.ConnectionOptions.DbName),
+_options.GetDbNameNameMain(_dbExecute.ConnectionOptions.DbName),
 _table.Name,
 _dbExecute.ConnectionOptions.DataBaseKind.ToString());
 

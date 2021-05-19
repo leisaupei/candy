@@ -44,6 +44,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sql", "sql", "{D880CB7C-B8F
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Creeper.PostgreSql.XUnitTest.Entity", "test\db\Creeper.PostgreSql.XUnitTest.Entity\Creeper.PostgreSql.XUnitTest.Entity.csproj", "{4D2D1D0E-F9D5-44AD-B022-B3A0A6240982}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Creeper.MySql.XUnitTest.Entity", "test\db\Creeper.MySql.XUnitTest.Entity\Creeper.MySql.XUnitTest.Entity.csproj", "{365CBFDE-12EB-47E4-8974-E2FFD9AB4613}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -106,6 +108,10 @@ Global
 		{4D2D1D0E-F9D5-44AD-B022-B3A0A6240982}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4D2D1D0E-F9D5-44AD-B022-B3A0A6240982}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4D2D1D0E-F9D5-44AD-B022-B3A0A6240982}.Release|Any CPU.Build.0 = Release|Any CPU
+		{365CBFDE-12EB-47E4-8974-E2FFD9AB4613}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{365CBFDE-12EB-47E4-8974-E2FFD9AB4613}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{365CBFDE-12EB-47E4-8974-E2FFD9AB4613}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{365CBFDE-12EB-47E4-8974-E2FFD9AB4613}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -126,6 +132,7 @@ Global
 		{6378F04E-462F-4445-8642-2AD9F792627B} = {82265C58-411A-4302-9FEC-46EB04F76572}
 		{553736AB-766E-48A4-BC27-20266E93E0DD} = {FA7E12A8-9A7D-4600-881B-8A6F7D639E25}
 		{4D2D1D0E-F9D5-44AD-B022-B3A0A6240982} = {6378F04E-462F-4445-8642-2AD9F792627B}
+		{365CBFDE-12EB-47E4-8974-E2FFD9AB4613} = {6378F04E-462F-4445-8642-2AD9F792627B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B5CB1A3E-A918-40DD-8C13-B87E21B6A763}

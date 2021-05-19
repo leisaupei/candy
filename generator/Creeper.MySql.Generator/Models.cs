@@ -34,13 +34,13 @@ namespace Creeper.MySql.Generator
 		/// <summary>
 		/// 是否非空
 		/// </summary>
-		public bool IsNotNull { get; set; }
+		public bool IsNullable { get; set; }
 		/// <summary>
 		/// 是否主键
 		/// </summary>
 		public bool IsPrimaryKey { get; set; }
 		/// <summary>
-		/// C#类型
+		/// C#类型()
 		/// </summary>
 		public string RelType { get; set; }
 		/// <summary>
@@ -49,19 +49,27 @@ namespace Creeper.MySql.Generator
 		public bool IsIdentity { get; set; }
 
 	}
-	/// <summary>
-	/// 
-	/// </summary>
-	public class PrimarykeyInfo
+
+	public class EnumTypeInfo
 	{
 		/// <summary>
-		/// 
+		/// 表名
 		/// </summary>
-		public string Field { get; set; }
+		public string TableName { get; set; }
+
 		/// <summary>
-		/// 
+		/// 枚举成员
 		/// </summary>
-		public string TypeName { get; set; }
-		public string FieldUpCase => Field.ToUpperPascal();
+		public string ColumnType { get; set; }
+
+		/// <summary>
+		/// 字段名称
+		/// </summary>
+		public string Name { get; set; }
+
+		/// <summary>
+		/// 成员
+		/// </summary>
+		public string[] Elements { get; set; }
 	}
 }

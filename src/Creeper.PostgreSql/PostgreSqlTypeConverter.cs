@@ -24,14 +24,8 @@ namespace Creeper.PostgreSql
 
 		public override string DbFieldMark => "\"";
 
-		public override T ConvertDbData<T>(object value)
-		{
-			return (T)ConvertDbData(value, typeof(T));
-		}
-
 		public override object ConvertDbData(object value, Type convertType)
 		{
-			if (value is null) return value;
 			try
 			{
 				switch (convertType)
@@ -70,7 +64,7 @@ namespace Creeper.PostgreSql
 				if (value == null)
 					sql = SqlHelper.GetNullSql(sql, key);
 
-				else if (_paramPattern.IsMatch(value) && p.DbType == DbType.String)
+				else if (ParamPattern.IsMatch(value) && p.DbType == DbType.String)
 					sql = sql.Replace(key, value);
 
 				else if (value.Contains("array"))
@@ -82,8 +76,6 @@ namespace Creeper.PostgreSql
 			return sql.Replace("\r", " ").Replace("\n", " ");
 		}
 
-		private static readonly Regex _paramPattern = new Regex(@"(^(\-|\+)?\d+(\.\d+)?$)|(^SELECT\s.+\sFROM\s)|(true)|(false)", RegexOptions.IgnoreCase);
-
 		public static string GetParamValue(object value)
 		{
 			Type type = value.GetType();
@@ -94,6 +86,8 @@ namespace Creeper.PostgreSql
 			}
 			return value?.ToString();
 		}
+
+
 		public override DbConnection GetDbConnection(string connectionString)
 			=> new NpgsqlConnection(connectionString);
 

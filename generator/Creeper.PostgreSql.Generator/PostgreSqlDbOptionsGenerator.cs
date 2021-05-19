@@ -40,13 +40,13 @@ namespace Creeper.PostgreSql.Generator
 		public void Generate()
 		{
 
-			InitPostgreSqlDbOptionsCs();
-			InitPostgreSqlDbNamesCs();
+			InitDbOptionsFile();
+			InitDbNamesFile();
 
 			var enums = GenerateEnum();
 			var composites = GenerateComposites();
-			UpdatePostgreSqlDbNamesCs();
-			UpdatePostgreSqlDbOptionsCs(enums, composites);
+			UpdateDbNamesFile();
+			UpdateDbOptionsFile(enums, composites);
 		}
 
 
@@ -77,7 +77,7 @@ ORDER BY oid asc
 					if (enums.Count == 0) continue;
 
 					enums[0] += " = 1";
-					writer.Write(PostgreSqlTableGenerator.WriteComment(item.Description, 1));
+					writer.Write(CreeperGenerator.WriteComment(item.Description, 1));
 					writer.WriteLine($"\tpublic enum {Types.DeletePublic(item.Nspname, item.Typname)}");
 					writer.WriteLine("\t{");
 					writer.WriteLine($"\t\t{string.Join(", ", enums)}");
@@ -115,7 +115,7 @@ WHERE {GenerateHelper.ExceptConvert("ns.nspname || '.' || a.typname", _postgreSq
 			foreach (var g in group)
 			{
 				var structName = g.FirstOrDefault();
-				sb.Append(PostgreSqlTableGenerator.WriteComment(structName.Description, 1));
+				sb.Append(CreeperGenerator.WriteComment(structName.Description, 1));
 				sb.AppendLine($"\tpublic partial struct {Types.DeletePublic(structName.Nspname, structName.Typename)}");
 				sb.AppendLine("\t{");
 				foreach (var member in g)
@@ -146,13 +146,12 @@ WHERE {GenerateHelper.ExceptConvert("ns.nspname || '.' || a.typname", _postgreSq
 			return composites;
 		}
 
-
-		public void UpdatePostgreSqlDbNamesCs()
+		public void UpdateDbNamesFile()
 		{
 			var fileName = _options.GetDbNamesFileFullName(Generic.DataBaseKind.PostgreSql);
 			var lines = File.ReadAllLines(fileName).ToList();
-			var mainDbName = CreeperGeneratorGlobalOptions.GetDbNameNameMain(_dbExecute.ConnectionOptions.DbName);
-			var secondaryDbName = CreeperGeneratorGlobalOptions.GetDbNameNameSecondary(_dbExecute.ConnectionOptions.DbName);
+			var mainDbName = _options.GetDbNameNameMain(_dbExecute.ConnectionOptions.DbName);
+			var secondaryDbName = _options.GetDbNameNameSecondary(_dbExecute.ConnectionOptions.DbName);
 			var writeLines = new List<string>
 			{
 				"\t/// <summary>",
@@ -160,7 +159,7 @@ WHERE {GenerateHelper.ExceptConvert("ns.nspname || '.' || a.typname", _postgreSq
 				"\t/// </summary>",
 				$"\tpublic struct {mainDbName} : ICreeperDbName {{ }}",
 				"\t/// <summary>",
-				$"\t/// {secondaryDbName}从库",
+				$"\t/// {mainDbName}从库",
 				"\t/// </summary>",
 				$"\tpublic struct {secondaryDbName} : ICreeperDbName {{ }}"
 			};
@@ -168,16 +167,16 @@ WHERE {GenerateHelper.ExceptConvert("ns.nspname || '.' || a.typname", _postgreSq
 			File.WriteAllLines(fileName, lines);
 		}
 
-		private void UpdatePostgreSqlDbOptionsCs(List<EnumTypeInfo> enums, List<CompositeTypeInfo> composites)
+		private void UpdateDbOptionsFile(List<EnumTypeInfo> enums, List<CompositeTypeInfo> composites)
 		{
 			var fileName = _options.GetDbOptionsFileFullName(Generic.DataBaseKind.PostgreSql);
 			var lines = File.ReadAllLines(fileName).ToList();
 			var writeLines = new List<string>();
-			var dbMainName = CreeperGeneratorGlobalOptions.GetDbNameNameMain(_dbExecute.ConnectionOptions.DbName);
+			var dbMainName = _options.GetDbNameNameMain(_dbExecute.ConnectionOptions.DbName);
 			var className = dbMainName.TrimStart('D', 'b');
 
 			writeLines.Add($"\t#region {_dbExecute.ConnectionOptions.DbName}");
-			writeLines.Add(string.Format("\tpublic class {0}PostgreSqlDbOption : BasePostgreSqlDbOption<{1}, {2}>", className, dbMainName, CreeperGeneratorGlobalOptions.GetDbNameNameSecondary(_dbExecute.ConnectionOptions.DbName)));
+			writeLines.Add(string.Format("\tpublic class {0}PostgreSqlDbOption : BasePostgreSqlDbOption<{1}, {2}>", className, dbMainName, _options.GetDbNameNameSecondary(_dbExecute.ConnectionOptions.DbName)));
 			writeLines.Add("\t{");
 			writeLines.Add(string.Format("\t\tpublic {0}PostgreSqlDbOption(string mainConnectionString, string[] secondaryConnectionStrings) : base(mainConnectionString, secondaryConnectionStrings) {{ }}", className));
 			writeLines.Add("\t\tpublic override DbConnectionOptions Options => new DbConnectionOptions()");
@@ -205,26 +204,8 @@ WHERE {GenerateHelper.ExceptConvert("ns.nspname || '.' || a.typname", _postgreSq
 			lines.InsertRange(lines.Count - 1, writeLines);
 			File.WriteAllLines(fileName, lines);
 		}
-		public string[] OpenFileAndReadAllLines(string path, string fileName)
-		{
-			CreateDirectory(path);
-			fileName = Path.Combine(path, fileName);
-			return File.ReadAllLines(fileName);
 
-		}
-
-		public void CreateDirectory(string path)
-		{
-			if (!Directory.Exists(path))
-				Directory.CreateDirectory(path);
-		}
-
-		public StreamWriter OpenFile(string fileName)
-		{
-			return new StreamWriter(File.Create(fileName), Encoding.UTF8);
-		}
-
-		public void InitPostgreSqlDbOptionsCs()
+		public void InitDbOptionsFile()
 		{
 			var fileName = _options.GetDbOptionsFileFullName(Generic.DataBaseKind.PostgreSql);
 			using var writer = new StreamWriter(File.Create(fileName), Encoding.UTF8);
@@ -242,7 +223,7 @@ WHERE {GenerateHelper.ExceptConvert("ns.nspname || '.' || a.typname", _postgreSq
 			writer.WriteLine("}"); // namespace end
 		}
 
-		public void InitPostgreSqlDbNamesCs()
+		public void InitDbNamesFile()
 		{
 			var fileName = _options.GetDbNamesFileFullName(Generic.DataBaseKind.PostgreSql);
 			using var writer = new StreamWriter(File.Create(fileName), Encoding.UTF8);

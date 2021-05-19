@@ -24,71 +24,98 @@ namespace Creeper.MySql.Generator
 		/// 数据库类型转化成C#类型String
 		/// </summary>
 		/// <param name="dataType"></param>
-		/// <param name="dbType"></param>
+		/// <param name="isNullable"></param>
+		/// <param name="length"></param>
 		/// <returns></returns>
-		public static string ConvertMySqlDataTypeToCSharpType(string dataType)
+		public static string ConvertMySqlDataTypeToCSharpType(string dataType, int length)
 		{
+			var cSharpType = dataType;
 			switch (dataType)
 			{
 				//确定
-				case "bigint": return "long";
-				case "int":
-				case "integer": return "int";
+				case "bigint": cSharpType = "long"; break;
 
-				case "smallint": return "short";
-				case "time": return "TimeSpan";
+				case "tinyint":
+					cSharpType = length switch
+					{
+						var l when l == 1 => "bool",
+						_ => "sbyte",
+					};
+					break;
+
+				case "int":
+				case "mediumint":
+				case "integer": cSharpType = "int"; break;
+
+				case "year":
+				case "smallint": cSharpType = "short"; break;
+				case "time": cSharpType = "TimeSpan"; break;
 
 				case "timestamp":
-				case "date": 
-				case "datetime": return "DateTime";
+				case "date":
+				case "datetime": cSharpType = "DateTime"; break;
 
-				case "numeric": 
-				case "decimal": return "decimal";
+				case "numeric":
+				case "decimal": cSharpType = "decimal"; break;
 
-				case "char": return "char";
-				case "float": return "float";
-				case "double": return "double";
+				case "float": cSharpType = "float"; break;
 
-				case "bit": return "bool";
-				case "binary": return "	byte[]";
-				
-				case "text": 
-				case "varchar":return "string";
-				//未确定
-				case "blob": return "NpgsqlBox";
+				case "real":
+				case "double": cSharpType = "double"; break;
 
-				case "enum":
-
-				case "geometry": return "(IPAddress, int)";
-				case "geometrycollection": return "IPAddress";
-
-
-				case "linestring":
-				case "longblob": return "int";
-
-
-				case "longtext":
-				case "mediumblob": return "long";
-
-				case "mediumint":
-				case "mediumtext": return "TimeSpan";
-
-				case "multilinestring":
-				case "multipoint": return "JToken";
-
-				case "multipolygon": return "NpgsqlLine";
-				case "point": return "NpgsqlLSeg";
-				case "polygon": return "PhysicalAddress";
-				case "real": return "NpgsqlPath";
-				case "set": return "NpgsqlPoint";
+				case "bit":
+					cSharpType = length switch
+					{
+						var l when l == 1 => "bool",
+						var l when l <= 8 => "byte",
+						var l when l <= 16 => "ushort",
+						var l when l <= 32 => "uint",
+						var l when l > 32 => "ulong",
+						_ => "ulong",
+					};
+					break;
 
 				case "tinyblob":
-				case "tinyint":
-				case "varbinary": return "string";
-				case "year":
+				case "longblob":
+				case "mediumblob":
+				case "blob":
+				case "binary":
+				case "varbinary":
+					cSharpType = "byte[]"; break;
+
+				case "geometry": cSharpType = "global::MySql.Data.Types.MySqlGeometry"; break;
+
+				case "tinytext":
+				case "mediumtext":
+				case "longtext":
+				case "char":
+				case "text":
+				case "json":
+				case "set":
+				case "varchar":
+					cSharpType = "string"; break;
+
+				case "point":
+					cSharpType = "System.Drawing.Point";
+					break;
+
+				case "multipoint":
+				case "polygon":
+				case "linestring":
+					cSharpType = "System.Drawing.Point[]";
+					break;
+
+				case "multilinestring":
+				case "multipolygon":
+				case "geometrycollection": //集合仅支持点输出, 暂不包含SRID信息
+					cSharpType = "System.Drawing.Point[][]";
+					break;
+				case "enum":
+					return dataType;
 				default:
 					return dataType;
 			}
+			return cSharpType;
 		}
 
 		/// <summary>
@@ -178,7 +205,7 @@ namespace Creeper.MySql.Generator
 			_type = _type.IsNotNullOrEmpty() ? ", " + _type : "";
 			return _type;
 		}
-		
+
 		/// <summary>
 		/// 排除生成whereor条件的字段类型
 		/// </summary>
@@ -190,19 +217,6 @@ namespace Creeper.MySql.Generator
 			return true;
 		}
 
-		/// <summary>
-		/// 去除下划线并首字母大写
-		/// </summary>
-		/// <param name="str"></param>
-		/// <param name="len"></param>
-		/// <returns></returns>
-		public static string ExceptUnderlineToUpper(string str)
-		{
-			var strArr = str.Split('_');
-			str = string.Empty;
-			foreach (var item in strArr)
-				str = string.Concat(str, item.ToUpperPascal());
-			return str;
-		}
+
 	}
 }
