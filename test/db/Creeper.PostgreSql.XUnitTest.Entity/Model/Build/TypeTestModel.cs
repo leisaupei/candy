@@ -13,6 +13,7 @@ using System.Threading;
 using Creeper.Attributes;
 using Creeper.Generic;
 using Creeper.PostgreSql.XUnitTest.Entity.Options;
+using Npgsql.LegacyPostgis;
 
 namespace Creeper.PostgreSql.XUnitTest.Entity.Model
 {
@@ -115,6 +116,8 @@ namespace Creeper.PostgreSql.XUnitTest.Entity.Model
 		public string[] Varchar_array_type { get; set; }
 
 		public EtDataState? Enum_type { get; set; }
+
+		public PostgisGeometry Geometry_type { get; set; }
 		#endregion
 	}
 }

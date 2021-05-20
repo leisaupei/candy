@@ -19,6 +19,7 @@ namespace Creeper.PostgreSql.XUnitTest.Entity.Options
 			{
 				conn.TypeMapper.UseNewtonsoftJson();
 				conn.TypeMapper.UseSystemXmlDocument();
+				conn.TypeMapper.UseLegacyPostgis();
 				conn.TypeMapper.MapEnum<Model.EtDataState>("public.et_data_state", PostgreSqlTranslator.Instance);
 				conn.TypeMapper.MapComposite<Model.Info>("public.info");
 			}
