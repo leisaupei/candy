@@ -1,4 +1,5 @@
 using Creeper.Extensions;
+using Creeper.MySql.Types;
 using Creeper.MySql.XUnitTest.Entity.Model;
 using MySql.Data.MySqlClient;
 using MySql.Data.Types;
@@ -11,6 +12,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Xunit;
 using TestSpace = MySql.Data.Types;
 namespace Creeper.MySql.XUnitTest
@@ -192,20 +194,23 @@ namespace Creeper.MySql.XUnitTest
 		[Fact]
 		public void Geometry()
 		{
-			var obj = _dbContext.ExecuteScalar("select `geometry_t` from `type_test` where `id` = 1 ");
-			var type = obj.GetType();
+			//var obj = _dbContext.ExecuteScalar("select `geometry_t` from `type_test` where `id` = 1 ");
+			//var type = obj.GetType();
 
-			MySqlGeometry geometry = new MySqlGeometry(22.141777, 113.754228);
-			var affrows = _dbContext.Update<TypeTestModel>().Set(a => a.Geometry_t, geometry).Where(a => a.Id == Pid).ToAffectedRows();
-			var result = _dbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Geometry_t);
-			Assert.Equal(1, affrows);
-			Assert.Equal(geometry.XCoordinate, result?.XCoordinate);
-			Assert.Equal(geometry.YCoordinate, result?.YCoordinate);
+			//MySqlGeometry geometry = new MySqlGeometry(22.141777, 113.754228);
+			//var affrows = _dbContext.Update<TypeTestModel>().Set(a => a.Geometry_t, geometry).Where(a => a.Id == Pid).ToAffectedRows();
+			//var result = _dbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Geometry_t);
+			//Assert.Equal(1, affrows);
+			//Assert.Equal(geometry.XCoordinate, result?.XCoordinate);
+			//Assert.Equal(geometry.YCoordinate, result?.YCoordinate);
+			var value = Types.MySqlGeometry.Parse("LINESTRING(1 3, 12 5, 12 7)");
 		}
 
 		[Fact]
 		public void GeometryCollection()
 		{
+			var mysqlPoint = new MySqlPoint(1, 2);
+			var str = mysqlPoint.ToString();
 			var obj = _dbContext.ExecuteScalar<string>("select `geometrycollection_t` from `type_test` where `id` = 1 ");
 			var type = obj.GetType();
 			//var ge = new MySqlGeometry(MySqlDbType.Geometry, (byte[])obj);
