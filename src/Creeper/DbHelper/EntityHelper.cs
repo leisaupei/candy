@@ -114,13 +114,19 @@ namespace Creeper.DbHelper
 		{
 			var fields = new List<string>();
 			var pkFields = new List<string>();
+			var dbKind = type.GetCustomAttribute<CreeperDbTableAttribute>()?.DbKind ?? throw new Exception("没有找到CreeperDbTableAttribute特性");
+			var converter = TypeHelper.GetConverter(dbKind);
 			GetAllFields(p =>
 			{
-				fields.Add(p.Name.ToLower());
+				var name = p.Name.ToLower();
+				if (converter.TrySpecialOutput(p.PropertyType, out var format))
+					name = string.Format(format, name);
+
+				fields.Add(name);
 
 				var column = p.GetCustomAttribute<CreeperDbColumnAttribute>();
 				if (column != null && column.Primary)
-					pkFields.Add(p.Name.ToLower());
+					pkFields.Add(name);
 			}, type);
 			var fieldInfo = new TypeFieldsInfo
 			{
@@ -153,7 +159,7 @@ namespace Creeper.DbHelper
 		/// <param name="type"></param>
 		/// <param name="alias"></param>
 		/// <returns></returns>
-		public static string GetFieldsAlias(string alias, Type type, ICreeperDbTypeConverter converter)
+		public static string GetFieldsAlias(string alias, Type type, ICreeperDbConverter converter)
 		{
 			InitStaticTypesFields(type);
 			var fs = _typeFields[string.Concat(type.FullName, SystemLoadSuffix)].Fields;
@@ -174,7 +180,7 @@ namespace Creeper.DbHelper
 		/// </summary>
 		/// <param name="alias"></param>
 		/// <returns></returns>
-		public static string GetFieldsAlias<T>(string alias, ICreeperDbTypeConverter converter) where T : ICreeperDbModel
+		public static string GetFieldsAlias<T>(string alias, ICreeperDbConverter converter) where T : ICreeperDbModel
 			=> GetFieldsAlias(alias, typeof(T), converter);
 
 
@@ -196,7 +202,7 @@ namespace Creeper.DbHelper
 			IEnumerable<PropertyInfo> properties = GetProperties(type);
 			foreach (var p in properties)
 				action?.Invoke(p);
-			
+
 		}
 
 		private static IEnumerable<PropertyInfo> GetProperties(Type type)

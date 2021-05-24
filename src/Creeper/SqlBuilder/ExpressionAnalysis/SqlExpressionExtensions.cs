@@ -41,7 +41,7 @@ namespace Creeper.SqlBuilder.ExpressionAnalysis
 		/// </summary>
 		/// <param name="mb"></param>
 		/// <returns></returns>
-		public static string ToDatebaseField(this MemberExpression mb, ICreeperDbTypeConverter converter)
+		public static string ToDatebaseField(this MemberExpression mb, ICreeperDbConverter converter)
 			=> string.Concat(mb.ToString().ToLower().Replace(".", string.Concat('.', converter.DbFieldMark)), converter.DbFieldMark);
 
 		/// <summary>

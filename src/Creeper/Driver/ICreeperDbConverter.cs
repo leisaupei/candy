@@ -8,7 +8,7 @@ using System.Text;
 
 namespace Creeper.Driver
 {
-	public interface ICreeperDbTypeConverter
+	public interface ICreeperDbConverter
 	{
 		/// <summary>
 		/// 数据库种类
@@ -83,5 +83,21 @@ namespace Creeper.Driver
 		/// <param name="connectionString"></param>
 		/// <returns></returns>
 		DbConnection GetDbConnection(string connectionString);
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="format"></param>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		bool SetSpecialDbParameter(out string format, ref object value);
+
+		/// <summary>
+		/// 自定义输出
+		/// </summary>
+		/// <param name="type"></param>
+		/// <param name="format"></param>
+		/// <returns></returns>
+		bool TrySpecialOutput(Type type, out string format);
 	}
 }

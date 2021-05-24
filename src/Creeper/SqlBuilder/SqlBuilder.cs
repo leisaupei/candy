@@ -33,7 +33,7 @@ namespace Creeper.SqlBuilder
 		/// <summary>
 		/// 
 		/// </summary>
-		protected ICreeperDbTypeConverter DbConverter { get; set; }
+		protected ICreeperDbConverter DbConverter { get; set; }
 
 		/// <summary>
 		/// 主表别名, 默认为: "a"

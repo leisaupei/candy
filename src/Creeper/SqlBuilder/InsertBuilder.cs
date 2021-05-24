@@ -129,6 +129,7 @@ namespace Creeper.SqlBuilder
 			});
 			return this;
 		}
+
 		private static bool IngoreIdentity(CreeperDbColumnAttribute column, object value, Type propertyType)
 		{
 			if (column.Identity)
@@ -140,6 +141,7 @@ namespace Creeper.SqlBuilder
 			}
 			return false;
 		}
+
 		private static object SetNewGuid(object value)
 		{
 			if (value is Guid g && g == default)
@@ -204,24 +206,6 @@ namespace Creeper.SqlBuilder
 		/// <summary>
 		/// 设置某字段的值
 		/// </summary>
-		/// <typeparam name="TKey"></typeparam>
-		/// <param name="key"></param>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		private InsertBuilder<TModel> Set<TKey>(string key, TKey value)
-		{
-			if (value == null)
-			{
-				_insertList[key] = "null";
-				return this;
-			}
-			AddParameter(out string index, value);
-			_insertList[key] = string.Concat("@", index);
-			return this;
-		}
-		/// <summary>
-		/// 设置某字段的值
-		/// </summary>
 		/// <param name="key"></param>
 		/// <param name="value"></param>
 		/// <returns></returns>
@@ -232,10 +216,16 @@ namespace Creeper.SqlBuilder
 				_insertList[key] = "null";
 				return this;
 			}
+			var isSpecial = TypeHelper.GetConverter(DbExecute.ConnectionOptions.DataBaseKind).SetSpecialDbParameter(out string format, ref value);
+
 			AddParameter(out string index, value);
-			_insertList[key] = string.Concat("@", index);
+
+			var pName = string.Concat("@", index);
+
+			_insertList[key] = !isSpecial ? pName : string.Format(format, pName);
 			return this;
 		}
+
 		/// <summary>
 		/// 返回修改行数
 		/// </summary>
@@ -297,7 +287,11 @@ namespace Creeper.SqlBuilder
 
 			string returning = null;
 			if (ReturnType == PipeReturnType.One)
+			{
+				if (DbExecute.ConnectionOptions.DataBaseKind == DataBaseKind.MySql)
+					throw new NotSupportedException("mysql is not supported returning");
 				returning = $"RETURNING {EntityHelper.GetFieldsAlias<TModel>(null, DbConverter)}";
+			}
 			if (upsertString != null)
 				return $"{upsertString} {returning}";
 			if (WhereList.Count == 0)

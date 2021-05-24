@@ -107,7 +107,7 @@ namespace Creeper.SqlBuilder
 		/// <exception cref="ArgumentNullException">values is null or length is zero</exception>
 		/// <returns></returns>
 		public TBuilder WhereAny<TSource, TKey>(Expression<Func<TSource, TKey>> selector, IEnumerable<TKey> values) where TSource : ICreeperDbModel, new()
-			=> WhereAny(GetSelector(selector), values);
+			=> WhereAny(GetSelectorSpecial(selector), values);
 
 		/// <summary>
 		/// any方法
@@ -139,7 +139,7 @@ namespace Creeper.SqlBuilder
 		/// <exception cref="ArgumentNullException">values is null or length is zero</exception>
 		/// <returns></returns>
 		public TBuilder WhereAny<TSource, TKey>(Expression<Func<TSource, TKey?>> selector, IEnumerable<TKey> values) where TSource : ICreeperDbModel, new() where TKey : struct
-			=> WhereAny(GetSelector(selector), values);
+			=> WhereAny(GetSelectorSpecial(selector), values);
 
 		/// <summary>
 		/// any方法
@@ -173,7 +173,7 @@ namespace Creeper.SqlBuilder
 		/// <exception cref="ArgumentNullException">values is null or length is zero</exception>
 		/// <returns></returns>
 		public TBuilder WhereNotAny<TSource, TKey>(Expression<Func<TSource, TKey>> selector, IEnumerable<TKey> values) where TSource : ICreeperDbModel, new()
-			=> WhereNotAny(GetSelector(selector), values);
+			=> WhereNotAny(GetSelectorSpecial(selector), values);
 
 		/// <summary>
 		/// not equals any 方法, optional字段
@@ -185,7 +185,7 @@ namespace Creeper.SqlBuilder
 		/// <exception cref="ArgumentNullException">values is null or length is zero</exception>
 		/// <returns></returns>
 		public TBuilder WhereNotAny<TSource, TKey>(Expression<Func<TSource, TKey?>> selector, IEnumerable<TKey> values) where TSource : ICreeperDbModel, new() where TKey : struct
-			=> WhereNotAny(GetSelector(selector), values);
+			=> WhereNotAny(GetSelectorSpecial(selector), values);
 
 		/// <summary>
 		/// not equals any 方法
@@ -219,7 +219,7 @@ namespace Creeper.SqlBuilder
 			if (sqlBuilder == null)
 				throw new ArgumentNullException(nameof(sqlBuilder));
 			AddParameters(sqlBuilder.Params);
-			return Where($"{GetSelector(selector)} NOT IN ({sqlBuilder.CommandText})");
+			return Where($"{GetSelectorSpecial(selector)} NOT IN ({sqlBuilder.CommandText})");
 		}
 
 		/// <summary>
@@ -234,7 +234,7 @@ namespace Creeper.SqlBuilder
 			if (sqlBuilder == null)
 				throw new ArgumentNullException(nameof(sqlBuilder));
 			AddParameters(sqlBuilder.Params);
-			return Where($"{GetSelector(selector)} IN ({sqlBuilder.CommandText})");
+			return Where($"{GetSelectorSpecial(selector)} IN ({sqlBuilder.CommandText})");
 		}
 
 		/// <summary>
@@ -409,13 +409,22 @@ namespace Creeper.SqlBuilder
 		#endregion
 
 		#region SqlGenerator
+
+		/// <summary>
+		/// a=>a.Key ==> a."key"
+		/// </summary>
+		/// <param name="selector"></param>
+		/// <returns></returns>
+		protected string GetSelectorSpecial(Expression selector)
+		   => SqlGenerator.GetSelector(selector, DbConverter, true, true);
+
 		/// <summary>
 		/// a=>a.Key ==> a."key"
 		/// </summary>
 		/// <param name="selector"></param>
 		/// <returns></returns>
 		protected string GetSelector(Expression selector)
-		   => SqlGenerator.GetSelector(selector, DbConverter);
+		   => SqlGenerator.GetSelector(selector, DbConverter, true, false);
 
 		/// <summary>
 		///  a=>a.Key == "xxx" ==> a."key" = 'xxx'
@@ -431,7 +440,7 @@ namespace Creeper.SqlBuilder
 		/// <param name="selector"></param>
 		/// <returns></returns>
 		protected string GetSelectorWithoutAlias(Expression selector)
-			 => SqlGenerator.GetSelectorWithoutAlias(selector, DbConverter);
+			 => SqlGenerator.GetSelector(selector, DbConverter, false, false);
 		#endregion
 
 	}

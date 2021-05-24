@@ -42,7 +42,22 @@ namespace Creeper.MySql.Generator
 		/// </summary>
 		private string ModelClassName => TableNameUpCase + (_isView ? "View" : null) + _options.ModelSuffix;
 
-		private static readonly string[] _notAddQues = { "string", "JToken", "byte[]", "object", "IPAddress", "Dictionary<string, string>", "System.Drawing.Point[]", "System.Drawing.Point[][]" };
+		private static readonly string[] _notAddQues = {
+			"string",
+			"JToken",
+			"byte[]",
+			"object",
+			"IPAddress",
+			"Dictionary<string, string>",
+			"Creeper.MySql.Types.MySqlGeometry",
+			"Creeper.MySql.Types.MySqlGeometryCollection",
+			"Creeper.MySql.Types.MySqlLineString",
+			"Creeper.MySql.Types.MySqlMultiLineString",
+			"Creeper.MySql.Types.MySqlMultiPoint",
+			"Creeper.MySql.Types.MySqlMultiPolygon",
+			"Creeper.MySql.Types.MySqlPoint",
+			"Creeper.MySql.Types.MySqlPolygon"
+		};
 
 		/// <summary>
 		/// 构建函数

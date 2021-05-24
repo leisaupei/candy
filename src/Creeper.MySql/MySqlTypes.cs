@@ -9,16 +9,16 @@ namespace Creeper.MySql.Types
 {
 	public abstract class MySqlGeometry
 	{
-		static readonly Regex regexMySqlPoint = new Regex(@"\s*(-?\d+\.?\d*)\s+(-?\d+\.?\d*)\s*");
-		static readonly Regex regexSplit1 = new Regex(@"\)\s*,\s*\(");
-		static readonly Regex regexSplit2 = new Regex(@"\)\s*\)\s*,\s*\(\s*\(");
-		static readonly Regex regexSplit3 = new Regex(@"\s*,\s*(?=[a-zA-Z])");
+		static readonly Regex _regexMySqlPoint = new Regex(@"\s*(-?\d+\.?\d*)\s+(-?\d+\.?\d*)\s*");
+		static readonly Regex _regexSplit1 = new Regex(@"\)\s*,\s*\(");
+		static readonly Regex _regexSplit2 = new Regex(@"\)\s*\)\s*,\s*\(\s*\(");
+		static readonly Regex _regexSplit3 = new Regex(@"\s*,\s*(?=[a-zA-Z])");
 		public int? SRID { get; set; }
 
 		public override string ToString() => this switch
 		{
 			null => null,
-			MySqlPoint p => $"POINT({p.X} {p.Y})",
+			MySqlPoint p => $"{(SRID != null && SRID != 0 ? $"SRID={SRID};" : "")}POINT({p.X} {p.Y})",
 			MySqlLineString ls => ls.Count > 0 ? $"LINESTRING({string.Join(",", ls.Select(a => $"{a.X} {a.Y}"))})" : null,
 			MySqlPolygon pg => pg.Any() ? $"POLYGON(({string.Join("),(", pg.Select(c => string.Join(",", c.Select(a => $"{a.X} {a.Y}"))))}))" : null,
 			MySqlMultiPoint mp => mp.Count > 0 ? $"MULTIPOINT({string.Join(",", mp.Select(a => $"{a.X} {a.Y}"))})" : null,
@@ -58,20 +58,20 @@ namespace Creeper.MySql.Types
 
 		static MySqlPoint ParsePoint(string str)
 		{
-			var m = regexMySqlPoint.Match(str);
+			var m = _regexMySqlPoint.Match(str);
 			if (m.Success == false) return null;
 			return new MySqlPoint(double.TryParse(m.Groups[1].Value, out var d) ? d : 0, double.TryParse(m.Groups[2].Value, out d) ? d : 0);
 		}
 
-		static MySqlPoint[] ParsePoints(string str) => regexMySqlPoint.Matches(str).Select(a => new MySqlPoint(double.TryParse(a.Groups[1].Value, out var d) ? d : 0, double.TryParse(a.Groups[2].Value, out d) ? d : 0)).ToArray();
+		static MySqlPoint[] ParsePoints(string str) => _regexMySqlPoint.Matches(str).Select(a => new MySqlPoint(double.TryParse(a.Groups[1].Value, out var d) ? d : 0, double.TryParse(a.Groups[2].Value, out d) ? d : 0)).ToArray();
 
-		static MySqlPoint[][] ParsePolygon(string str) => regexSplit1.Split(str).Select(s => ParsePoints(s)).Where(a => a.Length > 1 && a.First().Equals(a.Last())).ToArray();
+		static MySqlPoint[][] ParsePolygon(string str) => _regexSplit1.Split(str).Select(s => ParsePoints(s)).Where(a => a.Length > 1 && a.First().Equals(a.Last())).ToArray();
 
-		static MySqlLineString[] ParseMultiLineString(string str) => regexSplit1.Split(str).Select(s => new MySqlLineString(ParsePoints(s))).ToArray();
+		static MySqlLineString[] ParseMultiLineString(string str) => _regexSplit1.Split(str).Select(s => new MySqlLineString(ParsePoints(s))).ToArray();
 
-		static MySqlPolygon[] ParseMultiPolygon(string str) => regexSplit2.Split(str).Select(s => new MySqlPolygon(ParsePolygon(s))).ToArray();
+		static MySqlPolygon[] ParseMultiPolygon(string str) => _regexSplit2.Split(str).Select(s => new MySqlPolygon(ParsePolygon(s))).ToArray();
 
-		static MySqlGeometry[] ParseGeometryCollection(string str) => regexSplit3.Split(str).Select(s => Parse(s)).ToArray();
+		static MySqlGeometry[] ParseGeometryCollection(string str) => _regexSplit3.Split(str).Select(s => Parse(s)).ToArray();
 	}
 
 	public class MySqlGeometryCollection : MySqlGeometry, IEquatable<MySqlGeometryCollection>, IEnumerable<MySqlGeometry>
@@ -278,18 +278,27 @@ namespace Creeper.MySql.Types
 	{
 		readonly MySqlPoint[][] _points;
 
-		public MySqlPolygon(IEnumerable<IEnumerable<MySqlPoint>> points) => _points = points.Select(a => a.ToArray()).ToArray();
+		public MySqlPolygon(IEnumerable<IEnumerable<MySqlPoint>> points) : this(points.Select(a => a.ToArray()).ToArray()) { }
 
-		public MySqlPolygon(MySqlPoint[][] points) => _points = points;
+		public MySqlPolygon(MySqlPoint[][] points)
+		{
+			if (!points?.Any() ?? true || points.Any(a => !a.Any()))
+				throw new ArgumentNullException(nameof(points));
 
+			if (points.Any(a => a.First() != a.Last() || a.Length < 4))
+				throw new ArgumentException(nameof(points));
+
+			_points = points;
+		}
 		public bool Equals(MySqlPolygon other)
 		{
 			if (other == null || _points.Length != other._points.Length)
 				return false;
 
 			for (var i = 0; i < _points.Length; i++)
-				if (!_points[i].Equals(other._points[i]))
-					return false;
+				for (int j = 0; j < _points[i].Length; j++)
+					if (!_points[i][j].Equals(other._points[i][j]))
+						return false;
 
 			return true;
 		}

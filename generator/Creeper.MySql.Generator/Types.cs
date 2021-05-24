@@ -83,7 +83,6 @@ namespace Creeper.MySql.Generator
 				case "varbinary":
 					cSharpType = "byte[]"; break;
 
-				case "geometry": cSharpType = "global::MySql.Data.Types.MySqlGeometry"; break;
 
 				case "tinytext":
 				case "mediumtext":
@@ -92,24 +91,20 @@ namespace Creeper.MySql.Generator
 				case "text":
 				case "json":
 				case "set":
-				case "varchar":
-					cSharpType = "string"; break;
+				case "varchar": cSharpType = "string"; break;
 
-				case "point":
-					cSharpType = "System.Drawing.Point";
-					break;
+				case "point": cSharpType = "Creeper.MySql.Types.MySqlPoint"; break;
+				case "multipoint": cSharpType = "Creeper.MySql.Types.MySqlMultiPoint"; break;
 
-				case "multipoint":
-				case "polygon":
-				case "linestring":
-					cSharpType = "System.Drawing.Point[]";
-					break;
+				case "polygon": cSharpType = "Creeper.MySql.Types.MySqlPolygon"; break;
+				case "multipolygon": cSharpType = "Creeper.MySql.Types.MySqlMultiPolygon"; break;
 
-				case "multilinestring":
-				case "multipolygon":
-				case "geometrycollection": //集合仅支持点输出, 暂不包含SRID信息
-					cSharpType = "System.Drawing.Point[][]";
-					break;
+				case "linestring": cSharpType = "Creeper.MySql.Types.MySqlLineString"; break;
+				case "multilinestring": cSharpType = "Creeper.MySql.Types.MySqlMultiLineString"; break;
+
+				case "geometry": cSharpType = "Creeper.MySql.Types.MySqlGeometry"; break;
+				case "geometrycollection": cSharpType = "Creeper.MySql.Types.MySqlGeometryCollection"; break;
+
 				case "enum":
 					return dataType;
 				default:

@@ -13,7 +13,7 @@ namespace Creeper.Extensions
 		/// <param name="converter"></param>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		public static string WithQuotationMarks(this ICreeperDbTypeConverter converter, string value)
+		public static string WithQuotationMarks(this ICreeperDbConverter converter, string value)
 		{
 			if (string.IsNullOrWhiteSpace(converter.DbFieldMark)) return value;
 

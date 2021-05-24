@@ -35,21 +35,21 @@ namespace Creeper.MySql.XUnitTest.Entity.Model
 
 		public float? Float_t { get; set; }
 
-		public global::MySql.Data.Types.MySqlGeometry? Geometry_t { get; set; }
+		public Creeper.MySql.Types.MySqlGeometry Geometry_t { get; set; }
 
-		public System.Drawing.Point[][] Geometrycollection_t { get; set; }
+		public Creeper.MySql.Types.MySqlGeometryCollection Geometrycollection_t { get; set; }
 
 		public int? Integer_t { get; set; }
 
 		public string Json_t { get; set; }
 
-		public System.Drawing.Point[] Linestring_t { get; set; }
+		public Creeper.MySql.Types.MySqlLineString Linestring_t { get; set; }
 
 		public decimal? Numeric_t { get; set; }
 
-		public System.Drawing.Point? Point_t { get; set; }
+		public Creeper.MySql.Types.MySqlPoint Point_t { get; set; }
 
-		public System.Drawing.Point[] Polygon_t { get; set; }
+		public Creeper.MySql.Types.MySqlPolygon Polygon_t { get; set; }
 
 		public double? Real_t { get; set; }
 
@@ -74,6 +74,12 @@ namespace Creeper.MySql.XUnitTest.Entity.Model
 		public string Varchar_t { get; set; }
 
 		public short? Year_t { get; set; }
+
+		public Creeper.MySql.Types.MySqlMultiLineString Multilinestring_t { get; set; }
+
+		public Creeper.MySql.Types.MySqlMultiPolygon Multipolygon_t { get; set; }
+
+		public Creeper.MySql.Types.MySqlMultiPoint Mulitpoint_t { get; set; }
 		#endregion
 	}
 }

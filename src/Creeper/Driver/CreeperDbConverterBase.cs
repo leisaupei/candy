@@ -15,7 +15,7 @@ namespace Creeper.Driver
 	/// <summary>
 	/// 
 	/// </summary>
-	public abstract class CreeperDbTypeConvertBase : ICreeperDbTypeConverter
+	public abstract class CreeperDbConverterBase : ICreeperDbConverter
 	{
 		protected static readonly Regex ParamPattern = new Regex(@"(^(\-|\+)?\d+(\.\d+)?$)|(^SELECT\s.+\sFROM\s)|(true)|(false)", RegexOptions.IgnoreCase);
 
@@ -36,10 +36,7 @@ namespace Creeper.Driver
 		/// <typeparam name="T"></typeparam>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		public T ConvertDbData<T>(object value)
-		{
-			return (T)ConvertDbData(value, typeof(T).GetOriginalType());
-		}
+		public T ConvertDbData<T>(object value) => (T)ConvertDbData(value, typeof(T).GetOriginalType());
 
 		/// <summary>
 		/// 
@@ -75,12 +72,13 @@ namespace Creeper.Driver
 
 				for (int i = 0; i < reader.FieldCount; i++)
 				{
+					var value = reader[i].IsNullOrDBNull() ? null : reader[i];
 					if (isDictionary)
-						model.GetType().GetMethod("Add").Invoke(model, new[] { reader.GetName(i), reader[i].IsNullOrDBNull() ? null : reader[i] });
+						model.GetType().GetMethod("Add").Invoke(model, new[] { reader.GetName(i), value });
 					else
 					{
-						if (!reader[i].IsNullOrDBNull())
-							SetPropertyValue(convertType, reader[i], model, reader.GetName(i));
+						if (value != null)
+							SetPropertyValue(convertType, value, model, reader.GetName(i));
 					}
 				}
 			}
@@ -93,8 +91,7 @@ namespace Creeper.Driver
 		/// <typeparam name="T"></typeparam>
 		/// <param name="objReader"></param>
 		/// <returns></returns>
-		public T ConvertDataReader<T>(IDataReader objReader)
-			=> (T)ConvertDataReader(objReader, typeof(T));
+		public T ConvertDataReader<T>(IDataReader objReader) => (T)ConvertDataReader(objReader, typeof(T));
 
 		/// <summary>
 		/// 遍历元组类型
@@ -175,15 +172,22 @@ namespace Creeper.Driver
 
 		protected Type GetOriginalType(Type type) => type.GetOriginalType();
 
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="sqlBuilder"></param>
-		/// <returns></returns>
 		public abstract string ConvertSqlToString(ISqlBuilder sqlBuilder);
 
 		public abstract DbParameter GetDbParameter(string name, object value);
 
 		public abstract DbConnection GetDbConnection(string connectionString);
+
+		public virtual bool SetSpecialDbParameter(out string format, ref object value)
+		{
+			format = null;
+			return false;
+		}
+
+		public virtual bool TrySpecialOutput(Type type, out string format)
+		{
+			format = null;
+			return false;
+		}
 	}
 }

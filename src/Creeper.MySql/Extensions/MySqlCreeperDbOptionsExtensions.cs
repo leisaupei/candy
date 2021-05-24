@@ -24,6 +24,7 @@ namespace Microsoft.Extensions.DependencyInjection
 			options.AddDbOption(mySqlDbOption);
 			return options;
 		}
+
 		/// <summary>
 		/// MySql选项配置
 		/// </summary>
@@ -31,7 +32,7 @@ namespace Microsoft.Extensions.DependencyInjection
 		/// <returns></returns>
 		public static CreeperOptions AddMySqlDbOption(this CreeperOptions options)
 		{
-			options.TryAddDbTypeConverter<MySqlTypeConverter>();
+			options.TryAddDbConverter<MySqlConverter>();
 			options.RegisterExtension(new MySqlCreeperOptionsExtension());
 			return options;
 		}

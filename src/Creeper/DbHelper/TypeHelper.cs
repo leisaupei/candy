@@ -11,7 +11,7 @@ namespace Creeper.DbHelper
 		/// <summary>
 		/// 静态数据库类型转换器
 		/// </summary>
-		public static IDictionary<DataBaseKind, ICreeperDbTypeConverter> DbTypeConverters = new Dictionary<DataBaseKind, ICreeperDbTypeConverter>();
+		public static IDictionary<DataBaseKind, ICreeperDbConverter> DbTypeConverters = new Dictionary<DataBaseKind, ICreeperDbConverter>();
 
 		/// <summary>
 		/// 实例键值对
@@ -23,7 +23,7 @@ namespace Creeper.DbHelper
 		/// </summary>
 		/// <param name="dataBaseKind"></param>
 		/// <returns></returns>
-		public static ICreeperDbTypeConverter GetConverter(DataBaseKind dataBaseKind)
+		public static ICreeperDbConverter GetConverter(DataBaseKind dataBaseKind)
 			=> DbTypeConverters.TryGetValue(dataBaseKind, out var convert)
 			? convert : throw new NoCreeperDbTypeConverteException(dataBaseKind.ToString());
 	}

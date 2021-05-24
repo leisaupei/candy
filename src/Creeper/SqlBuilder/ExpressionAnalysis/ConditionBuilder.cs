@@ -34,9 +34,9 @@ namespace Creeper.SqlBuilder.ExpressionAnalysis
 		private readonly List<object> _arguments = new List<object>();
 		private readonly HashSet<string> _alias = new HashSet<string>();
 		private readonly Stack<string> _conditionParts = new Stack<string>();
-		private readonly ICreeperDbTypeConverter _converter;
+		private readonly ICreeperDbConverter _converter;
 
-		public ConditionBuilder(ICreeperDbTypeConverter converter)
+		public ConditionBuilder(ICreeperDbConverter converter)
 		{
 			_converter = converter;
 		}

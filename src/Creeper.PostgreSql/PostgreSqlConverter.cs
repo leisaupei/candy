@@ -18,7 +18,7 @@ using System.Text.RegularExpressions;
 
 namespace Creeper.PostgreSql
 {
-	public class PostgreSqlTypeConverter : CreeperDbTypeConvertBase
+	public class PostgreSqlConverter : CreeperDbConverterBase
 	{
 		public override DataBaseKind DataBaseKind => DataBaseKind.PostgreSql;
 
@@ -86,7 +86,6 @@ namespace Creeper.PostgreSql
 			}
 			return value?.ToString();
 		}
-
 
 		public override DbConnection GetDbConnection(string connectionString)
 			=> new NpgsqlConnection(connectionString);

@@ -21,7 +21,7 @@ namespace Creeper.SqlBuilder.ExpressionAnalysis
 		/// <param name="expression"></param>
 		/// <param name="fnCreateParameter"></param>
 		/// <returns></returns>
-		public static ExpressionModel GetExpression(Expression expression, Func<string, object, DbParameter> fnCreateParameter, ICreeperDbTypeConverter converter)
+		public static ExpressionModel GetExpression(Expression expression, Func<string, object, DbParameter> fnCreateParameter, ICreeperDbConverter converter)
 		{
 			ConditionBuilder conditionBuilder = new ConditionBuilder(converter);
 			conditionBuilder.Build(expression);
@@ -44,28 +44,29 @@ namespace Creeper.SqlBuilder.ExpressionAnalysis
 		/// <summary>
 		/// 获取selector
 		/// </summary>
-		/// <param name="selector"></param>
-		/// <param name="converter"></param>
+		/// <param name="selector">表达式</param>
+		/// <param name="converter">数据库类型转换</param>
+		/// <param name="alias">是否包含别名</param>
+		/// <param name="special">是否包含特殊转换</param>
 		/// <returns></returns>
-		public static string GetSelector(Expression selector, ICreeperDbTypeConverter converter)
+		public static string GetSelector(Expression selector, ICreeperDbConverter converter, bool alias = true, bool special = false)
 		{
 			ConditionBuilder conditionBuilder = new ConditionBuilder(converter);
 			conditionBuilder.Build(selector);
 
-			return conditionBuilder.Condition;
-		}
+			var key = conditionBuilder.Condition;
+			if (!alias)
+			{
+				var keyArray = key.Split('.');
+				key = keyArray.Length > 1 ? keyArray[1] : key;
+			}
 
-		/// <summary>
-		/// 获取没有别名的selector
-		/// </summary>
-		/// <param name="selector"></param>
-		/// <param name="converter"></param>
-		/// <returns></returns>
-		public static string GetSelectorWithoutAlias(Expression selector, ICreeperDbTypeConverter converter)
-		{
-			var key = GetSelector(selector, converter);
-			var keyArray = key.Split('.');
-			return keyArray.Length > 1 ? keyArray[1] : key;
+			if (special)
+			{
+				if (selector is LambdaExpression le && converter.TrySpecialOutput(le.ReturnType, out string format))
+					key = string.Format(format, key);
+			}
+			return key;
 		}
 		#endregion
 	}

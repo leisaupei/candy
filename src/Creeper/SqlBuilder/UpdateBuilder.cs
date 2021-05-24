@@ -99,40 +99,44 @@ namespace Creeper.SqlBuilder
 		private UpdateBuilder<TModel> Set(string field, object value)
 		{
 			if (value == null)
-				return AddSetExpression(string.Format("{0} = null", field));
+				return AddSetExpression(string.Format("{0} = NULL", field));
 
-			AddParameter(out string valueIndex, value);
-			return AddSetExpression(string.Format("{0} = @{1}", field, valueIndex));
+			var isSpecial = TypeHelper.GetConverter(DbExecute.ConnectionOptions.DataBaseKind).SetSpecialDbParameter(out string format, ref value);
+
+			AddParameter(out string index, value);
+			var pName = string.Concat("@", index);
+			return AddSetExpression(string.Format("{0} = {1}", field, !isSpecial ? pName : string.Format(format, pName)));
 		}
 
-		/// <summary>
-		/// 设置整型等于一个枚举
-		/// </summary>
-		/// <param name="selector">字段key selector</param>
-		/// <param name="value">enum value, disallow null</param>
-		/// <exception cref="ArgumentNullException">if value is null</exception>
-		/// <returns></returns>
-		public UpdateBuilder<TModel> Set(Expression<Func<TModel, int>> selector, Enum value)
-		{
-			if (value is null) throw new ArgumentNullException(nameof(value));
+		///// <summary>
+		///// 设置整型等于一个枚举
+		///// </summary>
+		///// <param name="selector">字段key selector</param>
+		///// <param name="value">enum value, disallow null</param>
+		///// <exception cref="ArgumentNullException">if value is null</exception>
+		///// <returns></returns>
+		//public UpdateBuilder<TModel> Set(Expression<Func<TModel, int>> selector, Enum value)
+		//{
+		//	if (value is null) throw new ArgumentNullException(nameof(value));
 
-			return Set(selector, Convert.ToInt32(value));
-		}
-		/// <summary>
-		/// 设置整型等于一个枚举
-		/// </summary>
-		/// <param name="selector">字段key selector</param>
-		/// <param name="value">value</param>
-		/// <returns></returns>
-		public UpdateBuilder<TModel> Set(Expression<Func<TModel, int?>> selector, Enum value)
-		{
-			var field = GetSelectorWithoutAlias(selector);
-			if (value == null)
-				return AddSetExpression(string.Format("{0} = null", field));
+		//	return Set(selector, Convert.ToInt32(value));
+		//}
 
-			AddParameter(out string valueIndex, Convert.ToInt32(value));
-			return AddSetExpression(string.Format("{0} = @{1}", field, valueIndex));
-		}
+		///// <summary>
+		///// 设置整型等于一个枚举
+		///// </summary>
+		///// <param name="selector">字段key selector</param>
+		///// <param name="value">value</param>
+		///// <returns></returns>
+		//public UpdateBuilder<TModel> Set(Expression<Func<TModel, int?>> selector, Enum value)
+		//{
+		//	var field = GetSelectorWithoutAlias(selector);
+		//	if (value == null)
+		//		return AddSetExpression(string.Format("{0} = NULL", field));
+
+		//	AddParameter(out string valueIndex, Convert.ToInt32(value));
+		//	return AddSetExpression(string.Format("{0} = @{1}", field, valueIndex));
+		//}
 
 		/// <summary>
 		/// 设置一个字段值(可空类型)
@@ -145,7 +149,7 @@ namespace Creeper.SqlBuilder
 		{
 			var field = GetSelectorWithoutAlias(selector);
 			if (value == null)
-				return AddSetExpression(string.Format("{0} = null", field));
+				return AddSetExpression(string.Format("{0} = NULL", field));
 
 			AddParameter(out string valueIndex, value.Value);
 			return AddSetExpression(string.Format("{0} = @{1}", field, valueIndex));
