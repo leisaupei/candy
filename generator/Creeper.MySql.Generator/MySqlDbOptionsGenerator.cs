@@ -104,10 +104,9 @@ WHERE `TABLE_SCHEMA`='{db}' and `DATA_TYPE` = 'enum' ORDER BY `ORDINAL_POSITION`
 		{
 			var fileName = _options.GetDbContextFileFullName(Generic.DataBaseKind.MySql);
 			var lines = File.ReadAllLines(fileName).ToList();
-			var mainDbName = _options.GetDbNameNameMain(_connection.Name);
 			var writeLines = new List<string>
 			{
-				$"\tpublic class {_connection.Name}DbContext : CreeperDbContext",
+				$"\tpublic class {_connection.Name}DbContext : CreeperDbContextBase",
 				$"\t{{",
 				$"\t\tpublic {_connection.Name}DbContext(IServiceProvider serviceProvider) : base(serviceProvider) {{ }}",
 				$"",

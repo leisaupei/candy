@@ -106,9 +106,10 @@ SELECT
 	`COLUMN_NAME` AS `name`,
 	`IS_NULLABLE` = 'YES' AS `isnullable`,
 	`DATA_TYPE` AS `dbdatatype`,
-	`CHARACTER_MAXIMUM_LENGTH` as `length`,
-	`COLUMN_KEY` = 'PRI' as `isprimarykey`,
-	`COLUMN_TYPE` AS `columntype`
+	`CHARACTER_MAXIMUM_LENGTH` AS `length`,
+	`COLUMN_KEY` = 'PRI' AS `isprimarykey`,
+	`COLUMN_TYPE` AS `columntype`,
+	`EXTRA` = 'auto_increment' AS `isidentity`
 FROM `INFORMATION_SCHEMA`.`COLUMNS` 
 WHERE `TABLE_SCHEMA`='{db}' AND `TABLE_NAME`='{_table.Name}' ORDER BY `ORDINAL_POSITION`
 ";

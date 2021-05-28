@@ -114,7 +114,7 @@ LEFT JOIN pg_type e2 ON e2.oid = e.typelem
 INNER JOIN information_schema.COLUMNS f ON f.table_schema = b.nspname AND f.TABLE_NAME = a.relname AND COLUMN_NAME = c.attname  
 LEFT JOIN pg_namespace ns ON ns.oid = e.typnamespace and ns.nspname <> 'pg_catalog'  
 LEFT JOIN pg_constraint pc ON pc.conrelid = a.oid and pc.conkey[1] = c.attnum and pc.contype = 'u'
-LEFT JOIN pg_index idx ON c.attrelid = idx.indrelid AND c.attnum = ANY (idx.indkey)  
+LEFT JOIN pg_index idx ON c.attrelid = idx.indrelid AND c.attnum = ANY (idx.indkey) AND idx.indisprimary
 WHERE (b.nspname='{_schemaName}' and a.relname='{_table.Name}')  
 ORDER BY c.attnum ASC
 ";

@@ -12,15 +12,15 @@ namespace Creeper.Attributes
 		/// 表名
 		/// </summary>
 		public string TableName { get; }
-		public DataBaseKind DbKind { get; set; }
 		/// <summary>
-		/// 初始化
+		/// 数据库种类
 		/// </summary>
-		/// <param name="tableName">表名</param>
-		public CreeperDbTableAttribute(string tableName, DataBaseKind dbKind)
+		public DataBaseKind DataBaseKind { get; }
+
+		public CreeperDbTableAttribute(string tableName, DataBaseKind dataBaseKind)
 		{
 			TableName = tableName;
-			DbKind = dbKind;
+			DataBaseKind = dataBaseKind;
 		}
 	}
 }

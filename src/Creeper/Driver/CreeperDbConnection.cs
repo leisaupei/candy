@@ -21,6 +21,8 @@ namespace Creeper.Driver
 		public DataBaseKind DataBaseKind { get; }
 		public Action<DbConnection> DbConnectionOptions { get; set; }
 
+		private ICreeperDbConverter _dbConverter;
+		private ICreeperDbConverter DbConverter => _dbConverter ??= TypeHelper.GetConverter(DataBaseKind);
 		/// <summary>
 		/// 创建连接
 		/// </summary>
@@ -39,7 +41,7 @@ namespace Creeper.Driver
 			if (cancellationToken.IsCancellationRequested)
 				return await Task.FromCanceled<DbConnection>(cancellationToken);
 
-			DbConnection connection = TypeHelper.GetConverter(DataBaseKind).GetDbConnection(ConnectionString);
+			DbConnection connection = DbConverter.GetDbConnection(ConnectionString);
 
 			if (connection == null)
 				throw new ArgumentNullException(nameof(connection));

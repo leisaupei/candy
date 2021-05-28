@@ -216,7 +216,7 @@ namespace Creeper.SqlBuilder
 				_insertList[key] = "null";
 				return this;
 			}
-			var isSpecial = TypeHelper.GetConverter(DbExecute.ConnectionOptions.DataBaseKind).SetSpecialDbParameter(out string format, ref value);
+			var isSpecial = DbConverter.SetSpecialDbParameter(out string format, ref value);
 
 			AddParameter(out string index, value);
 
@@ -288,7 +288,7 @@ namespace Creeper.SqlBuilder
 			string returning = null;
 			if (ReturnType == PipeReturnType.One)
 			{
-				if (DbExecute.ConnectionOptions.DataBaseKind == DataBaseKind.MySql)
+				if (DbConverter.DataBaseKind == DataBaseKind.MySql)
 					throw new NotSupportedException("mysql is not supported returning");
 				returning = $"RETURNING {EntityHelper.GetFieldsAlias<TModel>(null, DbConverter)}";
 			}

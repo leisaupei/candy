@@ -105,7 +105,7 @@ WHERE {GenerateHelper.ExceptConvert("ns.nspname || '.' || a.typname", _postgreSq
 ";
 			List<CompositeTypeInfo> composites = _connection.DbExecute.ExecuteDataReaderList<CompositeTypeInfo>(sql);
 
-			if (composites.Count < 0) return composites;
+			if (composites.Count == 0) return composites;
 
 			var group = composites.GroupBy(a => $"{a.Nspname}.{a.Typename}").ToList();
 			StringBuilder sb = new StringBuilder();
@@ -153,7 +153,7 @@ WHERE {GenerateHelper.ExceptConvert("ns.nspname || '.' || a.typname", _postgreSq
 			var className = dbMainName.TrimStart('D', 'b');
 
 			writeLines.Add($"\t#region {_connection.Name}");
-			writeLines.Add($"\tpublic class {_connection.Name}DbContext : CreeperDbContext");
+			writeLines.Add($"\tpublic class {_connection.Name}DbContext : CreeperDbContextBase");
 			writeLines.Add("\t{");
 			writeLines.Add($"\t\tpublic {_connection.Name}DbContext(IServiceProvider serviceProvider) : base(serviceProvider) {{ }}");
 			writeLines.Add("");
@@ -180,7 +180,6 @@ WHERE {GenerateHelper.ExceptConvert("ns.nspname || '.' || a.typname", _postgreSq
 			writeLines.Add("\t}");
 			writeLines.Add("\t#endregion");
 			writeLines.Add("");
-			lines.Insert(0, $"using {_options.GetModelNamespaceFullName(_connection.Name)};");
 			lines.InsertRange(lines.Count - 1, writeLines);
 			File.WriteAllLines(fileName, lines);
 		}
@@ -197,6 +196,7 @@ WHERE {GenerateHelper.ExceptConvert("ns.nspname || '.' || a.typname", _postgreSq
 			writer.WriteLine("using System.Data.Common;");
 			writer.WriteLine("using Npgsql;");
 			writer.WriteLine("using Creeper.PostgreSql.Extensions;");
+			writer.WriteLine("using Creeper.PostgreSql;");
 			writer.WriteLine();
 			writer.WriteLine("namespace {0}", _options.OptionsNamespace);
 			writer.WriteLine("{");

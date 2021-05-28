@@ -89,7 +89,7 @@ namespace Creeper.DbHelper
 		{
 			var fields = new List<string>();
 			var pkFields = new List<string>();
-			var dbKind = type.GetCustomAttribute<CreeperDbTableAttribute>()?.DbKind ?? throw new Exception("没有找到CreeperDbTableAttribute特性");
+			var dbKind = type.GetCustomAttribute<CreeperDbTableAttribute>()?.DataBaseKind ?? throw new CreeperDbTableAttributeNotFoundException();
 			var converter = TypeHelper.GetConverter(dbKind);
 			GetAllFields(p =>
 			{

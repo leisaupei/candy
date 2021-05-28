@@ -23,7 +23,10 @@ namespace Creeper.Driver
 		/// <summary>
 		/// 事务池
 		/// </summary>
-		protected DbTransaction _trans;
+		private DbTransaction _trans;
+		private ICreeperDbConverter _dbConverter;
+		private ICreeperDbConverter DbConverter => _dbConverter ??= TypeHelper.GetConverter(ConnectionOptions.DataBaseKind);
+
 
 		/// <summary>
 		/// constructer
@@ -210,12 +213,12 @@ namespace Creeper.Driver
 			if (async)
 				await ExecuteDataReaderAsync(dr =>
 				{
-					list.Add(TypeHelper.GetConverter(ConnectionOptions.DataBaseKind).ConvertDataReader<T>(dr));
+					list.Add(DbConverter.ConvertDataReader<T>(dr));
 				}, cmdText, cmdType, cmdParams, cancellationToken);
 			else
 				ExecuteDataReader(dr =>
 				{
-					list.Add(TypeHelper.GetConverter(ConnectionOptions.DataBaseKind).ConvertDataReader<T>(dr));
+					list.Add(DbConverter.ConvertDataReader<T>(dr));
 				}, cmdText, cmdType, cmdParams);
 			return list;
 		}
@@ -254,7 +257,7 @@ namespace Creeper.Driver
 						var item = builders.ElementAt(i);
 						List<object> list = new List<object>();
 						while (await dr.ReadAsync(cancellationToken))
-							list.Add(TypeHelper.GetConverter(ConnectionOptions.DataBaseKind).ConvertDataReader(dr, item.Type));
+							list.Add(DbConverter.ConvertDataReader(dr, item.Type));
 
 						results[i] = GetResult(dr, item, list);
 
@@ -269,7 +272,7 @@ namespace Creeper.Driver
 						var item = builders.ElementAt(i);
 						List<object> list = new List<object>();
 						while (dr.Read())
-							list.Add(TypeHelper.GetConverter(ConnectionOptions.DataBaseKind).ConvertDataReader(dr, item.Type));
+							list.Add(DbConverter.ConvertDataReader(dr, item.Type));
 
 						results[i] = GetResult(dr, item, list);
 

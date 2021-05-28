@@ -101,7 +101,7 @@ namespace Creeper.SqlBuilder
 			if (value == null)
 				return AddSetExpression(string.Format("{0} = NULL", field));
 
-			var isSpecial = TypeHelper.GetConverter(DbExecute.ConnectionOptions.DataBaseKind).SetSpecialDbParameter(out string format, ref value);
+			var isSpecial = DbConverter.SetSpecialDbParameter(out string format, ref value);
 
 			AddParameter(out string index, value);
 			var pName = string.Concat("@", index);
@@ -333,7 +333,7 @@ namespace Creeper.SqlBuilder
 			var ret = string.Empty;
 			if (ReturnType != PipeReturnType.Rows)
 			{
-				if (DbExecute.ConnectionOptions.DataBaseKind == DataBaseKind.MySql)
+				if (DbConverter.DataBaseKind == DataBaseKind.MySql)
 					throw new NotSupportedException("Mysql not supported returning method.");
 				Fields = EntityHelper.GetFieldsAlias<TModel>(MainAlias, DbConverter);
 				ret = $"RETURNING {Fields}";
