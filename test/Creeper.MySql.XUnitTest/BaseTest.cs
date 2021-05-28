@@ -1,4 +1,5 @@
 ﻿using Creeper.Driver;
+using Creeper.MySql.XUnitTest.Entity.Options;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -26,10 +27,12 @@ namespace Creeper.MySql.XUnitTest
 			{
 				IsInit = true;
 				var services = new ServiceCollection();
-				services.AddCreeperDbContext(options =>
+				services.AddCreeper(options =>
 				{
-					options.AddMySqlDbOption();
-					options.AddDbOption(new TestDbOption());
+					options.AddMySqlDbContext<MySqlDbContext>(a =>
+					{
+						a.UseConnectionString(TestMainConnectionString, new[] { TestSecondaryConnectionString });
+					});
 				});
 				var serviceProvider = services.BuildServiceProvider();
 				_dbContext = serviceProvider.GetService<ICreeperDbContext>();
@@ -40,12 +43,6 @@ namespace Creeper.MySql.XUnitTest
 		public BaseTest(ITestOutputHelper output) : this()
 		{
 			_output = output;
-		}
-		public class TestDbOption : ICreeperDbOption
-		{
-			public ICreeperDbConnectionOption Main => new MySqlConnectionOption(TestMainConnectionString, "DbMain");
-
-			public ICreeperDbConnectionOption[] Secondary => Array.Empty<MySqlConnectionOption>();
 		}
 	}
 

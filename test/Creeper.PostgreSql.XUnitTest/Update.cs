@@ -1,3 +1,4 @@
+using Creeper.Driver;
 using Creeper.Extensions;
 using Creeper.PostgreSql.XUnitTest.Entity.Model;
 using System;
@@ -12,8 +13,8 @@ namespace Creeper.PostgreSql.XUnitTest
 		public void SetEnumToInt()
 		{
 			//var info = TypeTest.GetItem(Guid.Empty);
-			var affrows = _dbContext.Update<TypeTestModel>().Set(a => a.Int2_type, EtDataState.正常).Where(a => a.Id == Guid.Empty).ToAffectedRows();
-			affrows = _dbContext.Update<TypeTestModel>().Set(a => a.Int4_type, EtDataState.正常).Where(a => a.Id == Guid.Empty).ToAffectedRows();
+			//var affrows = _dbContext.Update<TypeTestModel>().Set(a => a.Int2_type, EtDataState.正常).Where(a => a.Id == Guid.Empty).ToAffectedRows();
+			//affrows = _dbContext.Update<TypeTestModel>().Set(a => a.Int4_type, EtDataState.正常).Where(a => a.Id == Guid.Empty).ToAffectedRows();
 		}
 		[Fact]
 		public void UpdateFromModel()

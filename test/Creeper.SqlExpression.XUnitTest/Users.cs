@@ -1,6 +1,5 @@
 ﻿using Creeper.DbHelper;
 using Creeper.Driver;
-using Creeper.Extensions;
 using Creeper.SqlBuilder;
 
 namespace Creeper.SqlExpression.XUnitTest
@@ -25,7 +24,7 @@ namespace Creeper.SqlExpression.XUnitTest
 
 		public int Id { set; get; }
 		public string Name { get; set; }
-		public static SelectBuilder<Group> Select => new CreeperDbExecute(CreeperDbContext.GetExecuteOption("dbmain")).Select<Group>();
+		public static SelectBuilder<Group> Select => new CreeperDbExecute(null).Select<Group>();
 
 
 	}

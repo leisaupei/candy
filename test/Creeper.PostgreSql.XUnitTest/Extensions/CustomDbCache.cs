@@ -13,12 +13,12 @@ namespace Creeper.PostgreSql.XUnitTest.Extensions
 		private readonly CSRedis.CSRedisClient _redisClient = null;
 		public CustomDbCache()
 		{
-			_redisClient = new CSRedis.CSRedisClient("192.168.1.15:6379,defaultDatabase=13,password=12345,prefix=test,abortConnect=false");
+			_redisClient = new CSRedis.CSRedisClient("192.168.1.15:6379,defaultDatabase=13,password=123456,prefix=test,abortConnect=false");
 		}
 		private static object Deserialize(string value, Type type)
 		{
 			if (value == null) return null;
-			if (value is string str) return str;
+			if (type == typeof(string)) return value;
 			return JsonSerializer.Deserialize(value, GetOriginalType(type));
 		}
 		private static string Serialize(object value)

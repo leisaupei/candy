@@ -25,20 +25,20 @@ namespace Creeper.MySql.Generator
 
 		public override DataBaseKind DataBaseKind => DataBaseKind.MySql;
 
-		public override void Generate(CreeperGeneratorGlobalOptions options, ICreeperDbExecute execute)
+		public override void ModelGenerator(CreeperGeneratorGlobalOptions options, CreeperGenerateConnection connection)
 		{
 
-			List<TableViewModel> tableList = GetTables(execute);
+			List<TableViewModel> tableList = GetTables(connection.DbExecute);
 			foreach (var item in tableList)
 			{
-				MySqlTableGenerator td = new MySqlTableGenerator(execute, _mySqlRule.FieldIgnore, options);
+				MySqlTableGenerator td = new MySqlTableGenerator(connection, _mySqlRule.FieldIgnore, options);
 				td.Generate(item);
 			}
-			MySqlDbOptionsGenerator dbOptionsGenerator = new MySqlDbOptionsGenerator(execute, _mySqlRule, options);
+			MySqlDbOptionsGenerator dbOptionsGenerator = new MySqlDbOptionsGenerator(connection, _mySqlRule, options);
 			dbOptionsGenerator.Generate();
 		}
 
-		public override ICreeperDbConnectionOption GetDbConnectionOptionFromString(string conn)
+		public override CreeperGenerateConnection GetDbConnectionOptionFromString(string conn)
 		{
 			var strings = conn.Split(';');
 			var connectionString = string.Empty;
@@ -57,17 +57,16 @@ namespace Creeper.MySql.Generator
 					case "user": connectionString += $"userid={right};"; break;
 					case "pwd": connectionString += $"pwd={right};"; break;
 					case "db": connectionString += $"database={right};"; break;
-					case "name":
-						if (string.IsNullOrEmpty(right) || right.ToLower() == CreeperGenerateOption.MASTER_DATABASE_TYPE_NAME.ToLower())
-							dbName = CreeperGenerateOption.MASTER_DATABASE_TYPE_NAME;
-						else
-							dbName = right.ToUpperPascal();
-						break;
+					case "name": dbName = right.ToUpperPascal(); break;
 				}
 			}
 			connectionString += $"sslmode=none;";
-			dbName = string.IsNullOrEmpty(dbName) ? CreeperGenerateOption.MASTER_DATABASE_TYPE_NAME : dbName;
-			ICreeperDbConnectionOption connection = new MySqlConnectionOption(connectionString, dbName);
+			dbName = string.IsNullOrWhiteSpace(dbName) ? DataBaseKind.ToString() : dbName;
+			var connection = new CreeperGenerateConnection()
+			{
+				Connection = new CreeperDbConnection(connectionString, DataBaseKind),
+				Name = dbName
+			};
 			return connection;
 		}
 

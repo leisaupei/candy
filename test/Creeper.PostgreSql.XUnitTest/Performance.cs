@@ -1,4 +1,4 @@
-﻿using Creeper.Extensions;
+﻿using Creeper.Driver;
 using Creeper.Generic;
 using Creeper.PostgreSql.XUnitTest.Entity.Model;
 using Creeper.PostgreSql.XUnitTest.Entity.Options;
@@ -17,7 +17,7 @@ namespace Creeper.PostgreSql.XUnitTest
 		{
 			for (int i = 0; i < 10000; i++)
 			{
-				_dbContext.GetExecute<DbMain>().Transaction(_transDbContext =>
+				_dbContext.Transaction(_transDbContext =>
 				{
 					var total = _transDbContext.Select<TypeTestModel>().Sum(a => a.Int8_type, 0);
 				});
@@ -26,7 +26,7 @@ namespace Creeper.PostgreSql.XUnitTest
 		[Fact]
 		public async Task TransactionAsync()
 		{
-			await _dbContext.GetExecute<DbMain>().TransactionAsync(_transDbContext =>
+			await _dbContext.TransactionAsync(_transDbContext =>
 			{
 				var total = _transDbContext.Select<TypeTestModel>().Sum(a => a.Int8_type, 0);
 				var affrows = _transDbContext.Update<TypeTestModel>().Set(a => a.Int8_type, 0).Where(a => a.Id == Guid.Empty).ToAffectedRows();
@@ -35,8 +35,8 @@ namespace Creeper.PostgreSql.XUnitTest
 		[Fact]
 		public void TestAsync()
 		{
-			var affrows = _dbContext.GetExecute<DbMain>().ExecuteScalar("update people set age = 2 where id = '5ef5a598-e4a1-47b3-919e-4cc1fdd97757';");
-			_dbContext.GetExecute<DbMain>().ExecuteScalar("update people set age = 2 where id = '5ef5a598-e4a1-47b3-919e-4cc1fdd97757';");
+			var affrows = _dbContext.ExecuteScalar("update people set age = 2 where id = '5ef5a598-e4a1-47b3-919e-4cc1fdd97757';");
+			_dbContext.ExecuteScalar("update people set age = 2 where id = '5ef5a598-e4a1-47b3-919e-4cc1fdd97757';");
 			var transDbContext = _dbContext.BeginTransaction();
 			transDbContext.CommitTransaction();
 		}

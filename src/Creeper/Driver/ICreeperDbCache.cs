@@ -8,7 +8,7 @@ namespace Creeper.Driver
 	/// <summary>
 	/// 数据库缓存
 	/// </summary>
-	public interface ICreeperDbCache
+	public interface ICreeperDbCache : IDisposable
 	{
 		/// <summary>
 		/// 获取key值

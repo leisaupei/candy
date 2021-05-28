@@ -1,3 +1,4 @@
+using Creeper.Driver;
 using Creeper.Extensions;
 using Creeper.PostgreSql.XUnitTest.Entity.Model;
 using Creeper.SqlBuilder;
@@ -65,6 +66,7 @@ namespace Creeper.PostgreSql.XUnitTest
 		{
 			var info = _dbContext.Select<StudentModel>()
 				.WhereExists(_dbContext.Select<PeopleModel>().Field(b => b.Id).Where(b => b.Id == StuPeopleId1))
+				.ByCache(TimeSpan.FromSeconds(60))
 				.FirstOrDefault();
 			info = _dbContext.Select<StudentModel>()
 				.WhereExists(SelectBuilder<PeopleModel>.Select(b => b.Id).Where(b => b.Id == StuPeopleId1))

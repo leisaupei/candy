@@ -13,13 +13,8 @@ namespace Creeper.Generator.Common.Contracts
 	{
 		public abstract DataBaseKind DataBaseKind { get; }
 
-		public abstract ICreeperDbConnectionOption GetDbConnectionOptionFromString(string conn);
+		public abstract CreeperGenerateConnection GetDbConnectionOptionFromString(string conn);
 
-		public virtual void ModelGenerator(CreeperGeneratorGlobalOptions options, ICreeperDbConnectionOption dbOption, bool folder = false)
-		{
-			ICreeperDbExecute execute = new CreeperDbExecute(dbOption);
-			Generate(options, execute);
-		}
-		public abstract void Generate(CreeperGeneratorGlobalOptions options, ICreeperDbExecute execute);
+		public abstract void ModelGenerator(CreeperGeneratorGlobalOptions options, CreeperGenerateConnection connection);
 	}
 }

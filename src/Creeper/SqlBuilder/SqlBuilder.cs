@@ -20,6 +20,7 @@ namespace Creeper.SqlBuilder
 		#region Identity
 		protected ICreeperDbExecute DbExecute { get; private set; }
 		private readonly ICreeperDbContext _dbContext;
+
 		/// <summary>
 		/// 类型转换
 		/// </summary>
@@ -44,11 +45,6 @@ namespace Creeper.SqlBuilder
 		/// where条件列表
 		/// </summary>
 		protected List<string> WhereList { get; } = new List<string>();
-
-		/// <summary>
-		/// 设置默认数据库
-		/// </summary>
-		protected string DbName { get; set; }
 
 		/// <summary>
 		/// 是否返回默认值, 默认: false
@@ -83,7 +79,7 @@ namespace Creeper.SqlBuilder
 		/// <summary>
 		/// 缓存过期时间
 		/// </summary>
-		internal TimeSpan? DbCacheExpireTime { get; set; }
+		internal TimeSpan? DbCacheExpireTime { get; private set; }
 
 		/// <summary>
 		/// where条件数量
@@ -92,43 +88,26 @@ namespace Creeper.SqlBuilder
 		#endregion
 
 		#region Constructor
-		protected SqlBuilder(ICreeperDbContext dbContext)
+		protected SqlBuilder(ICreeperDbContext dbContext) : this()
+		{
+			if (dbContext == null) return;
+
+			DbExecute = dbContext.GetExecute(DataBaseType.Default);
+			_dbContext = dbContext;
+		}
+		protected SqlBuilder(ICreeperDbExecute dbExecute) : this()
+		{
+			DbExecute = dbExecute;
+		}
+		protected SqlBuilder()
 		{
 			var table = EntityHelper.GetDbTable<TModel>();
 
 			DbConverter = TypeHelper.GetConverter(table.DbKind);
 			if (string.IsNullOrEmpty(MainTable))
 				MainTable = table.TableName;
-
-			if (dbContext == null) return;
-
-			DbName = table.DbName;
-
-			if (CreeperDbContext.DbTypeStrategy != DataBaseTypeStrategy.OnlyMain)
-				DbName += CreeperDbContext.SecondarySuffix;
-
-			DbExecute = dbContext.GetExecute(DbName);
-			_dbContext = dbContext;
-		}
-		protected SqlBuilder(ICreeperDbExecute dbExecute)
-		{
-			if (string.IsNullOrEmpty(MainTable))
-				MainTable = EntityHelper.GetDbTable<TModel>().TableName;
-			DbExecute = dbExecute;
 		}
 		#endregion
-
-		/// <summary>
-		/// 查询指定数据库
-		/// </summary>
-		/// <typeparam name="TDbName">数据库名称</typeparam>
-		/// <returns></returns>
-		public TBuilder By<TDbName>() where TDbName : struct, ICreeperDbName
-		{
-			DbExecute.Dispose();
-			DbExecute = _dbContext.GetExecute<TDbName>();
-			return This;
-		}
 
 		/// <summary>
 		/// 选择主库还是从库
@@ -137,7 +116,7 @@ namespace Creeper.SqlBuilder
 		public TBuilder By(DataBaseType dataBaseType)
 		{
 			DbExecute.Dispose();
-			DbExecute = _dbContext.GetExecute(dataBaseType.ChangeDataBaseKind(DbName));
+			DbExecute = _dbContext.GetExecute(dataBaseType);
 			return This;
 		}
 
@@ -148,7 +127,7 @@ namespace Creeper.SqlBuilder
 		public TBuilder ByCache(TimeSpan? expireTime = null)
 		{
 			if (_dbContext.DbCache == null)
-				throw new ArgumentNullException("Not found the implemention type of ICreeperDbExecute");
+				throw new ArgumentNullException("Not found the implemention type of ICreeperDbCache");
 			UseCacheType = DbCacheType.Default;
 			DbCacheExpireTime = expireTime;
 			return This;

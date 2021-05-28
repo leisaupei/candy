@@ -1,39 +1,16 @@
-﻿using Creeper.Generic;
-using System.Data.Common;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace Creeper.Driver
+﻿namespace Creeper.Driver
 {
 	public interface ICreeperDbConnectionOption
-	{
-		/// <summary>
-		/// 指定的数据库唯一标识
-		/// </summary>
-		string DbName { get; }
+    {
+        /// <summary>
+        /// 主库
+        /// </summary>
+        ICreeperDbConnection Main { get; }
 
-		/// <summary>
-		/// 数据库连接字符串
-		/// </summary>
-		string ConnectionString { get; }
+        /// <summary>
+        /// 从库
+        /// </summary>
+        ICreeperDbConnection[] Secondary { get; }
 
-		/// <summary>
-		/// 数据库类型
-		/// </summary>
-		DataBaseKind DataBaseKind { get; }
-
-		/// <summary>
-		/// 获取dbconnection
-		/// </summary>
-		/// <returns></returns>
-		DbConnection GetConnection();
-
-		/// <summary>
-		/// 获取dbconnection
-		/// </summary>
-		/// <param name="cancellationToken"></param>
-		/// <returns></returns>
-		Task<DbConnection> GetConnectionAsync(CancellationToken cancellationToken);
-
-	}
+    }
 }

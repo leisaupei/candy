@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Creeper.Driver;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -63,5 +64,17 @@ namespace Creeper.Extensions
 				return BitConverter.ToString(md5.ComputeHash(result)).Replace("-", "").ToLower();
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="converter"></param>
+		/// <param name="value"></param>
+		/// <returns></returns>
+		public static string WithQuotationMarks(this ICreeperDbConverter converter, string value)
+		{
+			if (string.IsNullOrWhiteSpace(converter.DbFieldMark)) return value;
+
+			return string.Concat(converter.DbFieldMark, value, converter.DbFieldMark);
+		}
 	}
 }

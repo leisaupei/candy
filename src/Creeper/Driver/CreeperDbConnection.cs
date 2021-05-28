@@ -9,18 +9,17 @@ using System.Threading.Tasks;
 
 namespace Creeper.Driver
 {
-	public abstract class CreeperDbConnectionOptionBase : ICreeperDbConnectionOption
+	public class CreeperDbConnection : ICreeperDbConnection
 	{
-		public CreeperDbConnectionOptionBase(string connectionString, string dbName, DataBaseKind dataBaseKind)
+		public CreeperDbConnection(string connectionString, DataBaseKind dataBaseKind)
 		{
 			ConnectionString = connectionString;
-			DbName = dbName;
 			DataBaseKind = dataBaseKind;
 		}
 
-		public string DbName { get; }
 		public string ConnectionString { get; }
 		public DataBaseKind DataBaseKind { get; }
+		public Action<DbConnection> DbConnectionOptions { get; set; }
 
 		/// <summary>
 		/// 创建连接
@@ -50,14 +49,7 @@ namespace Creeper.Driver
 			else
 				connection.Open();
 
-			SetDbOptions(connection);
-
 			return connection;
-		}
-
-		public virtual void SetDbOptions(DbConnection connection)
-		{
-
 		}
 	}
 }

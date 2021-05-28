@@ -17,7 +17,7 @@ namespace Creeper.Generator.Common.Contracts
 		/// </summary>
 		/// <param name="conn"></param>
 		/// <returns></returns>
-		ICreeperDbConnectionOption GetDbConnectionOptionFromString(string conn);
+		CreeperGenerateConnection GetDbConnectionOptionFromString(string conn);
 
 		/// <summary>
 		/// 数据库表实体类生成器
@@ -25,7 +25,7 @@ namespace Creeper.Generator.Common.Contracts
 		/// <param name="options">生成配置</param>
 		/// <param name="dbOption">数据库配置</param>
 		/// <param name="folder">是否使用分类文件夹</param>
-		void ModelGenerator(CreeperGeneratorGlobalOptions options, ICreeperDbConnectionOption dbOption, bool folder = false);
+		void ModelGenerator(CreeperGeneratorGlobalOptions options, CreeperGenerateConnection connection);
 
 	}
 }

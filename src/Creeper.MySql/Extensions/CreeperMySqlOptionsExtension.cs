@@ -5,9 +5,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Creeper.MySql.Extensions
 {
-	public class MySqlCreeperOptionsExtension : ICreeperOptionsExtension
+	public class CreeperMySqlOptionsExtension : ICreeperOptionsExtension
 	{
-		public MySqlCreeperOptionsExtension()
+		public CreeperMySqlOptionsExtension()
 		{
 		}
 

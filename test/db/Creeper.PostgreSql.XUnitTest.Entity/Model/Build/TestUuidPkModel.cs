@@ -16,7 +16,7 @@ using Creeper.PostgreSql.XUnitTest.Entity.Options;
 
 namespace Creeper.PostgreSql.XUnitTest.Entity.Model
 {
-	[CreeperDbTable(@"""test"".""uuid_pk""", typeof(DbMain), DataBaseKind.PostgreSql)]
+	[CreeperDbTable(@"""test"".""uuid_pk""", DataBaseKind.PostgreSql)]
 	public partial class TestUuidPkModel : ICreeperDbModel
 	{
 		#region Properties

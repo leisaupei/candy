@@ -1,4 +1,5 @@
-﻿using Creeper.Driver;
+﻿using Creeper.DbHelper;
+using Creeper.Driver;
 using Creeper.Generator.Common;
 using Creeper.Generator.Common.Extensions;
 using Creeper.Generator.Common.Models;
@@ -24,8 +25,9 @@ namespace Creeper.MySql.Generator
 		private TableViewModel _table;
 
 		private readonly ICreeperDbExecute _dbExecute;
+		private readonly CreeperGenerateConnection _connection;
 		private readonly FieldIgnore _fieldIgnore;
-		private bool _isGeometryTable = false;
+		//private bool _isGeometryTable = false;
 		/// <summary>
 		/// 是否视图
 		/// </summary>
@@ -68,9 +70,10 @@ namespace Creeper.MySql.Generator
 		/// <param name="schemaName"></param>
 		/// <param name="table"></param>
 		/// <param name="type"></param>
-		public MySqlTableGenerator(ICreeperDbExecute dbExecute, FieldIgnore fieldIgnore, CreeperGeneratorGlobalOptions options)
+		public MySqlTableGenerator(CreeperGenerateConnection connection, FieldIgnore fieldIgnore, CreeperGeneratorGlobalOptions options)
 		{
-			_dbExecute = dbExecute;
+			_dbExecute = new CreeperDbExecute(connection.Connection);
+			_connection = connection;
 			_fieldIgnore = fieldIgnore;
 			_options = options;
 		}
@@ -121,8 +124,8 @@ WHERE `TABLE_SCHEMA`='{db}' AND `TABLE_NAME`='{_table.Name}' ORDER BY `ORDINAL_P
 
 				if (f.IsNullable && !_notAddQues.Contains(f.RelType))
 					f.RelType += "?";
-				if (f.DbDataType == "geometry")
-					_isGeometryTable = true;
+				//if (f.DbDataType == "geometry")
+				//	_isGeometryTable = true;
 
 
 			}
@@ -133,7 +136,7 @@ WHERE `TABLE_SCHEMA`='{db}' AND `TABLE_NAME`='{_table.Name}' ORDER BY `ORDINAL_P
 		/// </summary>
 		private void ModelGenerator()
 		{
-			string _filename = Path.Combine(_options.GetMultipleModelPath(_dbExecute.ConnectionOptions.DbName), ModelClassName + ".cs");
+			string _filename = Path.Combine(_options.GetMultipleModelPath(_connection.Name), ModelClassName + ".cs");
 
 			using StreamWriter writer = new StreamWriter(File.Create(_filename), Encoding.UTF8);
 			CreeperGenerator.WriteAuthorHeader.Invoke(writer);
@@ -145,15 +148,14 @@ using {1};
 
 namespace {0}
 {{
-{2}	[CreeperDbTable(@""`{5}`"", typeof({4}), DataBaseKind.{6})]
+{2}	[CreeperDbTable(@""`{4}`"", DataBaseKind.{5})]
 	public partial class {3} : ICreeperDbModel
 	{{
 		#region Properties",
-_options.GetModelNamespaceFullName(_dbExecute.ConnectionOptions.DbName),
+_options.GetModelNamespaceFullName(_connection.Name),
 _options.OptionsNamespace,
  WriteComment(_table.Description, 1),
 ModelClassName,
-_options.GetDbNameNameMain(_dbExecute.ConnectionOptions.DbName),
 _table.Name,
 _dbExecute.ConnectionOptions.DataBaseKind.ToString());
 

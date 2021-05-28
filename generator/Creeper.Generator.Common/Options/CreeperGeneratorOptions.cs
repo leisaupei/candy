@@ -8,13 +8,13 @@ namespace Creeper.Generator.Common.Options
 {
 	public class CreeperGeneratorOptions
 	{
-		internal IList<ICreeperGeneratorExtension> Extensions { get; }
+		internal IList<ICreeperOptionsExtension> Extensions { get; }
 		public CreeperGeneratorOptions()
 		{
-			Extensions = new List<ICreeperGeneratorExtension>();
+            Extensions = new List<ICreeperOptionsExtension>();
 		}
 
-		public void RegisterExtension(ICreeperGeneratorExtension extension)
+		public void AddExtension(ICreeperOptionsExtension extension)
 		{
 			if (extension == null)
 			{

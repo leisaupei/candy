@@ -6,7 +6,7 @@ using Creeper.MySql.XUnitTest.Entity.Options;
 
 namespace Creeper.MySql.XUnitTest.Entity.Model
 {
-	[CreeperDbTable(@"`test_ext`", typeof(DbMain), DataBaseKind.MySql)]
+	[CreeperDbTable(@"`test_ext`", DataBaseKind.MySql)]
 	public partial class TestExtModel : ICreeperDbModel
 	{
 		#region Properties

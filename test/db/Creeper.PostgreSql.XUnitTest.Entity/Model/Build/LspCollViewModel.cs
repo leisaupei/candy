@@ -16,7 +16,7 @@ using Creeper.PostgreSql.XUnitTest.Entity.Options;
 
 namespace Creeper.PostgreSql.XUnitTest.Entity.Model
 {
-	[CreeperDbTable(@"""public"".""lsp_coll""", typeof(DbMain), DataBaseKind.PostgreSql)]
+	[CreeperDbTable(@"""public"".""lsp_coll""", DataBaseKind.PostgreSql)]
 	public partial class LspCollViewModel : ICreeperDbModel
 	{
 		#region Properties

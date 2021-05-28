@@ -18,7 +18,7 @@ namespace Creeper.PostgreSql.Generator
 	public class PostgreSqlDbOptionsGenerator
 	{
 
-		private readonly ICreeperDbExecute _dbExecute;
+		private readonly CreeperGenerateConnection _connection;
 		private readonly PostgreSqlGeneratorRules _postgreSqlRules;
 		private readonly CreeperGeneratorGlobalOptions _options;
 		/// <summary>
@@ -27,9 +27,9 @@ namespace Creeper.PostgreSql.Generator
 		/// <param name="dbExecute"></param>
 		/// <param name="postgreSqlRules"></param>
 		/// <param name="options"></param>
-		public PostgreSqlDbOptionsGenerator(ICreeperDbExecute dbExecute, PostgreSqlGeneratorRules postgreSqlRules, CreeperGeneratorGlobalOptions options)
+		public PostgreSqlDbOptionsGenerator(CreeperGenerateConnection connection, PostgreSqlGeneratorRules postgreSqlRules, CreeperGeneratorGlobalOptions options)
 		{
-			_dbExecute = dbExecute;
+			_connection = connection;
 			_postgreSqlRules = postgreSqlRules;
 			_options = options;
 		}
@@ -40,13 +40,11 @@ namespace Creeper.PostgreSql.Generator
 		public void Generate()
 		{
 
-			InitDbOptionsFile();
-			InitDbNamesFile();
+			InitDbContextFile();
 
 			var enums = GenerateEnum();
 			var composites = GenerateComposites();
-			UpdateDbNamesFile();
-			UpdateDbOptionsFile(enums, composites);
+			UpdateDbContextFile(enums, composites);
 		}
 
 
@@ -59,21 +57,21 @@ INNER JOIN pg_namespace b ON a.typnamespace = b.oid
 WHERE a.typtype='e'  
 ORDER BY oid asc  
 ";
-			var list = _dbExecute.ExecuteDataReaderList<EnumTypeInfo>(sql);
+			var list = _connection.DbExecute.ExecuteDataReaderList<EnumTypeInfo>(sql);
 			if (list.Count == 0)
 				return list;
 
-			using (StreamWriter writer = new StreamWriter(File.Create(_options.GetMultipleEnumCsFullName(_dbExecute.ConnectionOptions.DbName)), Encoding.UTF8))
+			using (StreamWriter writer = new StreamWriter(File.Create(_options.GetMultipleEnumCsFullName(_connection.Name)), Encoding.UTF8))
 			{
 				CreeperGenerator.WriteAuthorHeader.Invoke(writer);
 				writer.WriteLine("using System;");
 				writer.WriteLine();
-				writer.WriteLine("namespace {0}", _options.GetModelNamespaceFullName(_dbExecute.ConnectionOptions.DbName));
+				writer.WriteLine("namespace {0}", _options.GetModelNamespaceFullName(_connection.Name));
 				writer.WriteLine("{");
 				foreach (var item in list)
 				{
 					var sqlEnums = $@"SELECT enumlabel FROM pg_enum a  WHERE enumtypid=@oid ORDER BY oid asc";
-					var enums = _dbExecute.ExecuteDataReaderList<string>(sqlEnums, System.Data.CommandType.Text, new[] { new NpgsqlParameter("oid", item.Oid) });
+					var enums = _connection.DbExecute.ExecuteDataReaderList<string>(sqlEnums, System.Data.CommandType.Text, new[] { new NpgsqlParameter("oid", item.Oid) });
 					if (enums.Count == 0) continue;
 
 					enums[0] += " = 1";
@@ -105,7 +103,7 @@ INNER JOIN pg_namespace ns on ns.oid = a.typnamespace
 LEFT JOIN pg_namespace ns2 on ns2.oid = d.typnamespace
 WHERE {GenerateHelper.ExceptConvert("ns.nspname || '.' || a.typname", _postgreSqlRules.Excepts.Global.Composites)}
 ";
-			List<CompositeTypeInfo> composites = _dbExecute.ExecuteDataReaderList<CompositeTypeInfo>(sql);
+			List<CompositeTypeInfo> composites = _connection.DbExecute.ExecuteDataReaderList<CompositeTypeInfo>(sql);
 
 			if (composites.Count < 0) return composites;
 
@@ -133,12 +131,12 @@ WHERE {GenerateHelper.ExceptConvert("ns.nspname || '.' || a.typname", _postgreSq
 				sb.AppendLine("\t}");
 			}
 
-			using StreamWriter writer = new StreamWriter(File.Create(_options.GetMultipleCompositesCsFullName(_dbExecute.ConnectionOptions.DbName)), Encoding.UTF8);
+			using StreamWriter writer = new StreamWriter(File.Create(_options.GetMultipleCompositesCsFullName(_connection.Name)), Encoding.UTF8);
 			CreeperGenerator.WriteAuthorHeader.Invoke(writer);
 			writer.WriteLine("using System;");
 			writer.WriteLine("using Newtonsoft.Json;");
 			writer.WriteLine();
-			writer.WriteLine("namespace {0}", _options.GetModelNamespaceFullName(_dbExecute.ConnectionOptions.DbName));
+			writer.WriteLine("namespace {0}", _options.GetModelNamespaceFullName(_connection.Name));
 			writer.WriteLine("{");
 			writer.WriteLine(sb);
 			writer.WriteLine("}");
@@ -146,88 +144,59 @@ WHERE {GenerateHelper.ExceptConvert("ns.nspname || '.' || a.typname", _postgreSq
 			return composites;
 		}
 
-		public void UpdateDbNamesFile()
+		private void UpdateDbContextFile(List<EnumTypeInfo> enums, List<CompositeTypeInfo> composites)
 		{
-			var fileName = _options.GetDbNamesFileFullName(Generic.DataBaseKind.PostgreSql);
-			var lines = File.ReadAllLines(fileName).ToList();
-			var mainDbName = _options.GetDbNameNameMain(_dbExecute.ConnectionOptions.DbName);
-			var secondaryDbName = _options.GetDbNameNameSecondary(_dbExecute.ConnectionOptions.DbName);
-			var writeLines = new List<string>
-			{
-				"\t/// <summary>",
-				$"\t/// {mainDbName}主库",
-				"\t/// </summary>",
-				$"\tpublic struct {mainDbName} : ICreeperDbName {{ }}",
-				"\t/// <summary>",
-				$"\t/// {mainDbName}从库",
-				"\t/// </summary>",
-				$"\tpublic struct {secondaryDbName} : ICreeperDbName {{ }}"
-			};
-			lines.InsertRange(lines.Count - 1, writeLines);
-			File.WriteAllLines(fileName, lines);
-		}
-
-		private void UpdateDbOptionsFile(List<EnumTypeInfo> enums, List<CompositeTypeInfo> composites)
-		{
-			var fileName = _options.GetDbOptionsFileFullName(Generic.DataBaseKind.PostgreSql);
+			var fileName = _options.GetDbContextFileFullName(Generic.DataBaseKind.PostgreSql);
 			var lines = File.ReadAllLines(fileName).ToList();
 			var writeLines = new List<string>();
-			var dbMainName = _options.GetDbNameNameMain(_dbExecute.ConnectionOptions.DbName);
+			var dbMainName = _options.GetDbNameNameMain(_connection.Name);
 			var className = dbMainName.TrimStart('D', 'b');
 
-			writeLines.Add($"\t#region {_dbExecute.ConnectionOptions.DbName}");
-			writeLines.Add(string.Format("\tpublic class {0}PostgreSqlDbOption : BasePostgreSqlDbOption<{1}, {2}>", className, dbMainName, _options.GetDbNameNameSecondary(_dbExecute.ConnectionOptions.DbName)));
+			writeLines.Add($"\t#region {_connection.Name}");
+			writeLines.Add($"\tpublic class {_connection.Name}DbContext : CreeperDbContext");
 			writeLines.Add("\t{");
-			writeLines.Add(string.Format("\t\tpublic {0}PostgreSqlDbOption(string mainConnectionString, string[] secondaryConnectionStrings) : base(mainConnectionString, secondaryConnectionStrings) {{ }}", className));
-			writeLines.Add("\t\tpublic override DbConnectionOptions Options => new DbConnectionOptions()");
+			writeLines.Add($"\t\tpublic {_connection.Name}DbContext(IServiceProvider serviceProvider) : base(serviceProvider) {{ }}");
+			writeLines.Add("");
+			writeLines.Add("\t\tpublic override DataBaseKind DataBaseKind => DataBaseKind.PostgreSql;");
+			writeLines.Add("");
+			writeLines.Add($"\t\tpublic override string Name => nameof({_connection.Name}DbContext);");
+			writeLines.Add("");
+			writeLines.Add("\t\tprotected override Action<DbConnection> DbConnectionOptions => connection =>");
 			writeLines.Add("\t\t{");
-			writeLines.Add("\t\t\tMapAction = conn =>");
-			writeLines.Add("\t\t\t{");
-			writeLines.Add("\t\t\t\tconn.TypeMapper.UseNewtonsoftJson();");
-			if (MappingOptions.XmlTypeName.Contains(_dbExecute.ConnectionOptions.DbName))
-				writeLines.Add("\t\t\t\tconn.TypeMapper.UseSystemXmlDocument();");
-			if (MappingOptions.GeometryTableTypeName.Contains(_dbExecute.ConnectionOptions.DbName))
-				writeLines.Add("\t\t\t\tconn.TypeMapper.UseLegacyPostgis();");
+			writeLines.Add("\t\t\tvar c = (NpgsqlConnection)connection; ");
+			writeLines.Add("\t\t\tc.TypeMapper.UseNewtonsoftJson();");
+			if (MappingOptions.XmlTypeName.Contains(_connection.Name))
+				writeLines.Add("\t\t\tc.TypeMapper.UseSystemXmlDocument();");
+			if (MappingOptions.GeometryTableTypeName.Contains(_connection.Name))
+				writeLines.Add("\t\t\tc.TypeMapper.UseLegacyPostgis();");
 			foreach (var item in enums)
-				writeLines.Add($"\t\t\t\tconn.TypeMapper.MapEnum<{_options.GetMappingNamespaceName(_dbExecute.ConnectionOptions.DbName)}.{Types.DeletePublic(item.Nspname, item.Typname)}>(\"{item.Nspname}.{item.Typname}\", PostgreSqlTranslator.Instance);");
+				writeLines.Add($"\t\t\tc.TypeMapper.MapEnum<{_options.GetMappingNamespaceName(_connection.Name)}.{Types.DeletePublic(item.Nspname, item.Typname)}>(\"{item.Nspname}.{item.Typname}\", PostgreSqlTranslator.Instance);");
 			foreach (var item in composites.GroupBy(a => $"{a.Nspname}.{a.Typename}"))
 			{
 				var structName = item.FirstOrDefault();
-				writeLines.Add($"\t\t\t\tconn.TypeMapper.MapComposite<{_options.GetMappingNamespaceName(_dbExecute.ConnectionOptions.DbName)}.{Types.DeletePublic(structName.Nspname, structName.Typename)}>(\"{item.Key}\");");
+				writeLines.Add($"\t\t\tc.TypeMapper.MapComposite<{_options.GetMappingNamespaceName(_connection.Name)}.{Types.DeletePublic(structName.Nspname, structName.Typename)}>(\"{item.Key}\");");
 			}
-			writeLines.Add("\t\t\t}");
 			writeLines.Add("\t\t};");
 			writeLines.Add("\t}");
 			writeLines.Add("\t#endregion");
 			writeLines.Add("");
-			lines.Insert(0, $"using {_options.GetModelNamespaceFullName(_dbExecute.ConnectionOptions.DbName)};");
+			lines.Insert(0, $"using {_options.GetModelNamespaceFullName(_connection.Name)};");
 			lines.InsertRange(lines.Count - 1, writeLines);
 			File.WriteAllLines(fileName, lines);
 		}
 
-		public void InitDbOptionsFile()
+		public void InitDbContextFile()
 		{
-			var fileName = _options.GetDbOptionsFileFullName(Generic.DataBaseKind.PostgreSql);
+			var fileName = _options.GetDbContextFileFullName(Generic.DataBaseKind.PostgreSql);
+			if (File.Exists(fileName)) return;
 			using var writer = new StreamWriter(File.Create(fileName), Encoding.UTF8);
-			//CreeperGenerator.WriteAuthorHeader.Invoke(writer);
+			writer.WriteLine("using Creeper.DbHelper;");
+			writer.WriteLine("using Creeper.Driver;");
+			writer.WriteLine("using Creeper.Generic;");
 			writer.WriteLine("using System;");
-			writer.WriteLine("using Newtonsoft.Json.Linq;");
-			writer.WriteLine("using Npgsql.TypeMapping;");
-			writer.WriteLine("using Creeper.PostgreSql.Extensions;");
+			writer.WriteLine("using System.Data.Common;");
 			writer.WriteLine("using Npgsql;");
-			writer.WriteLine("using Creeper.PostgreSql;");
-			writer.WriteLine("using Creeper.Driver;");
-			writer.WriteLine();
-			writer.WriteLine("namespace {0}", _options.OptionsNamespace);
-			writer.WriteLine("{");
-			writer.WriteLine("}"); // namespace end
-		}
-
-		public void InitDbNamesFile()
-		{
-			var fileName = _options.GetDbNamesFileFullName(Generic.DataBaseKind.PostgreSql);
-			using var writer = new StreamWriter(File.Create(fileName), Encoding.UTF8);
-			writer.WriteLine("using Creeper.Driver;");
+			writer.WriteLine("using Creeper.PostgreSql.Extensions;");
 			writer.WriteLine();
 			writer.WriteLine("namespace {0}", _options.OptionsNamespace);
 			writer.WriteLine("{");

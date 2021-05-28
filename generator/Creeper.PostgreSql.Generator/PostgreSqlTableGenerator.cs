@@ -25,7 +25,7 @@ namespace Creeper.PostgreSql.Generator
 		/// </summary>
 		private TableViewModel _table;
 
-		private readonly ICreeperDbExecute _dbExecute;
+		private readonly CreeperGenerateConnection _connection;
 		private readonly FieldIgnore _fieldIgnore;
 
 		/// <summary>
@@ -64,9 +64,9 @@ namespace Creeper.PostgreSql.Generator
 		/// <param name="schemaName"></param>
 		/// <param name="table"></param>
 		/// <param name="type"></param>
-		public PostgreSqlTableGenerator(ICreeperDbExecute dbExecute, FieldIgnore fieldIgnore, CreeperGeneratorGlobalOptions options)
+		public PostgreSqlTableGenerator(CreeperGenerateConnection connection, FieldIgnore fieldIgnore, CreeperGeneratorGlobalOptions options)
 		{
-			_dbExecute = dbExecute;
+			_connection = connection;
 			_fieldIgnore = fieldIgnore;
 			_options = options;
 		}
@@ -118,7 +118,7 @@ LEFT JOIN pg_index idx ON c.attrelid = idx.indrelid AND c.attnum = ANY (idx.indk
 WHERE (b.nspname='{_schemaName}' and a.relname='{_table.Name}')  
 ORDER BY c.attnum ASC
 ";
-			_fieldList = _dbExecute.ExecuteDataReaderList<TableFieldModel>(sql);
+			_fieldList = _connection.DbExecute.ExecuteDataReaderList<TableFieldModel>(sql);
 
 			foreach (var f in _fieldList)
 			{
@@ -127,11 +127,11 @@ ORDER BY c.attnum ASC
 				f.CSharpType = Types.ConvertPgDbTypeToCSharpType(f.DbDataType, f.DbType);
 
 				if (f.DbType == "xml")
-					MappingOptions.XmlTypeName.Add(_dbExecute.ConnectionOptions.DbName);
+					MappingOptions.XmlTypeName.Add(_connection.Name);
 				if (f.DbType == "geometry")
 				{
 					_isGeometryTable = true;
-					MappingOptions.GeometryTableTypeName.Add(_dbExecute.ConnectionOptions.DbName);
+					MappingOptions.GeometryTableTypeName.Add(_connection.Name);
 				}
 
 				if (f.IsEnum)
@@ -161,7 +161,7 @@ ORDER BY c.attnum ASC
 		/// </summary>
 		private void ModelGenerator()
 		{
-			string _filename = Path.Combine(_options.GetMultipleModelPath(_dbExecute.ConnectionOptions.DbName), ModelClassName + ".cs");
+			string _filename = Path.Combine(_options.GetMultipleModelPath(_connection.Name), ModelClassName + ".cs");
 
 			using StreamWriter writer = new StreamWriter(File.Create(_filename), Encoding.UTF8);
 			CreeperGenerator.WriteAuthorHeader.Invoke(writer);
@@ -183,19 +183,18 @@ using {1};
 {3}
 namespace {0}
 {{
-{2}	[CreeperDbTable(@""""""{4}"""".""""{7}"""""", typeof({6}), DataBaseKind.{8})]
+{2}	[CreeperDbTable(@""""""{4}"""".""""{6}"""""", DataBaseKind.{7})]
 	public partial class {5} : ICreeperDbModel
 	{{
 		#region Properties",
-_options.GetModelNamespaceFullName(_dbExecute.ConnectionOptions.DbName),
+_options.GetModelNamespaceFullName(_connection.Name),
 _options.OptionsNamespace,
 CreeperGenerator.WriteComment(_table.Description, 1),
 _isGeometryTable ? "using Npgsql.LegacyPostgis;" + Environment.NewLine : "",
 _schemaName,
 ModelClassName,
-_options.GetDbNameNameMain(_dbExecute.ConnectionOptions.DbName),
 _table.Name,
-_dbExecute.ConnectionOptions.DataBaseKind.ToString());
+_connection.DbExecute.ConnectionOptions.DataBaseKind.ToString());
 
 			for (int i = 0; i < _fieldList.Count; i++)
 			{

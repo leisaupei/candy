@@ -16,7 +16,7 @@ using Creeper.PostgreSql.XUnitTest.Entity.Options;
 
 namespace Creeper.PostgreSql.XUnitTest.Entity.Model
 {
-	[CreeperDbTable(@"""public"".""people""", typeof(DbMain), DataBaseKind.PostgreSql)]
+	[CreeperDbTable(@"""public"".""people""", DataBaseKind.PostgreSql)]
 	public partial class PeopleModel : ICreeperDbModel
 	{
 		#region Properties

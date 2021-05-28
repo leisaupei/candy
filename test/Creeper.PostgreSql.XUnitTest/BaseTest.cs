@@ -33,12 +33,14 @@ namespace Creeper.PostgreSql.XUnitTest
 			{
 				IsInit = true;
 				var services = new ServiceCollection();
-				services.AddCreeperDbContext(options =>
+				services.AddCreeper(options =>
 				{
-					options.DefaultDbOptionName = typeof(DbMain);
-					options.DbTypeStrategy = DataBaseTypeStrategy.SecondaryFirstOfMainIfEmpty;
-					options.UseCache<CopyCustomDbCache>();
-					options.AddPostgreSql(new MainPostgreSqlDbOption(TestMainConnectionString, new[] { TestSecondaryConnectionString }));
+					options.AddPostgreSqlDbContext<PostgreSqlDbContext>(t =>
+					{
+						t.UseCache<CustomDbCache>();
+						t.DbTypeStrategy = DataBaseTypeStrategy.MainIfSecondaryEmpty;
+						t.UseConnectionString(TestMainConnectionString, new[] { TestSecondaryConnectionString });
+					});
 				});
 				var serviceProvider = services.BuildServiceProvider();
 				_dbContext = serviceProvider.GetService<ICreeperDbContext>();

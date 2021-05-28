@@ -18,7 +18,7 @@ namespace Creeper.MySql.Generator
 	public class MySqlDbOptionsGenerator
 	{
 
-		private readonly ICreeperDbExecute _dbExecute;
+		private readonly CreeperGenerateConnection _connection;
 		private readonly MySqlGeneratorRules _mySqlRules;
 		private readonly CreeperGeneratorGlobalOptions _options;
 		/// <summary>
@@ -27,9 +27,9 @@ namespace Creeper.MySql.Generator
 		/// <param name="dbExecute"></param>
 		/// <param name="mySqlRules"></param>
 		/// <param name="options"></param>
-		public MySqlDbOptionsGenerator(ICreeperDbExecute dbExecute, MySqlGeneratorRules mySqlRules, CreeperGeneratorGlobalOptions options)
+		public MySqlDbOptionsGenerator(CreeperGenerateConnection connection, MySqlGeneratorRules mySqlRules, CreeperGeneratorGlobalOptions options)
 		{
-			_dbExecute = dbExecute;
+			_connection = connection;
 			_mySqlRules = mySqlRules;
 			_options = options;
 		}
@@ -39,15 +39,15 @@ namespace Creeper.MySql.Generator
 		/// </summary>
 		public void Generate()
 		{
-			InitDbNamesFile();
+			InitDbContextFile();
 			GenerateEnum();
-			UpdateDbNamesFile();
+			UpdateDbContextFile();
 		}
 
 		private static readonly Regex _regex = new Regex(@"^[0-9]");
 		private void GenerateEnum()
 		{
-			using var connection = _dbExecute.ConnectionOptions.GetConnection();
+			using var connection = _connection.Connection.GetConnection();
 			var db = connection.Database;
 			var sql = $@"
 SELECT 
@@ -59,16 +59,16 @@ FROM `INFORMATION_SCHEMA`.`COLUMNS`
 WHERE `TABLE_SCHEMA`='{db}' and `DATA_TYPE` = 'enum' ORDER BY `ORDINAL_POSITION`
 
 		";
-			var list = _dbExecute.ExecuteDataReaderList<EnumTypeInfo>(sql);
+			var list = _connection.DbExecute.ExecuteDataReaderList<EnumTypeInfo>(sql);
 			if (list.Count == 0)
 				return;
 
-			using (StreamWriter writer = new(File.Create(_options.GetMultipleEnumCsFullName(_dbExecute.ConnectionOptions.DbName)), Encoding.UTF8))
+			using (StreamWriter writer = new(File.Create(_options.GetMultipleEnumCsFullName(_connection.Name)), Encoding.UTF8))
 			{
 				CreeperGenerator.WriteAuthorHeader.Invoke(writer);
 				writer.WriteLine("using System;");
 				writer.WriteLine();
-				writer.WriteLine("namespace {0}", _options.GetModelNamespaceFullName(_dbExecute.ConnectionOptions.DbName));
+				writer.WriteLine("namespace {0}", _options.GetModelNamespaceFullName(_connection.Name));
 				writer.WriteLine("{");
 				foreach (var item in list)
 				{
@@ -100,33 +100,36 @@ WHERE `TABLE_SCHEMA`='{db}' and `DATA_TYPE` = 'enum' ORDER BY `ORDINAL_POSITION`
 			}
 		}
 
-		public void UpdateDbNamesFile()
+		public void UpdateDbContextFile()
 		{
-			var fileName = _options.GetDbNamesFileFullName(Generic.DataBaseKind.MySql);
+			var fileName = _options.GetDbContextFileFullName(Generic.DataBaseKind.MySql);
 			var lines = File.ReadAllLines(fileName).ToList();
-			var mainDbName = _options.GetDbNameNameMain(_dbExecute.ConnectionOptions.DbName);
-			var secondaryDbName = _options.GetDbNameNameSecondary(_dbExecute.ConnectionOptions.DbName);
+			var mainDbName = _options.GetDbNameNameMain(_connection.Name);
 			var writeLines = new List<string>
 			{
-				"\t/// <summary>",
-				$"\t/// {mainDbName}主库",
-				"\t/// </summary>",
-				$"\tpublic struct {mainDbName} : ICreeperDbName {{ }}",
-				"\t/// <summary>",
-				$"\t/// {mainDbName}从库",
-				"\t/// </summary>",
-				$"\tpublic struct {secondaryDbName} : ICreeperDbName {{ }}"
+				$"\tpublic class {_connection.Name}DbContext : CreeperDbContext",
+				$"\t{{",
+				$"\t\tpublic {_connection.Name}DbContext(IServiceProvider serviceProvider) : base(serviceProvider) {{ }}",
+				$"",
+				$"\t\tpublic override DataBaseKind DataBaseKind => DataBaseKind.MySql;",
+				$"",
+				$"\t\tpublic override string Name => nameof({_connection.Name}DbContext);",
+				$"\t}}",
 			};
+
+
 			lines.InsertRange(lines.Count - 1, writeLines);
 			File.WriteAllLines(fileName, lines);
 		}
-
-
-		public void InitDbNamesFile()
+		public void InitDbContextFile()
 		{
-			var fileName = _options.GetDbNamesFileFullName(Generic.DataBaseKind.MySql);
+			var fileName = _options.GetDbContextFileFullName(Generic.DataBaseKind.MySql);
+			if (File.Exists(fileName)) return;
 			using var writer = new StreamWriter(File.Create(fileName), Encoding.UTF8);
+			writer.WriteLine("using Creeper.DbHelper;");
 			writer.WriteLine("using Creeper.Driver;");
+			writer.WriteLine("using Creeper.Generic;");
+			writer.WriteLine("using System;");
 			writer.WriteLine();
 			writer.WriteLine("namespace {0}", _options.OptionsNamespace);
 			writer.WriteLine("{");

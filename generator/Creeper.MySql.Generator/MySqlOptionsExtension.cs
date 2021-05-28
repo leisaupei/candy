@@ -9,7 +9,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
 		public static CreeperGeneratorOptions UseMySqlRules(this CreeperGeneratorOptions options, Action<MySqlGeneratorRules> action)
 		{
-			options.RegisterExtension(new MySqlGeneratorExtension(action));
+			options.AddExtension(new MySqlGeneratorExtension(action));
 
 			return options;
 		}

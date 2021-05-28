@@ -1,5 +1,4 @@
-﻿using Creeper;
-using Creeper.SqlBuilder;
+﻿using Creeper.SqlBuilder;
 using Creeper.Extensions;
 using System;
 using System.Collections.Generic;
@@ -10,14 +9,14 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections;
-using Creeper.Driver;
 using Creeper.Generic;
+using Creeper.DbHelper;
 
-namespace Creeper.DbHelper
+namespace Creeper.Driver
 {
 	public class CreeperDbExecute : ICreeperDbExecute
 	{
-		public ICreeperDbConnectionOption ConnectionOptions { get; }
+		public ICreeperDbConnection ConnectionOptions { get; }
 
 		public bool InTransaction => _trans != null;
 
@@ -30,7 +29,7 @@ namespace Creeper.DbHelper
 		/// constructer
 		/// </summary>
 		/// <param name="connectionOptions"></param>
-		public CreeperDbExecute(ICreeperDbConnectionOption connectionOptions)
+		public CreeperDbExecute(ICreeperDbConnection connectionOptions)
 		{
 			if (string.IsNullOrEmpty(connectionOptions.ConnectionString))
 				throw new ArgumentNullException(nameof(connectionOptions.ConnectionString));
@@ -137,7 +136,7 @@ namespace Creeper.DbHelper
 		/// 读取数据库reader
 		/// </summary>
 		public void ExecuteDataReader(Action<DbDataReader> action, string cmdText, CommandType cmdType = CommandType.Text, DbParameter[] cmdParams = null)
-			=> ExecuteDataReaderBaseAsync(dr =>
+			=> ExecuteDataReaderAsync(dr =>
 			{
 				while (dr.Read())
 					action?.Invoke(dr);
@@ -149,14 +148,14 @@ namespace Creeper.DbHelper
 		public ValueTask ExecuteDataReaderAsync(Action<DbDataReader> action, string cmdText, CommandType cmdType = CommandType.Text, DbParameter[] cmdParams = null, CancellationToken cancellationToken = default)
 			=> cancellationToken.IsCancellationRequested
 			? new ValueTask(Task.FromCanceled(cancellationToken))
-			: ExecuteDataReaderBaseAsync(async dr =>
+			: ExecuteDataReaderAsync(async dr =>
 			{
 				while (await dr.ReadAsync(cancellationToken))
 					action?.Invoke(dr);
 
 			}, cmdText, cmdType, cmdParams, true, cancellationToken);
 
-		private async ValueTask ExecuteDataReaderBaseAsync(Action<DbDataReader> action, string cmdText, CommandType cmdType, DbParameter[] cmdParams, bool async, CancellationToken cancellationToken)
+		private async ValueTask ExecuteDataReaderAsync(Action<DbDataReader> action, string cmdText, CommandType cmdType, DbParameter[] cmdParams, bool async, CancellationToken cancellationToken)
 		{
 			DbCommand cmd = null;
 			try
@@ -248,7 +247,7 @@ namespace Creeper.DbHelper
 				cmdText.Append(item.CommandText).AppendLine(";");
 			}
 			if (async)
-				await ExecuteDataReaderBaseAsync(async dr =>
+				await ExecuteDataReaderAsync(async dr =>
 				{
 					for (int i = 0; i < results.Length; i++)
 					{
@@ -263,7 +262,7 @@ namespace Creeper.DbHelper
 					}
 				}, cmdText.ToString(), CommandType.Text, paras.ToArray(), true, cancellationToken);
 			else
-				ExecuteDataReaderBaseAsync(dr =>
+				ExecuteDataReaderAsync(dr =>
 				{
 					for (int i = 0; i < results.Length; i++)
 					{
@@ -297,6 +296,7 @@ namespace Creeper.DbHelper
 		#endregion
 
 		#region Transaction
+		#region Begin
 		/// <summary>
 		/// 开启事务
 		/// </summary>
@@ -309,6 +309,17 @@ namespace Creeper.DbHelper
 		public ValueTask<ICreeperDbExecute> BeginTransactionAsync(CancellationToken cancellationToken = default)
 			=> cancellationToken.IsCancellationRequested ? new ValueTask<ICreeperDbExecute>(Task.FromCanceled<ICreeperDbExecute>(cancellationToken)) : BeginTransactionAsync(true, cancellationToken);
 
+		private async ValueTask<ICreeperDbExecute> BeginTransactionAsync(bool async, CancellationToken cancellationToken)
+		{
+			if (_trans != null)
+				throw new Exception("exists a transaction already");
+			DbConnection conn = await GetConnectionAsync(async, cancellationToken);
+			_trans = async ? await conn.BeginTransactionAsync(cancellationToken) : conn.BeginTransaction();
+			return this;
+		}
+		#endregion
+
+		#region Commit
 		/// <summary>
 		/// 确认事务
 		/// </summary>
@@ -336,7 +347,9 @@ namespace Creeper.DbHelper
 				_trans.Dispose();
 			}
 		}
+		#endregion
 
+		#region Rollback
 		/// <summary>
 		/// 回滚事务
 		/// </summary>
@@ -365,6 +378,9 @@ namespace Creeper.DbHelper
 			}
 		}
 
+		#endregion
+
+		#region Extension
 		/// <summary>
 		/// 事务
 		/// </summary>
@@ -380,16 +396,6 @@ namespace Creeper.DbHelper
 		/// <returns></returns>
 		public ValueTask TransactionAsync(Action<ICreeperDbExecute> action, CancellationToken cancellationToken = default)
 			=> cancellationToken.IsCancellationRequested ? new ValueTask(Task.FromCanceled(cancellationToken)) : TransactionAsync(true, action, cancellationToken);
-
-		private async ValueTask<ICreeperDbExecute> BeginTransactionAsync(bool async, CancellationToken cancellationToken)
-		{
-			if (_trans != null)
-				throw new Exception("exists a transaction already");
-
-			var conn = async ? await ConnectionOptions.GetConnectionAsync(cancellationToken) : ConnectionOptions.GetConnection();
-			_trans = async ? await conn.BeginTransactionAsync(cancellationToken) : conn.BeginTransaction();
-			return this;
-		}
 
 		private async ValueTask TransactionAsync(bool async, Action<ICreeperDbExecute> action, CancellationToken cancellationToken)
 		{
@@ -408,6 +414,7 @@ namespace Creeper.DbHelper
 				throw ex;
 			}
 		}
+		#endregion
 
 		#endregion
 
@@ -429,7 +436,7 @@ namespace Creeper.DbHelper
 			{
 				if (_trans == null)
 				{
-					var conn = async ? await ConnectionOptions.GetConnectionAsync(cancellationToken) : ConnectionOptions.GetConnection();
+					DbConnection conn = await GetConnectionAsync(async, cancellationToken);
 					cmd = conn.CreateCommand();
 				}
 				else
@@ -460,7 +467,7 @@ namespace Creeper.DbHelper
 			if (cmd == null)
 				throw new CreeperSqlExecuteException(ex.ToString(), ex);
 
-			var exception = new CreeperSqlExecuteException($"{ConnectionOptions.DbName}数据库执行出错", ex);
+			var exception = new CreeperSqlExecuteException("数据库执行出错", ex);
 			exception.Data["ConnectionString"] = cmd.Connection?.ConnectionString;
 			exception.Data["CommandText"] = cmd.CommandText;
 
@@ -473,6 +480,13 @@ namespace Creeper.DbHelper
 			exception.Data["Parameters"] = ps;
 
 			throw exception;
+		}
+
+		private async Task<DbConnection> GetConnectionAsync(bool async, CancellationToken cancellationToken = default)
+		{
+			var conn = async ? await ConnectionOptions.GetConnectionAsync(cancellationToken) : ConnectionOptions.GetConnection();
+			ConnectionOptions.DbConnectionOptions?.Invoke(conn);
+			return conn;
 		}
 
 		private async ValueTask CloseConnectionAsync(bool async, DbConnection connection)

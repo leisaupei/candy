@@ -36,6 +36,10 @@ namespace Creeper.Generic
 	public enum DataBaseType
 	{
 		/// <summary>
+		/// 根据<see cref="DataBaseTypeStrategy"/>主从策略选择
+		/// </summary>
+		Default = 0,
+		/// <summary>
 		/// 主库
 		/// </summary>
 		Main = 1,
@@ -67,18 +71,18 @@ namespace Creeper.Generic
 	}
 
 	/// <summary>
-	/// 数据库主从使用策略
+	/// 数据库主从使用策略, 主要针对Select语句
 	/// </summary>
 	public enum DataBaseTypeStrategy
 	{
 		/// <summary>
-		/// 从库优先, 没有从库会报错
+		/// 只使用从库, 没有从库会报错
 		/// </summary>
-		SecondaryFirst = 1,
+		OnlySecondary = 1,
 		/// <summary>
 		/// 从库优先, 如果从库是Empty自动使用主库
 		/// </summary>
-		SecondaryFirstOfMainIfEmpty = 2,
+		MainIfSecondaryEmpty = 2,
 		/// <summary>
 		/// 只使用主库
 		/// </summary>

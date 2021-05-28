@@ -1,4 +1,5 @@
-﻿using Creeper.Driver;
+﻿using Creeper.DbHelper;
+using Creeper.Driver;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,10 +11,6 @@ namespace Creeper.Generator.Common.Options
 	/// </summary>
 	public class CreeperGenerateOption
 	{
-		/// <summary>
-		/// 默认主库名称
-		/// </summary>
-		public const string MASTER_DATABASE_TYPE_NAME = "Main";
 		/// <summary>
 		/// 项目名称
 		/// </summary>
@@ -29,6 +26,12 @@ namespace Creeper.Generator.Common.Options
 		/// <summary>
 		/// 字符串连接
 		/// </summary>
-		public List<ICreeperDbConnectionOption> Connections { get; set; } = new List<ICreeperDbConnectionOption>();
+		public List<CreeperGenerateConnection> Builders { get; set; } = new List<CreeperGenerateConnection>();
+	}
+	public class CreeperGenerateConnection
+	{
+		public string Name { get; set; }
+		public ICreeperDbConnection Connection { get; set; }
+		public ICreeperDbExecute DbExecute => new CreeperDbExecute(Connection);
 	}
 }

@@ -1,4 +1,5 @@
 
+using Creeper.Driver;
 using Creeper.Extensions;
 using Creeper.PostgreSql.XUnitTest.Entity.Model;
 using Creeper.PostgreSql.XUnitTest.Entity.Options;
@@ -132,7 +133,7 @@ namespace Creeper.PostgreSql.XUnitTest
 		[Fact, Order(12)]
 		public void ToPipe()
 		{
-			object[] obj = _dbContext.GetExecute<DbSecondary>().ExecuteDataReaderPipe(new ISqlBuilder[] {
+			object[] obj = _dbContext.ExecuteDataReaderPipe(new ISqlBuilder[] {
 				SelectBuilder<PeopleModel>.Select().WhereAny(a => a.Id, new[] { StuPeopleId1, StuPeopleId2 }).PipeToList(),
 				_dbContext.Select<PeopleModel>().Where(a => a.Id == StuPeopleId1).PipeFirstOrDefault<(Guid, string)>("id,name"),
 				_dbContext.Select<PeopleModel>().Where(a =>a.Id==StuPeopleId1).PipeToList<(Guid, string)>("id,name"),

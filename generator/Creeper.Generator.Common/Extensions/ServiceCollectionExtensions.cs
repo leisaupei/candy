@@ -20,7 +20,7 @@ namespace Microsoft.Extensions.DependencyInjection
 			action(options);
 			foreach (var extension in options.Extensions)
 			{
-				extension.RegisterExtension(services);
+				extension.AddServices(services);
 			}
 
 			return services;

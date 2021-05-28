@@ -17,7 +17,7 @@ using Npgsql.LegacyPostgis;
 
 namespace Creeper.PostgreSql.XUnitTest.Entity.Model
 {
-	[CreeperDbTable(@"""public"".""type_test""", typeof(DbMain), DataBaseKind.PostgreSql)]
+	[CreeperDbTable(@"""public"".""type_test""", DataBaseKind.PostgreSql)]
 	public partial class TypeTestModel : ICreeperDbModel
 	{
 		#region Properties

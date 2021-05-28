@@ -1,3 +1,4 @@
+using Creeper.Driver;
 using Creeper.Extensions;
 using Creeper.MySql.Types;
 using Creeper.MySql.XUnitTest.Entity.Model;
@@ -244,7 +245,7 @@ namespace Creeper.MySql.XUnitTest
 			var affrows = _dbContext.Update<TypeTestModel>().Set(a => a.Json_t, s).Where(a => a.Id == Pid).ToAffectedRows();
 			var result = _dbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Json_t);
 			Assert.Equal(1, affrows);
-			Assert.Equal(s, result);
+			Assert.Equal(JToken.Parse(s), JToken.Parse(result));
 		}
 
 		[Theory]
@@ -311,9 +312,6 @@ namespace Creeper.MySql.XUnitTest
 		[InlineData(2021)]
 		public void Year(short s)
 		{
-			var obj = _dbContext.ExecuteScalar("select `year_t` from `type_test` where `id` = 1 ");
-			var type = obj.GetType();
-
 			var affrows = _dbContext.Update<TypeTestModel>().Set(a => a.Year_t, s).Where(a => a.Id == Pid).ToAffectedRows();
 			var result = _dbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Year_t);
 			Assert.Equal(1, affrows);

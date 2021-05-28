@@ -17,20 +17,10 @@ namespace Creeper.DbHelper
 		static IReadOnlyDictionary<string, TypeFieldsInfo> _typeFields;
 
 		const string SystemLoadSuffix = ".SystemLoad";
-		static readonly object _lock = new object();
+		static readonly object _lock = new();
 
 		static EntityHelper()
 		{
-		}
-		/// <summary>
-		/// 根据实体类获取所有字段数组, 有双引号
-		/// </summary>
-		/// <param name="type"></param>
-		/// <returns></returns>
-		public static string[] GetFieldsMark(Type type)
-		{
-			InitStaticTypesFields(type);
-			return _typeFields[string.Concat(type.FullName, SystemLoadSuffix)].Fields.Select(a => $"\"{a}\"").ToArray();
 		}
 
 		/// <summary>
@@ -50,14 +40,6 @@ namespace Creeper.DbHelper
 		public static string[] GetPkFields<T>() => GetPkFields(typeof(T));
 
 		/// <summary>
-		/// 根据实体类获取所有字段数组, 有双引号
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <returns></returns>
-		static string[] GetFieldsMark<T>() where T : ICreeperDbModel => GetFieldsMark(typeof(T));
-
-
-		/// <summary>
 		/// 根据实体类获取所有字段数组, 不包含双引号
 		/// </summary>
 		/// <param name="type"></param>
@@ -67,13 +49,6 @@ namespace Creeper.DbHelper
 			InitStaticTypesFields(type);
 			return _typeFields[string.Concat(type.FullName, SystemLoadSuffix)].Fields;
 		}
-
-		/// <summary>
-		/// 根据实体类获取所有字段数组, 不包含双引号
-		/// </summary>
-		/// <typeparam name="T"></typeparam>
-		/// <returns></returns>
-		static string[] GetFields<T>() where T : ICreeperDbModel => GetFields(typeof(T));
 
 		/// <summary>
 		/// 根据类型初始化, 实体类map

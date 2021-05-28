@@ -10,6 +10,7 @@ using Creeper.SqlBuilder;
 using Creeper.PostgreSql.XUnitTest.Entity.Model;
 using System.Reflection;
 using Creeper.Extensions;
+using Creeper.Driver;
 
 namespace Creeper.PostgreSql.XUnitTest
 {

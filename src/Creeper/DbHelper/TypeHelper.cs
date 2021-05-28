@@ -14,17 +14,12 @@ namespace Creeper.DbHelper
 		public static IDictionary<DataBaseKind, ICreeperDbConverter> DbTypeConverters = new Dictionary<DataBaseKind, ICreeperDbConverter>();
 
 		/// <summary>
-		/// 实例键值对
-		/// </summary>
-		public static IReadOnlyDictionary<string, List<ICreeperDbConnectionOption>> ExecuteOptions;
-
-		/// <summary>
 		/// 通过数据库类型获取转换器
 		/// </summary>
 		/// <param name="dataBaseKind"></param>
 		/// <returns></returns>
 		public static ICreeperDbConverter GetConverter(DataBaseKind dataBaseKind)
 			=> DbTypeConverters.TryGetValue(dataBaseKind, out var convert)
-			? convert : throw new NoCreeperDbTypeConverteException(dataBaseKind.ToString());
+			? convert : throw new DbConverterNotFoundException(dataBaseKind);
 	}
 }

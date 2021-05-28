@@ -66,8 +66,8 @@ namespace Creeper.Generator.Common.Options
 		/// options目录.cs文件命名空间
 		/// </summary>
 		public string OptionsNamespace { get; }
-		private const string DbNameFileName = "DbNames.cs";
-		private const string DbOptionsFileName = "DbOptions.cs";
+		//private const string DbNameFileName = "DbNames.cs";
+		private const string DbContextFileName = "DbContext.cs";
 		private const string EnumFileName = "_Enums.cs";
 		private const string CompositesFileName = "_Composites.cs";
 		private const string DbOptionsDirectory = "Options";
@@ -157,29 +157,8 @@ namespace Creeper.Generator.Common.Options
 		/// <returns></returns>
 		public string GetDbNameNameMain(string typeName = null)
 		{
-			if (!Multiple)
-				return DbNamePrefix + CreeperGenerateOption.MASTER_DATABASE_TYPE_NAME;
-			else
-			{
-				CheckDbName(typeName);
-				return DbNamePrefix + typeName.ToUpperPascal();
-			}
-		}
-
-		/// <summary>
-		/// 获取数据库名称从库别称
-		/// </summary>
-		/// <param name="typeName"></param>
-		/// <returns></returns>
-		public string GetDbNameNameSecondary(string typeName = null)
-		{
-			if (!Multiple)
-				return DbNamePrefix + DataBaseType.Secondary.ToString();
-			else
-			{
-				CheckDbName(typeName);
-				return DbNamePrefix + typeName.ToUpperPascal() + DataBaseType.Secondary.ToString();
-			}
+			CheckDbName(typeName);
+			return DbNamePrefix + typeName.ToUpperPascal();
 		}
 
 		/// <summary>
@@ -235,24 +214,24 @@ namespace Creeper.Generator.Common.Options
 				Directory.CreateDirectory(path);
 		}
 
-		/// <summary>
-		/// 获取dbname文件名称
-		/// </summary>
-		/// <param name="dataBaseKind"></param>
-		/// <returns></returns>
-		public string GetDbNamesFileFullName(DataBaseKind dataBaseKind)
-		{
-			return Path.Combine(DbOptionsPath, dataBaseKind.ToString() + DbNameFileName);
-		}
+		///// <summary>
+		///// 获取dbname文件名称
+		///// </summary>
+		///// <param name="dataBaseKind"></param>
+		///// <returns></returns>
+		//public string GetDbNamesFileFullName(DataBaseKind dataBaseKind)
+		//{
+		//    return Path.Combine(DbOptionsPath, dataBaseKind.ToString() + DbNameFileName);
+		//}
 
 		/// <summary>
-		/// 获取dboptions文件名称
+		/// 获取DbContext文件名称
 		/// </summary>
 		/// <param name="dataBaseKind"></param>
 		/// <returns></returns>
-		public string GetDbOptionsFileFullName(DataBaseKind dataBaseKind)
+		public string GetDbContextFileFullName(DataBaseKind dataBaseKind)
 		{
-			return Path.Combine(DbOptionsPath, dataBaseKind.ToString() + DbOptionsFileName);
+			return Path.Combine(DbOptionsPath, dataBaseKind.ToString() + DbContextFileName);
 		}
 	}
 }

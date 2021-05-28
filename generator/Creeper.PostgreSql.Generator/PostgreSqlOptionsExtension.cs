@@ -10,7 +10,7 @@ namespace Microsoft.Extensions.DependencyInjection
 		public static CreeperGeneratorOptions UsePostgreSqlRules(this CreeperGeneratorOptions options, Action<PostgreSqlGeneratorRules> action)
 		{
 
-			options.RegisterExtension(new PostgreSqlGeneratorExtension(action));
+			options.AddExtension(new PostgreSqlGeneratorExtension(action));
 
 			return options;
 		}

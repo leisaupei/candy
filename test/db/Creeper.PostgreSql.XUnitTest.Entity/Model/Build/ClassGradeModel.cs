@@ -19,7 +19,7 @@ namespace Creeper.PostgreSql.XUnitTest.Entity.Model
 	/// <summary>
 	/// 班级
 	/// </summary>
-	[CreeperDbTable(@"""class"".""grade""", typeof(DbMain), DataBaseKind.PostgreSql)]
+	[CreeperDbTable(@"""class"".""grade""", DataBaseKind.PostgreSql)]
 	public partial class ClassGradeModel : ICreeperDbModel
 	{
 		#region Properties

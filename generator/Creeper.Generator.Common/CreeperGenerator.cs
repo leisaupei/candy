@@ -80,17 +80,17 @@ namespace Creeper.Generator.Common
 			if (!Directory.Exists(option.OutputPath))
 				Directory.CreateDirectory(option.OutputPath);
 
-			var packageReference = option.Connections.GroupBy(a => a.DataBaseKind.ToString()).Select(a => a.Key)
+			var packageReference = option.Builders.GroupBy(a => a.Connection.DataBaseKind.ToString()).Select(a => a.Key)
 				.Select(a => string.Format("\t\t<PackageReference Include=\"Creeper.{2}\" Version=\"{0}\" />{1}", _cfg["CreeperNugetVersion"], Environment.NewLine, a)).ToList();
 
-			var generateOptions = new CreeperGeneratorGlobalOptions(option, _modelNamespace, _dbStandardSuffix, _modelSuffix, option.Connections.Count > 1);
+			var generateOptions = new CreeperGeneratorGlobalOptions(option, _modelNamespace, _dbStandardSuffix, _modelSuffix, option.Builders.Count > 1);
 			GenerateCsproj(generateOptions, packageReference);
 
 			CreateSln(generateOptions);
 
-			foreach (var connection in option.Connections)
+			foreach (var builder in option.Builders)
 			{
-				_generatorProviderFactory[connection.DataBaseKind].ModelGenerator(generateOptions, connection, option.Connections.Count > 1);
+				_generatorProviderFactory[builder.Connection.DataBaseKind].ModelGenerator(generateOptions, builder);
 			}
 		}
 
@@ -118,6 +118,7 @@ namespace Creeper.Generator.Common
 			writer.WriteLine();
 			writer.WriteLine("</Project>");
 		}
+
 		/// <summary>
 		/// 创建sln解决方案文件
 		/// </summary>

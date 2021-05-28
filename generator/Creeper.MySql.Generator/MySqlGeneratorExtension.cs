@@ -1,4 +1,5 @@
-﻿using Creeper.Generator.Common.Contracts;
+﻿using Creeper.Driver;
+using Creeper.Generator.Common.Contracts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -7,7 +8,7 @@ using System.Text;
 
 namespace Creeper.MySql.Generator
 {
-	public class MySqlGeneratorExtension : ICreeperGeneratorExtension
+	public class MySqlGeneratorExtension : ICreeperOptionsExtension
 	{
 		private readonly Action<MySqlGeneratorRules> _mySqlRulesAction;
 
@@ -16,16 +17,13 @@ namespace Creeper.MySql.Generator
 			_mySqlRulesAction = mySqlRulesAction;
 		}
 
-		public void RegisterExtension(IServiceCollection services)
+		public void AddServices(IServiceCollection services)
 		{
 
 			services.Configure(_mySqlRulesAction);
 			services.AddSingleton<ICreeperGeneratorProvider, MySqlGeneratorProvider>();
 
-			services.AddCreeperDbContext(option =>
-			{
-				option.AddMySqlDbOption();
-			});
+			services.AddCreeper(a => a.AddMySqlOption());
 		}
 
 	}
