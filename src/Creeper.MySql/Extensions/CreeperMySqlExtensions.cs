@@ -5,7 +5,7 @@ using Creeper.MySql.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
-	public static class CreeperMySqlSettingsExtensions
+	public static class CreeperMySqlExtensions
 	{
 		/// <summary>
 		/// 添加MySql数据库配置
@@ -28,6 +28,14 @@ namespace Microsoft.Extensions.DependencyInjection
 		{
 			setting.AddDbConverter<MySqlConverter>();
 			setting.AddExtension(new CreeperMySqlOptionsExtension());
+		}
+		/// <summary>
+		/// 因Mysql空间数据为自定义类型, 所以放置控制开关
+		/// </summary>
+		/// <param name="_"></param>
+		public static void UseMySqlGeometry(this CreeperDbContextOptions _)
+		{
+			MySqlConverter.UseGeometryType = true;
 		}
 	}
 }

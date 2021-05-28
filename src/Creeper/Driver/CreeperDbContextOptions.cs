@@ -54,7 +54,6 @@ namespace Creeper.Driver
 
 			Main = main;
 			Secondary = secondary;
-
 		}
 		/// <summary>
 		/// 设置数据库链接

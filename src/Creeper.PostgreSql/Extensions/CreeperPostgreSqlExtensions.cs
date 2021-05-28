@@ -5,7 +5,7 @@ using Creeper.PostgreSql.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
-	public static class CreeperPostgreSqlSettingsExtensions
+	public static class CreeperPostgreSqlExtensions
 	{
 		/// <summary>
 		/// 添加PostgreSql数据库配置

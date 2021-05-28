@@ -32,6 +32,7 @@ namespace Creeper.MySql.XUnitTest
 					options.AddMySqlDbContext<MySqlDbContext>(a =>
 					{
 						a.UseConnectionString(TestMainConnectionString, new[] { TestSecondaryConnectionString });
+						a.UseMySqlGeometry();
 					});
 				});
 				var serviceProvider = services.BuildServiceProvider();

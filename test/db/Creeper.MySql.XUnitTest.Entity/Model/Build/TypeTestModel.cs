@@ -10,7 +10,7 @@ namespace Creeper.MySql.XUnitTest.Entity.Model
 	public partial class TypeTestModel : ICreeperDbModel
 	{
 		#region Properties
-		[CreeperDbColumn(Primary = true)]
+		[CreeperDbColumn(Primary = true, Identity = true)]
 		public int Id { get; set; }
 
 		public long? Bigint_t { get; set; }

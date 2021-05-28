@@ -1,6 +1,8 @@
+using Creeper.DbHelper;
 using Creeper.Driver;
 using Creeper.Generic;
 using System;
+using System.Data.Common;
 
 namespace Creeper.MySql.XUnitTest.Entity.Options
 {
@@ -11,5 +13,6 @@ namespace Creeper.MySql.XUnitTest.Entity.Options
 		public override DataBaseKind DataBaseKind => DataBaseKind.MySql;
 
 		public override string Name => nameof(MySqlDbContext);
+
 	}
 }

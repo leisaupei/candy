@@ -17,7 +17,7 @@ namespace Creeper.MySql.XUnitTest.Entity.Model
 		/// 主键id
 		/// 唯一键
 		/// </summary>
-		[CreeperDbColumn(Primary = true)]
+		[CreeperDbColumn(Primary = true, Identity = true)]
 		public int Id { get; set; }
 
 		/// <summary>

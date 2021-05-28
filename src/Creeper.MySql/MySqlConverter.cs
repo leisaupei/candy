@@ -29,28 +29,21 @@ namespace Creeper.MySql
 			typeof(MySqlPoint),
 			typeof(MySqlPolygon)
 		};
-
+		internal static bool UseGeometryType = false;
 		public override DataBaseKind DataBaseKind => DataBaseKind.MySql;
 
 		public override string DbFieldMark => "`";
 
 		public override object ConvertDbData(object value, Type convertType)
 		{
-			try
+			switch (convertType)
 			{
-				switch (convertType)
-				{
-					case var t when _geometryTypes.Contains(t):
-						return MySqlGeometry.Parse(value.ToString());
+				case var t when _geometryTypes.Contains(t):
+					return MySqlGeometry.Parse(value.ToString());
 
-					default:
-						var converter = TypeDescriptor.GetConverter(convertType);
-						return converter.CanConvertFrom(value.GetType()) ? converter.ConvertFrom(value) : Convert.ChangeType(value, convertType);
-				}
-			}
-			catch (Exception)
-			{
-				throw;
+				default:
+					var converter = TypeDescriptor.GetConverter(convertType);
+					return converter.CanConvertFrom(value.GetType()) ? converter.ConvertFrom(value) : Convert.ChangeType(value, convertType);
 			}
 		}
 
@@ -87,7 +80,7 @@ namespace Creeper.MySql
 
 		public override bool SetSpecialDbParameter(out string format, ref object value)
 		{
-			if (_geometryTypes.Contains(value.GetType()))
+			if (UseGeometryType && _geometryTypes.Contains(value.GetType()))
 			{
 				format = "ST_GeomFromText({0})";
 				value = value.ToString();
@@ -97,7 +90,7 @@ namespace Creeper.MySql
 		}
 		public override bool TrySpecialOutput(Type type, out string format)
 		{
-			if (_geometryTypes.Contains(type))
+			if (UseGeometryType && _geometryTypes.Contains(type))
 			{
 				format = "ST_AsText({0})";
 				return true;
