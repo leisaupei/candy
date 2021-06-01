@@ -9,8 +9,8 @@ namespace Creeper.MySql.XUnitTest.Entity.Model
 	/// <summary>
 	/// 测试用表
 	/// </summary>
-	[CreeperDbTable(@"`test`", DataBaseKind.MySql)]
-	public partial class TestModel : ICreeperDbModel
+	[CreeperDbTable(@"`people`", DataBaseKind.MySql)]
+	public partial class PeopleModel : ICreeperDbModel
 	{
 		#region Properties
 		/// <summary>

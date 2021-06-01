@@ -20,7 +20,7 @@ namespace Creeper.Driver
 		/// </summary>
 		ICreeperDbConnection ConnectionOptions { get; }
 
-		/// <summary>
+		/// <summary>		
 		/// 提交事务
 		/// </summary>
 		void CommitTransaction();
@@ -78,7 +78,7 @@ namespace Creeper.Driver
 		ValueTask ExecuteDataReaderAsync(Action<DbDataReader> action, string cmdText, CommandType cmdType = CommandType.Text, DbParameter[] cmdParams = null, CancellationToken cancellationToken = default);
 
 		/// <summary>
-		/// 获取多行记录用实体类列表接收
+		/// 获取多行记录, 用实体类列表接收
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
 		/// <param name="cmdText">sql语句</param>
@@ -194,13 +194,13 @@ namespace Creeper.Driver
 		ValueTask<T> ExecuteScalarAsync<T>(string cmdText, CommandType cmdType = CommandType.Text, DbParameter[] cmdParams = null, CancellationToken cancellationToken = default);
 
 		/// <summary>
-		/// 事务, 无需手动commit提交事务/rollback回滚事务
+		/// 事务, 自动提交事务, 当action抛出异常时回滚事务
 		/// </summary>
 		/// <param name="action"></param>
 		void Transaction(Action<ICreeperDbExecute> action);
 
 		/// <summary>
-		/// 事务, 无需手动commit提交事务/rollback回滚事务
+		/// 事务, 自动提交事务, 当action抛出异常时回滚事务
 		/// </summary>
 		/// <param name="action"></param>
 		/// <param name="cancellationToken"></param>

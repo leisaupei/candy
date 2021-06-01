@@ -93,7 +93,7 @@ namespace Creeper.Driver
 			var value = async
 				? await ExecuteScalarAsync(cmdText, cmdType, cmdParams, cancellationToken)
 				: ExecuteScalar(cmdText, cmdType, cmdParams);
-			return value == null ? default : TypeHelper.GetConverter(ConnectionOptions.DataBaseKind).ConvertDbData<T>(value);
+			return value == null ? default : DbConverter.ConvertDbData<T>(value);
 		}
 
 		#endregion

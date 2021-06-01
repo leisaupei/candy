@@ -14,6 +14,11 @@ namespace Creeper.Driver
 		/// </summary>
 		internal IList<ICreeperOptionsExtension> Extensions { get; } = new List<ICreeperOptionsExtension>();
 
+		/// <summary>
+		/// 注册dbcontext
+		/// </summary>
+		/// <typeparam name="TDbContext"></typeparam>
+		/// <param name="action"></param>
 		public void AddDbContext<TDbContext>(Action<CreeperDbContextOptions> action) where TDbContext : class, ICreeperDbContext
 			=> AddExtension(new DbContextExtension<TDbContext>(action));
 
@@ -30,6 +35,7 @@ namespace Creeper.Driver
 
 			Extensions.Add(extension);
 		}
+
 		/// <summary>
 		/// 添加db类型转换器
 		/// </summary>
@@ -40,6 +46,8 @@ namespace Creeper.Driver
 			if (!TypeHelper.DbTypeConverters.ContainsKey(convert.DataBaseKind))
 				TypeHelper.DbTypeConverters[convert.DataBaseKind] = convert;
 		}
+
+
 		public class DbContextExtension<TDbContext> : ICreeperOptionsExtension where TDbContext : class, ICreeperDbContext
 		{
 			private readonly Action<CreeperDbContextOptions> _dbContextConfigure;

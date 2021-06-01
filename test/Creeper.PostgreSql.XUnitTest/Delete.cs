@@ -10,33 +10,17 @@ using Creeper.SqlBuilder;
 using Creeper.PostgreSql.XUnitTest.Entity.Model;
 using System.Reflection;
 using Creeper.DbHelper;
+using Creeper.Driver;
 
 namespace Creeper.PostgreSql.XUnitTest
 {
 	[Order(5)]
-	public class Delete //: BaseTest
+	public class Delete : BaseTest
 	{
 		[Fact]
 		public void Union()
 		{
-			var temp = TestEnum.A | TestEnum.B;
-			var aa = (int)temp;
-			var bo = temp.HasFlag(TestEnum.A | TestEnum.B);
-			var bo1 = temp.HasFlag(TestEnum.C);
-			var istrue = (temp & TestEnum.A & TestEnum.B) != 0;
-			var istrue1 = (temp & TestEnum.C & TestEnum.B) != 0;
-
-			temp = temp & (~TestEnum.B);
-
+			var affrows = DbContext.Delete<PeopleModel>().Where(a => a.Id == Guid.Parse("3058b8a2-2e59-42df-908e-f003c3256a9b")).ToAffectedRows();
 		}
-		[Flags]
-		public enum TestEnum : uint
-		{
-			x = 0,
-			A = 1,
-			B = 2,
-			C = 4,
-		}
-
 	}
 }

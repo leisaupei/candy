@@ -10,25 +10,26 @@ namespace Microsoft.Extensions.DependencyInjection
 		/// <summary>
 		/// 添加MySql数据库配置
 		/// </summary>
-		/// <param name="setting"></param>
+		/// <param name="option"></param>
 		/// <param name="action"></param>
 		/// <returns></returns>
-		public static void AddMySqlDbContext<TDbContext>(this CreeperOptions setting, Action<CreeperDbContextOptions> action) where TDbContext : class, ICreeperDbContext
+		public static void AddMySqlDbContext<TDbContext>(this CreeperOptions option, Action<CreeperDbContextOptions> action) where TDbContext : class, ICreeperDbContext
 		{
-			setting.AddMySqlOption();
-			setting.AddDbContext<TDbContext>(action);
+			option.AddMySqlOption();
+			option.AddDbContext<TDbContext>(action);
 		}
 
 		/// <summary>
 		/// MySql选项配置
 		/// </summary>
-		/// <param name="setting"></param>
+		/// <param name="option"></param>
 		/// <returns></returns>
-		public static void AddMySqlOption(this CreeperOptions setting)
+		public static void AddMySqlOption(this CreeperOptions option)
 		{
-			setting.AddDbConverter<MySqlConverter>();
-			setting.AddExtension(new CreeperMySqlOptionsExtension());
+			option.AddDbConverter<MySqlConverter>();
+			option.AddExtension(new CreeperMySqlOptionsExtension());
 		}
+
 		/// <summary>
 		/// 因Mysql空间数据为自定义类型, 所以放置控制开关
 		/// </summary>

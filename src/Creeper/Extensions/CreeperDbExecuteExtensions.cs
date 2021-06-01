@@ -4,6 +4,7 @@ using Creeper.SqlBuilder;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -20,6 +21,15 @@ namespace Creeper.Driver
 		/// <returns></returns>
 		public static SelectBuilder<TModel> Select<TModel>(this ICreeperDbExecute dbExecute) where TModel : class, ICreeperDbModel, new()
 			=> new SelectBuilder<TModel>(dbExecute);
+
+		/// <summary>
+		/// 查询数据, 等同于Select&lt;TModel&gt;().Where(Expression&lt;Func&lt;TModel, bool&gt;&gt;)
+		/// </summary>
+		/// <typeparam name="TModel"></typeparam>
+		/// <param name="dbExecute"></param>
+		/// <returns></returns>
+		public static SelectBuilder<TModel> Select<TModel>(this ICreeperDbExecute dbExecute, Expression<Func<TModel, bool>> selector) where TModel : class, ICreeperDbModel, new()
+			=> dbExecute.Select<TModel>().Where(selector);
 		#endregion
 
 		#region Insert

@@ -17,15 +17,15 @@ namespace Creeper.MySql.XUnitTest
 
 		public const string TestSecondaryConnectionString = "server=192.168.1.15;userid=root;pwd=123456;port=3306;database=demo;sslmode=none;";
 
-		public static bool IsInit;
-		protected readonly ITestOutputHelper _output;
-		protected static ICreeperDbContext _dbContext;
+		static bool _isInit;
+		protected ITestOutputHelper Output { get; }
+		protected static ICreeperDbContext DbContext { get; set; }
 
 		public BaseTest()
 		{
-			if (!IsInit)
+			if (!_isInit)
 			{
-				IsInit = true;
+				_isInit = true;
 				var services = new ServiceCollection();
 				services.AddCreeper(options =>
 				{
@@ -36,14 +36,14 @@ namespace Creeper.MySql.XUnitTest
 					});
 				});
 				var serviceProvider = services.BuildServiceProvider();
-				_dbContext = serviceProvider.GetService<ICreeperDbContext>();
+				DbContext = serviceProvider.GetService<ICreeperDbContext>();
 
 			}
 		}
 
 		public BaseTest(ITestOutputHelper output) : this()
 		{
-			_output = output;
+			Output = output;
 		}
 	}
 

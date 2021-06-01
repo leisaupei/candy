@@ -23,15 +23,15 @@ namespace Creeper.PostgreSql.XUnitTest
 		public static readonly string StuNo1 = "1333333";
 		public static readonly string StuNo2 = "1333334";
 
-		public static bool IsInit;
-		protected readonly ITestOutputHelper _output;
-		protected static ICreeperDbContext _dbContext;
+		static bool _isInit;
+		protected ITestOutputHelper Output { get; }
+		protected static ICreeperDbContext DbContext { get; set; }
 
 		public BaseTest()
 		{
-			if (!IsInit)
+			if (!_isInit)
 			{
-				IsInit = true;
+				_isInit = true;
 				var services = new ServiceCollection();
 				services.AddCreeper(options =>
 				{
@@ -43,7 +43,7 @@ namespace Creeper.PostgreSql.XUnitTest
 					});
 				});
 				var serviceProvider = services.BuildServiceProvider();
-				_dbContext = serviceProvider.GetService<ICreeperDbContext>();
+				DbContext = serviceProvider.GetService<ICreeperDbContext>();
 
 				//JsonConvert.DefaultSettings = () =>
 				//{
@@ -69,7 +69,7 @@ namespace Creeper.PostgreSql.XUnitTest
 
 		public BaseTest(ITestOutputHelper output) : this()
 		{
-			_output = output;
+			Output = output;
 		}
 
 	}

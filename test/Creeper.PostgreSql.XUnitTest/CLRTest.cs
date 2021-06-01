@@ -22,7 +22,7 @@ namespace Creeper.PostgreSql.XUnitTest
 		public void Insert()
 		{
 			var dt = new DateTime(2019, 12, 14, 18, 34, 45, 756, DateTimeKind.Local);
-			var info = _dbContext.Insert(new TypeTestModel
+			var info = DbContext.Insert(new TypeTestModel
 			{
 				Array_type = new[] { 0, 1 },
 				Bit_type = new BitArray(1, false),
@@ -78,201 +78,201 @@ namespace Creeper.PostgreSql.XUnitTest
 		[Fact]
 		public void Bit()
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Bit_type, new BitArray(1, false)).ToAffectedRows();
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Bit_type, new BitArray(1, false)).ToAffectedRows();
 			Assert.True(affrows > 0);
 		}
 		[Fact]
 		public void BitLength()
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Bit_length_type, new BitArray(new byte[] { 0 })).ToAffectedRows();
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Bit_length_type, new BitArray(new byte[] { 0 })).ToAffectedRows();
 			Assert.True(affrows > 0);
 		}
 		[Fact]
 		public void Bool()
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Bool_type, false).ToAffectedRows();
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Bool_type, false).ToAffectedRows();
 			Assert.True(affrows > 0);
 		}
 
 		[Fact]
 		public void Box()
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Box_type, new NpgsqlBox(1D, 1D, 0D, 0D)).ToAffectedRows();
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Box_type, new NpgsqlBox(1D, 1D, 0D, 0D)).ToAffectedRows();
 			Assert.True(affrows > 0);
 		}
 
 		[Fact]
 		public void Bytea()
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Bytea_type, Encoding.UTF8.GetBytes(_name)).ToAffectedRows();
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Bytea_type, Encoding.UTF8.GetBytes(_name)).ToAffectedRows();
 			Assert.True(affrows > 0);
 		}
 
 		[Fact]
 		public void Char()
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Char_type, "l").ToAffectedRows();
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Char_type, "l").ToAffectedRows();
 			Assert.True(affrows > 0);
 		}
 
 		[Fact]
 		public void Cidr()
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Cidr_type, (IPAddress.Parse("127.0.0.1"), 32)).ToAffectedRows();
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Cidr_type, (IPAddress.Parse("127.0.0.1"), 32)).ToAffectedRows();
 			Assert.True(affrows > 0);
 		}
 
 		[Fact]
 		public void Circle()
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Circle_type, new NpgsqlCircle(0D, 0D, 1D)).ToAffectedRows();
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Circle_type, new NpgsqlCircle(0D, 0D, 1D)).ToAffectedRows();
 			Assert.True(affrows > 0);
 		}
 
 		[Fact]
 		public void Composite()
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Composite_type, new Info { Id = Guid.Empty, Name = _name }).ToAffectedRows();
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Composite_type, new Info { Id = Guid.Empty, Name = _name }).ToAffectedRows();
 			Assert.True(affrows > 0);
 		}
 
 		[Fact]
 		public void Date()
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Inc(a => a.Date_type, TimeSpan.FromDays(3)).ToAffectedRows();
-			affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Date_type, DateTime.Now).ToAffectedRows();
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Inc(a => a.Date_type, TimeSpan.FromDays(3)).ToAffectedRows();
+			affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Date_type, DateTime.Now).ToAffectedRows();
 			Assert.True(affrows > 0);
 		}
 
 		[Fact]
 		public void Uuid()
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Id, Guid.Empty).ToAffectedRows();
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Id, Guid.Empty).ToAffectedRows();
 			Assert.True(affrows > 0);
 		}
 		[Fact]
 		public void Decimal()
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Inc(a => a.Decimal_type, 1.2M).ToAffectedRows();
-			affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Decimal_type, 1.2M).ToAffectedRows();
-			var info = _dbContext.Select<TypeTestModel>().Where(a => a.Id == Guid.Empty).Sum(a => a.Decimal_type.Value);
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Inc(a => a.Decimal_type, 1.2M).ToAffectedRows();
+			affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Decimal_type, 1.2M).ToAffectedRows();
+			var info = DbContext.Select<TypeTestModel>().Where(a => a.Id == Guid.Empty).Sum(a => a.Decimal_type.Value);
 			Assert.True(affrows > 0);
 		}
 
 		[Fact]
 		public void Enum()
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Enum_type, EtDataState.删除).ToAffectedRows();
-			var test = _dbContext.Select<TypeTestModel>().Where(a => a.Id == Guid.Empty).FirstOrDefault(a => a.Enum_type);
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Enum_type, EtDataState.删除).ToAffectedRows();
+			var test = DbContext.Select<TypeTestModel>().Where(a => a.Id == Guid.Empty).FirstOrDefault(a => a.Enum_type);
 			Assert.True(affrows > 0);
 		}
 
 		[Fact]
 		public void Float4()
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Inc(a => a.Float4_type, 1.2f).ToAffectedRows();
-			affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Float4_type, 1.2f).ToAffectedRows();
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Inc(a => a.Float4_type, 1.2f).ToAffectedRows();
+			affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Float4_type, 1.2f).ToAffectedRows();
 			Assert.True(affrows > 0);
 		}
 
 		[Fact]
 		public void Float8()
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Inc(a => a.Float8_type, 1.3).ToAffectedRows();
-			affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Float8_type, 1.3).ToAffectedRows();
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Inc(a => a.Float8_type, 1.3).ToAffectedRows();
+			affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Float8_type, 1.3).ToAffectedRows();
 			Assert.True(affrows > 0);
 		}
 
 		[Fact]
 		public void Hstore()
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Hstore_type, new Dictionary<string, string> { { "name", _name } }).ToAffectedRows();
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Hstore_type, new Dictionary<string, string> { { "name", _name } }).ToAffectedRows();
 			Assert.True(affrows > 0);
 		}
 
 		[Fact]
 		public void Inet()
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Inet_type, IPAddress.Parse("127.0.0.1")).ToAffectedRows();
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Inet_type, IPAddress.Parse("127.0.0.1")).ToAffectedRows();
 			Assert.True(affrows > 0);
 		}
 
 		[Fact]
 		public void Int2()
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Inc(a => a.Int2_type, 12).ToAffectedRows();
-			affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Int2_type, 12).ToAffectedRows();
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Inc(a => a.Int2_type, 12).ToAffectedRows();
+			affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Int2_type, 12).ToAffectedRows();
 			Assert.True(affrows > 0);
 		}
 
 		[Fact]
 		public void Int4()
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Inc(f => f.Int4_type, 1).ToAffectedRows();
-			affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Int4_type, 23).ToAffectedRows();
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Inc(f => f.Int4_type, 1).ToAffectedRows();
+			affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Int4_type, 23).ToAffectedRows();
 			Assert.True(affrows > 0);
 		}
 
 		[Fact]
 		public void Int8()
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Inc(a => a.Int8_type, 34, 0).ToAffectedRows();
-			affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Int8_type, 34).ToAffectedRows();
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Inc(a => a.Int8_type, 34, 0).ToAffectedRows();
+			affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Int8_type, 34).ToAffectedRows();
 			Assert.True(affrows > 0);
 		}
 
 		[Fact]
 		public void Interval()
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Inc(a => a.Interval_type, TimeSpan.FromSeconds(22)).ToAffectedRows();
-			affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Interval_type, TimeSpan.FromSeconds(22)).ToAffectedRows();
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Inc(a => a.Interval_type, TimeSpan.FromSeconds(22)).ToAffectedRows();
+			affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Interval_type, TimeSpan.FromSeconds(22)).ToAffectedRows();
 			Assert.True(affrows > 0);
 		}
 
 		[Fact]
 		public void Jsonb()
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Jsonb_type, new JObject { { "name", _name } }).ToAffectedRows();
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Jsonb_type, new JObject { { "name", _name } }).ToAffectedRows();
 			Assert.True(affrows > 0);
 		}
 
 		[Fact]
 		public void Json()
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Json_type, new JObject { { "name", _name } }).ToAffectedRows();
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Json_type, new JObject { { "name", _name } }).ToAffectedRows();
 			Assert.True(affrows > 0);
 		}
 
 		[Fact]
 		public void Line()
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Line_type, new NpgsqlLine(0D, 1D, 2D)).ToAffectedRows();
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Line_type, new NpgsqlLine(0D, 1D, 2D)).ToAffectedRows();
 			Assert.True(affrows > 0);
 		}
 
 		[Fact]
 		public void Lseg()
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Lseg_type, new NpgsqlLSeg(new NpgsqlPoint(0, 0), new NpgsqlPoint(1, 1))).ToAffectedRows();
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Lseg_type, new NpgsqlLSeg(new NpgsqlPoint(0, 0), new NpgsqlPoint(1, 1))).ToAffectedRows();
 			Assert.True(affrows > 0);
 		}
 
 		[Fact]
 		public void Macaddr()
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Macaddr_type, System.Net.NetworkInformation.PhysicalAddress.Parse("44-45-53-54-00-00")).ToAffectedRows();
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Macaddr_type, System.Net.NetworkInformation.PhysicalAddress.Parse("44-45-53-54-00-00")).ToAffectedRows();
 			Assert.True(affrows > 0);
 		}
 
 		[Fact]
 		public void Money()
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Money_type, 12.3M).ToAffectedRows();
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Money_type, 12.3M).ToAffectedRows();
 
 			// not supported of increment of postgres dbtype is money 
 			Assert.Throws<CreeperSqlExecuteException>(() =>
 			{
-				_dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Inc(a => a.Money_type, 12.3M, 0M).ToAffectedRows();
+				DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Inc(a => a.Money_type, 12.3M, 0M).ToAffectedRows();
 			});
 			Assert.True(affrows > 0);
 		}
@@ -280,21 +280,21 @@ namespace Creeper.PostgreSql.XUnitTest
 		[Fact]
 		public void Path()
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Path_type, new NpgsqlPath(new NpgsqlPoint(0, 0), new NpgsqlPoint(1, 1))).ToAffectedRows();
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Path_type, new NpgsqlPath(new NpgsqlPoint(0, 0), new NpgsqlPoint(1, 1))).ToAffectedRows();
 			Assert.True(affrows > 0);
 		}
 
 		[Fact]
 		public void Point()
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Point_type, new NpgsqlPoint(0, 0)).ToAffectedRows();
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Point_type, new NpgsqlPoint(0, 0)).ToAffectedRows();
 			Assert.True(affrows > 0);
 		}
 
 		[Fact]
 		public void Polygon()
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty)
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty)
 				.Set(a => a.Polygon_type, new NpgsqlPolygon(new NpgsqlPoint(0, 0), new NpgsqlPoint(1, 1), new NpgsqlPoint(0, 2)))
 				.ToAffectedRows();
 			Assert.True(affrows > 0);
@@ -303,91 +303,91 @@ namespace Creeper.PostgreSql.XUnitTest
 		[Fact]
 		public void Serial2()
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Inc(a => a.Serial2_type, 12).ToAffectedRows();
-			affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Serial2_type, 12).ToAffectedRows();
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Inc(a => a.Serial2_type, 12).ToAffectedRows();
+			affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Serial2_type, 12).ToAffectedRows();
 			Assert.True(affrows > 0);
 		}
 
 		[Fact]
 		public void Serial4()
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Inc(a => a.Serial4_type, 23).ToAffectedRows();
-			affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Serial4_type, 23).ToAffectedRows();
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Inc(a => a.Serial4_type, 23).ToAffectedRows();
+			affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Serial4_type, 23).ToAffectedRows();
 			Assert.True(affrows > 0);
 		}
 
 		[Fact]
 		public void Serial8()
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Inc(a => a.Serial8_type, 33).ToAffectedRows();
-			affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Serial8_type, 33).ToAffectedRows();
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Inc(a => a.Serial8_type, 33).ToAffectedRows();
+			affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Serial8_type, 33).ToAffectedRows();
 			Assert.True(affrows > 0);
 		}
 
 		[Fact]
 		public void Text()
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Text_type, _name).ToAffectedRows();
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Text_type, _name).ToAffectedRows();
 			Assert.True(affrows > 0);
 		}
 
 		[Fact]
 		public void Timestamptz()
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Inc(a => a.Timestamptz_type, TimeSpan.FromDays(17)).ToAffectedRows();
-			affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Timestamptz_type, DateTime.Now).ToAffectedRows();
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Inc(a => a.Timestamptz_type, TimeSpan.FromDays(17)).ToAffectedRows();
+			affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Timestamptz_type, DateTime.Now).ToAffectedRows();
 			Assert.True(affrows > 0);
 		}
 
 		[Fact]
 		public void Timestamp()
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Inc(f => f.Timestamp_type, TimeSpan.FromSeconds(10), DateTime.Now).ToAffectedRows();
-			affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Timestamp_type, DateTime.Now).ToAffectedRows();
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Inc(f => f.Timestamp_type, TimeSpan.FromSeconds(10), DateTime.Now).ToAffectedRows();
+			affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Timestamp_type, DateTime.Now).ToAffectedRows();
 			Assert.True(affrows > 0);
 		}
 
 		[Fact]
 		public void Timetz()
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Inc(a => a.Timetz_type, TimeSpan.FromSeconds(10)).ToAffectedRows();
-			affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Timetz_type, DateTime.Now).ToAffectedRows();
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Inc(a => a.Timetz_type, TimeSpan.FromSeconds(10)).ToAffectedRows();
+			affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Timetz_type, DateTime.Now).ToAffectedRows();
 			Assert.True(affrows > 0);
 		}
 
 		[Fact]
 		public void Time()
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Inc(a => a.Time_type, TimeSpan.FromSeconds(22)).ToAffectedRows();
-			affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Time_type, TimeSpan.FromSeconds(22)).ToAffectedRows();
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Inc(a => a.Time_type, TimeSpan.FromSeconds(22)).ToAffectedRows();
+			affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Time_type, TimeSpan.FromSeconds(22)).ToAffectedRows();
 			Assert.True(affrows > 0);
 		}
 
 		[Fact]
 		public void Tsquery()
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Tsquery_type, NpgsqlTsQuery.Parse(_name)).ToAffectedRows();
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Tsquery_type, NpgsqlTsQuery.Parse(_name)).ToAffectedRows();
 			Assert.True(affrows > 0);
 		}
 
 		[Fact]
 		public void Tsvector()
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Tsvector_type, NpgsqlTsVector.Parse(_name)).ToAffectedRows();
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Tsvector_type, NpgsqlTsVector.Parse(_name)).ToAffectedRows();
 			Assert.True(affrows > 0);
 		}
 
 		[Fact]
 		public void Varbit()
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Varbit_type, new System.Collections.BitArray(Encoding.UTF8.GetBytes(_name))).ToAffectedRows();
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Varbit_type, new System.Collections.BitArray(Encoding.UTF8.GetBytes(_name))).ToAffectedRows();
 			Assert.True(affrows > 0);
 		}
 
 		[Fact]
 		public void Varchar()
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Varchar_type, _name).ToAffectedRows();
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Varchar_type, _name).ToAffectedRows();
 			Assert.True(affrows > 0);
 		}
 
@@ -397,8 +397,8 @@ namespace Creeper.PostgreSql.XUnitTest
 			var xml = new XmlDocument();
 			xml.LoadXml("<type>xxx</type>");
 			var str = xml.InnerXml;
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Xml_type, xml).ToAffectedRows();
-			var info = _dbContext.Select<TypeTestModel>().Where(a => a.Id == Guid.Empty).FirstOrDefault();
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Xml_type, xml).ToAffectedRows();
+			var info = DbContext.Select<TypeTestModel>().Where(a => a.Id == Guid.Empty).FirstOrDefault();
 			Assert.True(affrows > 0);
 
 		}
@@ -408,7 +408,7 @@ namespace Creeper.PostgreSql.XUnitTest
 			//var affrows = _dbContext.Update<TypeTestModel>().Where(a=>a.Id ==Guid.Empty).SetAppend(a => a.Array_type, 1, 1, 2, 3).ToAffectedRows();
 			//affrows = _dbContext.Update<TypeTestModel>().Where(a=>a.Id ==Guid.Empty).SetRemove(a => a.Array_type, 1).ToAffectedRows();
 			//var affrows = _dbContext.Update<TypeTestModel>().Where(a=>a.Id ==Guid.Empty).Set(a => a.Array_type, null).ToAffectedRows();
-			var affrows = _dbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Array_type[0], 1).ToAffectedRows();
+			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Array_type[0], 1).ToAffectedRows();
 			Assert.True(affrows > 0);
 
 		}

@@ -338,7 +338,7 @@ namespace Creeper.SqlBuilder
 				Fields = EntityHelper.GetFieldsAlias<TModel>(MainAlias, DbConverter);
 				ret = $"RETURNING {Fields}";
 			}
-			return $"UPDATE {MainTable} {MainAlias} SET {string.Join(",", _setList)} WHERE {string.Join(" AND ", WhereList)} {ret}";
+			return $"UPDATE {MainTable} AS {MainAlias} SET {string.Join(",", _setList)} WHERE {string.Join(" AND ", WhereList)} {ret}";
 		}
 		#endregion
 	}

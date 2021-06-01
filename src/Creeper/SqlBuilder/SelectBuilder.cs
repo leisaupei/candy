@@ -11,6 +11,11 @@ using System.Threading.Tasks;
 
 namespace Creeper.SqlBuilder
 {
+	public static class SelectBuilder
+	{
+		public static SelectBuilder<TModel> Select<TModel>() where TModel : class, ICreeperDbModel, new()
+			=> new SelectBuilder<TModel>();
+	}
 	/// <summary>
 	/// select 语句实例
 	/// </summary>
@@ -147,7 +152,7 @@ namespace Creeper.SqlBuilder
 		}
 
 		/// <summary>
-		/// 随机抽样
+		/// 随机抽样(仅支持postgresql)
 		/// </summary>
 		/// <param name="percent">采样的分数，表示为一个0到100之间的百分数</param>
 		/// <returns></returns>
@@ -158,7 +163,7 @@ namespace Creeper.SqlBuilder
 		}
 
 		/// <summary>
-		/// 去除重复, 建议与order by连用
+		/// 去除重复, 建议与order by连用(仅支持postgresql)
 		/// </summary>
 		/// <param name="selector">key selector</param>
 		/// <returns></returns>
@@ -379,7 +384,7 @@ namespace Creeper.SqlBuilder
 			=> SetFields(GetSelectorSpecial(selector)).ToList<TKey>();
 
 		/// <summary>
-		/// 返回列表
+		/// 返回列表, 匿名类型作为查询字段
 		/// </summary>
 		/// <typeparam name="TSource"></typeparam>
 		/// <typeparam name="TResult"></typeparam>
@@ -389,13 +394,13 @@ namespace Creeper.SqlBuilder
 			=> SetFields(GetSelectorSpecial(selector)).ToList<TResult>();
 
 		/// <summary>
-		/// 返回列表
+		/// 返回列表, 匿名类型作为查询字段
 		/// </summary>
 		/// <typeparam name="TResult"></typeparam>
 		/// <param name="selector"></param>
 		/// <returns></returns>
 		public List<TResult> ToList<TResult>(Expression<Func<TModel, dynamic>> selector)
-		 => SetFields(GetSelectorSpecial(selector)).ToList<TModel, TResult>(selector);
+			=> SetFields(GetSelectorSpecial(selector)).ToList<TModel, TResult>(selector);
 		#endregion
 
 		#region FirstOrDefault
@@ -418,7 +423,7 @@ namespace Creeper.SqlBuilder
 			=> FirstOrDefault<TModel>();
 
 		/// <summary>
-		/// 返回一行
+		/// 返回一行, 匿名类型作为查询字段
 		/// </summary>
 		/// <typeparam name="TResult"></typeparam>
 		/// <param name="selector"></param>
@@ -446,7 +451,7 @@ namespace Creeper.SqlBuilder
 			=> SetFieldsTake(GetSelectorSpecial(selector)).ToScalar<TKey>();
 
 		/// <summary>
-		/// 返回一行
+		/// 返回一行, 匿名类型作为查询字段
 		/// </summary>
 		/// <typeparam name="TSource"></typeparam>
 		/// <typeparam name="TResult"></typeparam>
@@ -667,7 +672,7 @@ namespace Creeper.SqlBuilder
 			=> SetFields(GetSelectorSpecial(selector)).ToListAsync<TKey>(cancellationToken);
 
 		/// <summary>
-		/// 返回列表
+		/// 返回列表, 匿名类型作为查询字段
 		/// </summary>
 		/// <typeparam name="TResult"></typeparam>
 		/// <param name="selector"></param>
@@ -677,7 +682,7 @@ namespace Creeper.SqlBuilder
 			=> ToListAsync<TModel, TResult>(selector, cancellationToken);
 
 		/// <summary>
-		/// 返回列表
+		/// 返回列表, 匿名类型作为查询字段
 		/// </summary>
 		/// <typeparam name="TSource"></typeparam>
 		/// <typeparam name="TResult"></typeparam>
@@ -736,7 +741,7 @@ namespace Creeper.SqlBuilder
 			=> SetFieldsTake(GetSelectorSpecial(selector)).ToScalarAsync<TKey>(cancellationToken);
 
 		/// <summary>
-		/// 返回一行
+		/// 返回一行, 匿名类型作为查询字段
 		/// </summary>
 		/// <typeparam name="TResult"></typeparam>
 		/// <param name="selector"></param>
@@ -746,7 +751,7 @@ namespace Creeper.SqlBuilder
 			=> FirstOrDefaultAsync<TModel, TResult>(selector, cancellationToken);
 
 		/// <summary>
-		/// 返回一行
+		/// 返回一行, 匿名类型作为查询字段
 		/// </summary>
 		/// <typeparam name="TSource"></typeparam>
 		/// <typeparam name="TResult"></typeparam>
@@ -1036,7 +1041,7 @@ namespace Creeper.SqlBuilder
 			=> PipeFirstOrDefault<TModel>();
 
 		/// <summary>
-		/// 返回列表(管道)
+		/// 返回列表(管道), 匿名类型作为查询字段 
 		/// </summary>
 		/// <typeparam name="TResult"></typeparam>
 		/// <param name="selector"></param>
@@ -1064,7 +1069,7 @@ namespace Creeper.SqlBuilder
 			=> SetFieldsTake(GetSelectorSpecial(selector)).PipeFirstOrDefault<TKey>();
 
 		/// <summary>
-		/// 返回列表(管道)
+		/// 返回列表(管道), 匿名类型作为查询字段
 		/// </summary>
 		/// <typeparam name="TSource"></typeparam>
 		/// <typeparam name="TResult"></typeparam>
@@ -1138,7 +1143,7 @@ namespace Creeper.SqlBuilder
 			=> SetFields(GetSelectorSpecial(selector)).PipeToList<TKey>();
 
 		/// <summary>
-		/// 返回列表(管道)
+		/// 返回列表(管道), 匿名类型作为查询字段
 		/// </summary>
 		/// <typeparam name="TSource"></typeparam>
 		/// <typeparam name="TResult"></typeparam>
@@ -1148,7 +1153,7 @@ namespace Creeper.SqlBuilder
 			=> SetFields(GetSelectorSpecial(selector)).PipeToList<TResult>();
 
 		/// <summary>
-		/// 返回列表(管道)
+		/// 返回列表(管道), 匿名类型作为查询字段
 		/// </summary>
 		/// <typeparam name="TResult"></typeparam>
 		/// <param name="selector"></param>
@@ -1545,7 +1550,7 @@ namespace Creeper.SqlBuilder
 				union.AppendLine(string.Format("{0} {1} {2} ON {3}", item.UnionTypeString, item.Table, item.AliasName, item.Expression));
 				if (item.IsReturn) field.Append(", ").Append(item.Fields);
 			}
-			StringBuilder sqlText = new StringBuilder($"SELECT {field} FROM {MainTable} {MainAlias} {_tablesampleSystem} {union}");
+			var sqlText = new StringBuilder($"SELECT {field} FROM {MainTable} {MainAlias} {_tablesampleSystem} {union}");
 
 			// other
 			if (WhereList?.Count() > 0)

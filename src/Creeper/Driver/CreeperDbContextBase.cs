@@ -20,8 +20,14 @@ namespace Creeper.Driver
 	/// </summary>
 	public abstract class CreeperDbContextBase : ICreeperDbContext
 	{
+		/// <summary>
+		/// 获取Configure配置的Name
+		/// </summary>
 		public abstract string Name { get; }
 
+		/// <summary>
+		/// 数据库种类
+		/// </summary>
 		public abstract DataBaseKind DataBaseKind { get; }
 
 		/// <summary>

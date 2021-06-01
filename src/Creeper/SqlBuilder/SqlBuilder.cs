@@ -124,6 +124,18 @@ namespace Creeper.SqlBuilder
 		}
 
 		/// <summary>
+		/// 使用数据库缓存, 仅支持FirstOrDefault,ToScalar方法
+		/// </summary>
+		/// <returns></returns>
+		public TBuilder ByPkCache(TimeSpan? expireTime = null)
+		{
+			_ = _dbContext.DbCache ?? throw new DbCacheNotFoundException();
+			_cacheType = DbCacheType.PkCache;
+			_dbCacheExpireTime = expireTime;
+			return This;
+		}
+
+		/// <summary>
 		/// 添加参数
 		/// </summary>
 		/// <param name="parameterName"></param>
@@ -293,7 +305,7 @@ namespace Creeper.SqlBuilder
 		#endregion
 
 		#region Implicit
-		public static implicit operator string(SqlBuilder<TBuilder, TModel> builder) => builder.ToString();
+		//public static implicit operator string(SqlBuilder<TBuilder, TModel> builder) => builder.ToString();
 		#endregion
 
 		#region private

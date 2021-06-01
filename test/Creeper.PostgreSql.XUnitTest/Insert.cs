@@ -15,10 +15,10 @@ namespace Creeper.PostgreSql.XUnitTest
 		[Fact, Order(1), Description("name of create_time can be ignored if use 'Create_time = Datetime.Now' in ModelInsert")]
 		public void ModelInsertReturnModel()
 		{
-			var info = _dbContext.Select<PeopleModel>().Where(a => a.Id == StuPeopleId1).FirstOrDefault();
+			var info = DbContext.Select<PeopleModel>().Where(a => a.Id == StuPeopleId1).FirstOrDefault();
 			if (info == null)
 			{
-				info = _dbContext.Insert(new PeopleModel
+				info = DbContext.Insert(new PeopleModel
 				{
 					Address = "xxx",
 					Id = StuPeopleId1,
@@ -36,11 +36,11 @@ namespace Creeper.PostgreSql.XUnitTest
 
 				Assert.NotNull(info);
 			}
-			info = _dbContext.Select<PeopleModel>().Where(a => a.Id == StuPeopleId2).FirstOrDefault();
+			info = DbContext.Select<PeopleModel>().Where(a => a.Id == StuPeopleId2).FirstOrDefault();
 			if (info == null)
 			{
 				// else you can
-				info = _dbContext.Insert(new PeopleModel
+				info = DbContext.Insert(new PeopleModel
 				{
 					Address = "xxx",
 					Id = StuPeopleId2,
@@ -61,10 +61,10 @@ namespace Creeper.PostgreSql.XUnitTest
 		[Fact, Order(2)]
 		public void ModelInsertReturnModifyRows()
 		{
-			var info = _dbContext.Select<PeopleModel>().Where(a => a.Id == StuPeopleId2).FirstOrDefault();
+			var info = DbContext.Select<PeopleModel>().Where(a => a.Id == StuPeopleId2).FirstOrDefault();
 			if (info != null) return;
 
-			var row = _dbContext.InsertOnly(new PeopleModel
+			var row = DbContext.InsertOnly(new PeopleModel
 			{
 				Address = "xxx",
 				Id = StuPeopleId2,
@@ -84,10 +84,10 @@ namespace Creeper.PostgreSql.XUnitTest
 		[Fact, Order(3)]
 		public void InsertCustomizedDictonary()
 		{
-			var info = _dbContext.Select<ClassGradeModel>().Where(a => a.Id == GradeId).FirstOrDefault();
+			var info = DbContext.Select<ClassGradeModel>().Where(a => a.Id == GradeId).FirstOrDefault();
 			if (info != null) return;
 
-			var affrows = _dbContext.Insert<ClassGradeModel>().Set(a => a.Id, GradeId)
+			var affrows = DbContext.Insert<ClassGradeModel>().Set(a => a.Id, GradeId)
 				.Set(f => f.Name, "移动互联网")
 				.Set(a => a.Create_time, DateTime.Now)
 				.ToAffectedRows(out info); //return modify rows out model
@@ -98,10 +98,10 @@ namespace Creeper.PostgreSql.XUnitTest
 		[Fact, Order(4)]
 		public void InsertCustomized()
 		{
-			var info = _dbContext.Select<StudentModel>().Where(a => a.People_id == StuPeopleId1).FirstOrDefault();
+			var info = DbContext.Select<StudentModel>().Where(a => a.People_id == StuPeopleId1).FirstOrDefault();
 			if (info == null)
 			{
-				var affrows = _dbContext.Insert<StudentModel>().Set(f => f.Id, Guid.NewGuid())
+				var affrows = DbContext.Insert<StudentModel>().Set(f => f.Id, Guid.NewGuid())
 								.Set(a => a.People_id, StuPeopleId1)
 								.Set(a => a.Stu_no, StuNo1)
 								.Set(a => a.Grade_id, GradeId)
@@ -111,10 +111,10 @@ namespace Creeper.PostgreSql.XUnitTest
 				Assert.NotNull(info);
 			}
 
-			var info1 = _dbContext.Select<StudentModel>().Where(a => a.People_id == StuPeopleId2).FirstOrDefault();
+			var info1 = DbContext.Select<StudentModel>().Where(a => a.People_id == StuPeopleId2).FirstOrDefault();
 			if (info1 == null)
 			{
-				var affrows1 = _dbContext.Insert<StudentModel>().Set(a => a.Id, Guid.NewGuid())
+				var affrows1 = DbContext.Insert<StudentModel>().Set(a => a.Id, Guid.NewGuid())
 								.Set(a => a.People_id, StuPeopleId2)
 								.Set(a => a.Stu_no, StuNo2)
 								.Set(a => a.Grade_id, GradeId)
@@ -127,7 +127,7 @@ namespace Creeper.PostgreSql.XUnitTest
 		[Fact, Order(4)]
 		public void InsertMultiple()
 		{
-			var info = _dbContext.Insert<PeopleModel>().Set(new PeopleModel
+			var info = DbContext.Insert<PeopleModel>().Set(new PeopleModel
 			{
 				Address = "xxx",
 				Id = Guid.NewGuid(),
@@ -141,7 +141,7 @@ namespace Creeper.PostgreSql.XUnitTest
 					["province"] = "广东",
 					["city"] = "广州"
 				}
-			}).WhereNotExists(_dbContext.Select<PeopleModel>().Where(a => a.Name == "小明")).ToAffectedRows();
+			}).WhereNotExists(DbContext.Select<PeopleModel>().Where(a => a.Name == "小明")).ToAffectedRows();
 			var arr = new[] {
 				new PeopleModel
 				{
@@ -174,7 +174,7 @@ namespace Creeper.PostgreSql.XUnitTest
 					},
 				}
 			};
-			var rows = _dbContext.InsertOnly(arr);
+			var rows = DbContext.InsertOnly(arr);
 
 			Assert.NotEqual(0, rows);
 		}

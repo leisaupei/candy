@@ -25,7 +25,7 @@ namespace Creeper.PostgreSql.XUnitTest
 				Id = Guid.Parse("81d58ab2-4fc6-425a-bc51-d1d73bf9f4b1"),
 				Name = "软件技术",
 			};
-			var affrows = _dbContext.Update(model);
+			var affrows = DbContext.Update(model);
 		}
 	}
 }

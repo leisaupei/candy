@@ -10,23 +10,23 @@ namespace Microsoft.Extensions.DependencyInjection
 		/// <summary>
 		/// 添加PostgreSql数据库配置
 		/// </summary>
-		/// <param name="settings"></param>
+		/// <param name="option"></param>
 		/// <param name="action"></param>
 		/// <returns></returns>
-		public static void AddPostgreSqlDbContext<TDbContext>(this CreeperOptions settings, Action<CreeperDbContextOptions> action) where TDbContext : class, ICreeperDbContext
+		public static void AddPostgreSqlDbContext<TDbContext>(this CreeperOptions option, Action<CreeperDbContextOptions> action) where TDbContext : class, ICreeperDbContext
 		{
-			settings.AddPostgreSqlOption();
-			settings.AddDbContext<TDbContext>(action);
+			option.AddPostgreSqlOption();
+			option.AddDbContext<TDbContext>(action);
 		}
 		/// <summary>
 		/// PostgreSql选项配置
 		/// </summary>
-		/// <param name="settings"></param>
+		/// <param name="option"></param>
 		/// <returns></returns>
-		public static void AddPostgreSqlOption(this CreeperOptions settings)
+		public static void AddPostgreSqlOption(this CreeperOptions option)
 		{
-			settings.AddDbConverter<PostgreSqlConverter>();
-			settings.AddExtension(new CreeperPostgreSqlOptionsExtensions());
+			option.AddDbConverter<PostgreSqlConverter>();
+			option.AddExtension(new CreeperPostgreSqlOptionsExtensions());
 		}
 	}
 }

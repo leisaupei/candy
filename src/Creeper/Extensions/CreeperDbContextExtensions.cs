@@ -3,8 +3,10 @@ using Creeper.Driver;
 using Creeper.Extensions;
 using Creeper.Generic;
 using Creeper.SqlBuilder;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -21,6 +23,15 @@ namespace Creeper.Driver
 		/// <returns></returns>
 		public static SelectBuilder<TModel> Select<TModel>(this ICreeperDbContext dbContext) where TModel : class, ICreeperDbModel, new()
 			=> new SelectBuilder<TModel>(dbContext);
+
+		/// <summary>
+		/// 查询数据, 等同于Select&lt;TModel&gt;().Where(Expression&lt;Func&lt;TModel, bool&gt;&gt;)
+		/// </summary>
+		/// <typeparam name="TModel"></typeparam>
+		/// <param name="dbContext"></param>
+		/// <returns></returns>
+		public static SelectBuilder<TModel> Select<TModel>(this ICreeperDbContext dbContext, Expression<Func<TModel, bool>> selector) where TModel : class, ICreeperDbModel, new()
+			=> dbContext.Select<TModel>().Where(selector);
 		#endregion
 
 		#region Insert
