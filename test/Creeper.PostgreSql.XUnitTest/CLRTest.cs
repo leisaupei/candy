@@ -270,7 +270,7 @@ namespace Creeper.PostgreSql.XUnitTest
 			var affrows = DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Set(a => a.Money_type, 12.3M).ToAffectedRows();
 
 			// not supported of increment of postgres dbtype is money 
-			Assert.Throws<CreeperSqlExecuteException>(() =>
+			Assert.ThrowsAny<CreeperException>(() =>
 			{
 				DbContext.Update<TypeTestModel>().Where(a => a.Id == Guid.Empty).Inc(a => a.Money_type, 12.3M, 0M).ToAffectedRows();
 			});

@@ -339,15 +339,15 @@ namespace Creeper.Driver
 		{
 			if (async)
 			{
-				await _trans.CommitAsync(cancellationToken);
-				await _trans.Connection.DisposeAsync();
-				await _trans.DisposeAsync();
+				await using (_trans)
+				await using (_trans.Connection)
+					await _trans.CommitAsync(cancellationToken);
 			}
 			else
 			{
-				_trans.Commit();
-				_trans.Connection.Dispose();
-				_trans.Dispose();
+				using (_trans)
+				using (_trans.Connection)
+					_trans.Commit();
 			}
 		}
 		#endregion

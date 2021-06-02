@@ -18,7 +18,7 @@ namespace Creeper.PostgreSql.XUnitTest
 	public class Delete : BaseTest
 	{
 		[Fact]
-		public void Union()
+		public void DeleteData()
 		{
 			var affrows = DbContext.Delete<PeopleModel>().Where(a => a.Id == Guid.Parse("3058b8a2-2e59-42df-908e-f003c3256a9b")).ToAffectedRows();
 		}

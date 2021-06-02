@@ -334,7 +334,7 @@ namespace Creeper.SqlBuilder
 			return ret;
 		}
 		private ICreeperDbExecute DbExecute
-			=> _dbExecute ?? _dbContext.GetExecute(_dataBaseType) ?? throw new DbExecuteNotFoundException();
+			=> _dbExecute ?? _dbContext.Get(_dataBaseType) ?? throw new DbExecuteNotFoundException();
 
 		/// <summary>
 		/// 返回第一个元素

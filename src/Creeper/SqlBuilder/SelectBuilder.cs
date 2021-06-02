@@ -15,6 +15,9 @@ namespace Creeper.SqlBuilder
 	{
 		public static SelectBuilder<TModel> Select<TModel>() where TModel : class, ICreeperDbModel, new()
 			=> new SelectBuilder<TModel>();
+
+		public static SelectBuilder<TModel> Select<TModel>(Expression<Func<TModel, bool>> predicate) where TModel : class, ICreeperDbModel, new()
+		=> new SelectBuilder<TModel>().Where(predicate);
 	}
 	/// <summary>
 	/// select 语句实例

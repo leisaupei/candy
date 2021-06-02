@@ -181,7 +181,7 @@ namespace Creeper.Driver
 		/// </summary>
 		/// <param name="dataBaseType"></param>
 		/// <returns></returns>
-		ICreeperDbExecute GetExecute(DataBaseType dataBaseType);
+		ICreeperDbExecute Get(DataBaseType dataBaseType);
 
 		/// <summary>
 		/// 事务, 自动提交事务, 当action抛出异常时回滚事务

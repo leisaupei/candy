@@ -43,25 +43,13 @@ namespace Creeper.Driver
 		/// <summary>
 		/// 数据库缓存
 		/// </summary>
-		public ICreeperDbCache DbCache { get; protected set; }
+		public ICreeperDbCache DbCache { get; }
 
 		/// <summary>
 		/// 数据库配置
 		/// </summary>
 		public ICreeperDbConnectionOption DbOption { get; }
 
-		//public CreeperDbContext(CreeperDbContextOptions creeperOptions)
-		//{
-		//	DbTypeStrategy = creeperOptions.DbTypeStrategy;
-		//	var main = Build(creeperOptions.Main);
-		//	var secondary = creeperOptions.Secondary?.Select(a => Build(a)).ToArray();
-		//	DbOption = new CreeperDbConnectionOption(main, secondary);
-
-		//	CreeperDbConnection Build(string connectionString)
-		//	{
-		//		return new CreeperDbConnection(connectionString, DataBaseKind) { DbConnectionOptions = this.DbConnectionOptions + creeperOptions.DbConnectionOptions };
-		//	}
-		//}
 		public CreeperDbContextBase(IServiceProvider serviceProvider)
 		{
 			var creeperOptions = serviceProvider.GetService<IOptionsMonitor<CreeperDbContextOptions>>().Get(Name);
@@ -79,6 +67,7 @@ namespace Creeper.Driver
 				return new CreeperDbConnection(connectionString, DataBaseKind) { DbConnectionOptions = DbConnectionOptions + creeperOptions.DbConnectionOptions };
 			}
 		}
+
 		#region GetExecuteOption
 		/// <summary>
 		/// 获取连接配置
@@ -92,6 +81,7 @@ namespace Creeper.Driver
 				throw new DbConnectionOptionNotFoundException(dataBaseType, DbTypeStrategy);
 			return option;
 		}
+
 		private ICreeperDbConnection GetOption(DataBaseType dataBaseType)
 		{
 			return dataBaseType switch
@@ -119,73 +109,73 @@ namespace Creeper.Driver
 		///  获取连接实例
 		/// </summary>
 		/// <returns></returns>
-		public ICreeperDbExecute GetExecute(DataBaseType dataBaseType)
+		public ICreeperDbExecute Get(DataBaseType dataBaseType)
 			=> new CreeperDbExecute(GetExecuteOption(dataBaseType));
 		#endregion
 
 		#region Transaction
 		public ICreeperDbExecute BeginTransaction()
-			=> GetExecute(DataBaseType.Main).BeginTransaction();
+			=> Get(DataBaseType.Main).BeginTransaction();
 
 		public ValueTask<ICreeperDbExecute> BeginTransactionAsync(CancellationToken cancellationToken = default)
-			=> GetExecute(DataBaseType.Main).BeginTransactionAsync(cancellationToken);
+			=> Get(DataBaseType.Main).BeginTransactionAsync(cancellationToken);
 
 		public void Transaction(Action<ICreeperDbExecute> action)
-			=> GetExecute(DataBaseType.Main).Transaction(action);
+			=> Get(DataBaseType.Main).Transaction(action);
 
 		public ValueTask TransactionAsync(Action<ICreeperDbExecute> action, CancellationToken cancellationToken = default)
-			=> GetExecute(DataBaseType.Main).TransactionAsync(action, cancellationToken);
+			=> Get(DataBaseType.Main).TransactionAsync(action, cancellationToken);
 
 		#endregion
 
 		#region ExcuteDataReader
 		public void ExecuteDataReader(Action<DbDataReader> action, string cmdText, CommandType cmdType = CommandType.Text, DbParameter[] cmdParams = null, DataBaseType dataBaseType = DataBaseType.Default)
-			=> GetExecute(dataBaseType).ExecuteDataReader(action, cmdText, cmdType, cmdParams);
+			=> Get(dataBaseType).ExecuteDataReader(action, cmdText, cmdType, cmdParams);
 
 		public ValueTask ExecuteDataReaderAsync(Action<DbDataReader> action, string cmdText, CommandType cmdType = CommandType.Text, DbParameter[] cmdParams = null, DataBaseType dataBaseType = DataBaseType.Default, CancellationToken cancellationToken = default)
-			=> GetExecute(dataBaseType).ExecuteDataReaderAsync(action, cmdText, cmdType, cmdParams, cancellationToken);
+			=> Get(dataBaseType).ExecuteDataReaderAsync(action, cmdText, cmdType, cmdParams, cancellationToken);
 
 		public List<T> ExecuteDataReaderList<T>(string cmdText, CommandType cmdType = CommandType.Text, DbParameter[] cmdParams = null, DataBaseType dataBaseType = DataBaseType.Default)
-			=> GetExecute(dataBaseType).ExecuteDataReaderList<T>(cmdText, cmdType, cmdParams);
+			=> Get(dataBaseType).ExecuteDataReaderList<T>(cmdText, cmdType, cmdParams);
 
 		public Task<List<T>> ExecuteDataReaderListAsync<T>(string cmdText, CommandType cmdType = CommandType.Text, DbParameter[] cmdParams = null, DataBaseType dataBaseType = DataBaseType.Default, CancellationToken cancellationToken = default)
-			=> GetExecute(dataBaseType).ExecuteDataReaderListAsync<T>(cmdText, cmdType, cmdParams, cancellationToken);
+			=> Get(dataBaseType).ExecuteDataReaderListAsync<T>(cmdText, cmdType, cmdParams, cancellationToken);
 
 		public T ExecuteDataReaderModel<T>(string cmdText, CommandType cmdType = CommandType.Text, DbParameter[] cmdParams = null, DataBaseType dataBaseType = DataBaseType.Default)
-			=> GetExecute(dataBaseType).ExecuteDataReaderModel<T>(cmdText, cmdType, cmdParams);
+			=> Get(dataBaseType).ExecuteDataReaderModel<T>(cmdText, cmdType, cmdParams);
 
 		public Task<T> ExecuteDataReaderModelAsync<T>(string cmdText, CommandType cmdType = CommandType.Text, DbParameter[] cmdParams = null, DataBaseType dataBaseType = DataBaseType.Default, CancellationToken cancellationToken = default)
-			=> GetExecute(dataBaseType).ExecuteDataReaderModelAsync<T>(cmdText, cmdType, cmdParams, cancellationToken);
+			=> Get(dataBaseType).ExecuteDataReaderModelAsync<T>(cmdText, cmdType, cmdParams, cancellationToken);
 		#endregion
 
 		#region ExecuteDataReaderPipe
 		public object[] ExecuteDataReaderPipe(IEnumerable<ISqlBuilder> builders, DataBaseType dataBaseType = DataBaseType.Default)
-			=> GetExecute(dataBaseType).ExecuteDataReaderPipe(builders);
+			=> Get(dataBaseType).ExecuteDataReaderPipe(builders);
 
 		public Task<object[]> ExecuteDataReaderPipeAsync(IEnumerable<ISqlBuilder> builders, DataBaseType dataBaseType = DataBaseType.Default, CancellationToken cancellationToken = default)
-			=> GetExecute(dataBaseType).ExecuteDataReaderPipeAsync(builders, cancellationToken);
+			=> Get(dataBaseType).ExecuteDataReaderPipeAsync(builders, cancellationToken);
 		#endregion
 
 		#region ExecuteNonQuery
 		public int ExecuteNonQuery(string cmdText, CommandType cmdType = CommandType.Text, DbParameter[] cmdParams = null)
-			=> GetExecute(DataBaseType.Main).ExecuteNonQuery(cmdText, cmdType, cmdParams);
+			=> Get(DataBaseType.Main).ExecuteNonQuery(cmdText, cmdType, cmdParams);
 
 		public ValueTask<int> ExecuteNonQueryAsync(string cmdText, CommandType cmdType = CommandType.Text, DbParameter[] cmdParams = null, CancellationToken cancellationToken = default)
-			=> GetExecute(DataBaseType.Main).ExecuteNonQueryAsync(cmdText, cmdType, cmdParams, cancellationToken);
+			=> Get(DataBaseType.Main).ExecuteNonQueryAsync(cmdText, cmdType, cmdParams, cancellationToken);
 		#endregion
 
 		#region ExecuteScalar
 		public object ExecuteScalar(string cmdText, CommandType cmdType = CommandType.Text, DbParameter[] cmdParams = null, DataBaseType dataBaseType = DataBaseType.Default)
-			=> GetExecute(dataBaseType).ExecuteScalar(cmdText, cmdType, cmdParams);
+			=> Get(dataBaseType).ExecuteScalar(cmdText, cmdType, cmdParams);
 
 		public T ExecuteScalar<T>(string cmdText, CommandType cmdType = CommandType.Text, DbParameter[] cmdParams = null, DataBaseType dataBaseType = DataBaseType.Default)
-			=> GetExecute(dataBaseType).ExecuteScalar<T>(cmdText, cmdType, cmdParams);
+			=> Get(dataBaseType).ExecuteScalar<T>(cmdText, cmdType, cmdParams);
 
 		public ValueTask<object> ExecuteScalarAsync(string cmdText, CommandType cmdType = CommandType.Text, DbParameter[] cmdParams = null, DataBaseType dataBaseType = DataBaseType.Default, CancellationToken cancellationToken = default)
-			=> GetExecute(dataBaseType).ExecuteScalarAsync(cmdText, cmdType, cmdParams, cancellationToken);
+			=> Get(dataBaseType).ExecuteScalarAsync(cmdText, cmdType, cmdParams, cancellationToken);
 
 		public ValueTask<T> ExecuteScalarAsync<T>(string cmdText, CommandType cmdType = CommandType.Text, DbParameter[] cmdParams = null, DataBaseType dataBaseType = DataBaseType.Default, CancellationToken cancellationToken = default)
-			=> GetExecute(dataBaseType).ExecuteScalarAsync<T>(cmdText, cmdType, cmdParams, cancellationToken);
+			=> Get(dataBaseType).ExecuteScalarAsync<T>(cmdText, cmdType, cmdParams, cancellationToken);
 		#endregion
 
 	}

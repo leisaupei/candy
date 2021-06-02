@@ -19,7 +19,7 @@ namespace Creeper.PostgreSql.XUnitTest
 		[Fact]
 		public void Insert()
 		{
-			Assert.Throws<CreeperSqlExecuteException>(() =>
+			Assert.ThrowsAny<CreeperException>(() =>
 			{
 				var info = new ClassGradeModel
 				{
