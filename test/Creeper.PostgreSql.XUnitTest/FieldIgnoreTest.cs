@@ -19,7 +19,7 @@ namespace Creeper.PostgreSql.XUnitTest
 		[Fact]
 		public void Insert()
 		{
-			Assert.Throws<CreeperSqlExecuteException>(() =>
+			Assert.ThrowsAny<CreeperException>(() =>
 			{
 				var info = new ClassGradeModel
 				{
@@ -27,13 +27,13 @@ namespace Creeper.PostgreSql.XUnitTest
 					Name = "Õ¯“≥…Ëº∆",
 					Id = Guid.Parse("4890d2a6-0185-43de-8d7d-06306d6e33e4")
 				};
-				var result = _dbContext.Insert(info);
+				var result = DbContext.Insert(info);
 			});
 		}
 		[Fact]
 		public void Returning()
 		{
-			var info = _dbContext.Select<ClassGradeModel>().Where(a => a.Id == Guid.Parse("81d58ab2-4fc6-425a-bc51-d1d73bf9f4b1")).FirstOrDefault();
+			var info = DbContext.Select<ClassGradeModel>().Where(a => a.Id == Guid.Parse("81d58ab2-4fc6-425a-bc51-d1d73bf9f4b1")).FirstOrDefault();
 			Assert.Equal(info?.Id, Guid.Empty);
 
 		}

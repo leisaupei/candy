@@ -46,6 +46,34 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Creeper.PostgreSql.XUnitTes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Creeper.MySql.XUnitTest.Entity", "test\db\Creeper.MySql.XUnitTest.Entity\Creeper.MySql.XUnitTest.Entity.csproj", "{365CBFDE-12EB-47E4-8974-E2FFD9AB4613}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{3BFE82B4-5E34-46E1-ABEF-5FD8560691B0}"
+	ProjectSection(SolutionItems) = preProject
+		docs\Attention.md = docs\Attention.md
+		docs\CodeMakerDiscription.md = docs\CodeMakerDiscription.md
+		docs\CustomQuery.md = docs\CustomQuery.md
+		docs\DbCache.md = docs\DbCache.md
+		docs\DbOptions.md = docs\DbOptions.md
+		docs\Delete.md = docs\Delete.md
+		docs\Insert.md = docs\Insert.md
+		docs\JoinQuery.md = docs\JoinQuery.md
+		docs\README.md = docs\README.md
+		docs\Select.md = docs\Select.md
+		docs\SelectExpression.md = docs\SelectExpression.md
+		docs\Transaction.md = docs\Transaction.md
+		docs\Update.md = docs\Update.md
+		docs\Upsert.md = docs\Upsert.md
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Creeper.Sqlite", "src\Creeper.Sqlite\Creeper.Sqlite.csproj", "{3837651B-E62A-4818-B198-AD86187CF8E7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Creeper.Sqlite.XUnitTest", "test\Creeper.Sqlite.XUnitTest\Creeper.Sqlite.XUnitTest.csproj", "{80658C57-5B2B-4144-B848-38A95AFA7BC6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Creeper.Oracle", "src\Creeper.Oracle\Creeper.Oracle.csproj", "{C4BF7B1F-EEC6-4AE4-A121-58EDCE255D41}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Creeper.Access", "src\Creeper.Access\Creeper.Access.csproj", "{F5BC68B9-947A-4F45-9173-43495F587249}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Creeper.Sqlite.XUnitTest.Entity", "test\db\Creeper.Sqlite.XUnitTest.Entity\Creeper.Sqlite.XUnitTest.Entity.csproj", "{4E9EF247-BCC7-42C8-9FAB-92F5DE99DA06}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -112,6 +140,26 @@ Global
 		{365CBFDE-12EB-47E4-8974-E2FFD9AB4613}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{365CBFDE-12EB-47E4-8974-E2FFD9AB4613}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{365CBFDE-12EB-47E4-8974-E2FFD9AB4613}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3837651B-E62A-4818-B198-AD86187CF8E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3837651B-E62A-4818-B198-AD86187CF8E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3837651B-E62A-4818-B198-AD86187CF8E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3837651B-E62A-4818-B198-AD86187CF8E7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{80658C57-5B2B-4144-B848-38A95AFA7BC6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80658C57-5B2B-4144-B848-38A95AFA7BC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80658C57-5B2B-4144-B848-38A95AFA7BC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80658C57-5B2B-4144-B848-38A95AFA7BC6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4BF7B1F-EEC6-4AE4-A121-58EDCE255D41}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4BF7B1F-EEC6-4AE4-A121-58EDCE255D41}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4BF7B1F-EEC6-4AE4-A121-58EDCE255D41}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4BF7B1F-EEC6-4AE4-A121-58EDCE255D41}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F5BC68B9-947A-4F45-9173-43495F587249}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5BC68B9-947A-4F45-9173-43495F587249}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5BC68B9-947A-4F45-9173-43495F587249}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5BC68B9-947A-4F45-9173-43495F587249}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4E9EF247-BCC7-42C8-9FAB-92F5DE99DA06}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E9EF247-BCC7-42C8-9FAB-92F5DE99DA06}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E9EF247-BCC7-42C8-9FAB-92F5DE99DA06}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4E9EF247-BCC7-42C8-9FAB-92F5DE99DA06}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -133,6 +181,11 @@ Global
 		{553736AB-766E-48A4-BC27-20266E93E0DD} = {FA7E12A8-9A7D-4600-881B-8A6F7D639E25}
 		{4D2D1D0E-F9D5-44AD-B022-B3A0A6240982} = {6378F04E-462F-4445-8642-2AD9F792627B}
 		{365CBFDE-12EB-47E4-8974-E2FFD9AB4613} = {6378F04E-462F-4445-8642-2AD9F792627B}
+		{3837651B-E62A-4818-B198-AD86187CF8E7} = {1208D997-71F2-4B73-973B-8BA7737E0566}
+		{80658C57-5B2B-4144-B848-38A95AFA7BC6} = {82265C58-411A-4302-9FEC-46EB04F76572}
+		{C4BF7B1F-EEC6-4AE4-A121-58EDCE255D41} = {1208D997-71F2-4B73-973B-8BA7737E0566}
+		{F5BC68B9-947A-4F45-9173-43495F587249} = {1208D997-71F2-4B73-973B-8BA7737E0566}
+		{4E9EF247-BCC7-42C8-9FAB-92F5DE99DA06} = {6378F04E-462F-4445-8642-2AD9F792627B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B5CB1A3E-A918-40DD-8C13-B87E21B6A763}

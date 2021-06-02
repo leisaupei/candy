@@ -55,7 +55,7 @@ namespace Creeper.Driver
 		object ConvertDataReader(IDataReader reader, Type convertType);
 
 		/// <summary>
-		/// 
+		/// 数据库返回数据转化为可用的实体模型
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
 		/// <param name="objReader"></param>
@@ -85,7 +85,7 @@ namespace Creeper.Driver
 		DbConnection GetDbConnection(string connectionString);
 
 		/// <summary>
-		/// 
+		/// 通过object类型判断设置特别的数据库参数, 如MySqlGeometry类型
 		/// </summary>
 		/// <param name="format"></param>
 		/// <param name="value"></param>

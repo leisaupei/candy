@@ -13,32 +13,24 @@ namespace Creeper.PostgreSql.XUnitTest
 	public class Performance : BaseTest
 	{
 		[Fact]
-		public void InertTenThousandData()
+		public void InsertTenThousandData()
 		{
 			for (int i = 0; i < 10000; i++)
 			{
-				_dbContext.Transaction(_transDbContext =>
+				DbContext.Transaction(_transDbContext =>
 				{
-					var total = _transDbContext.Select<TypeTestModel>().Sum(a => a.Int8_type, 0);
+					var affrows = _transDbContext.Update<TypeTestModel>().Set(a => a.Int8_type, 0).Where(a => a.Id == Guid.Empty).ToAffectedRows();
 				});
 			}
 		}
 		[Fact]
 		public async Task TransactionAsync()
 		{
-			await _dbContext.TransactionAsync(_transDbContext =>
+			await DbContext.TransactionAsync(_transDbContext =>
 			{
 				var total = _transDbContext.Select<TypeTestModel>().Sum(a => a.Int8_type, 0);
 				var affrows = _transDbContext.Update<TypeTestModel>().Set(a => a.Int8_type, 0).Where(a => a.Id == Guid.Empty).ToAffectedRows();
 			}, CancellationToken.None);
-		}
-		[Fact]
-		public void TestAsync()
-		{
-			var affrows = _dbContext.ExecuteScalar("update people set age = 2 where id = '5ef5a598-e4a1-47b3-919e-4cc1fdd97757';");
-			_dbContext.ExecuteScalar("update people set age = 2 where id = '5ef5a598-e4a1-47b3-919e-4cc1fdd97757';");
-			var transDbContext = _dbContext.BeginTransaction();
-			transDbContext.CommitTransaction();
 		}
 		[Fact]
 		public void GetYearSection()

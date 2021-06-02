@@ -206,6 +206,6 @@ List<StudentModel> stus = _dbContext.Select<StudentModel>().TableSampleSystem(1.
 
 ## 组内去重DistinctOn
 ``` C#
-List<StudentModel> stus = _dbContext.Select<StudentModel>().DistinctOn(a => a.Name).OrderBy(a => a.Stu_no).ToList();
+List<string> stus = _dbContext.Select<StudentModel>().DistinctOn(a => a.Name).OrderBy(a => a.Name).ToList(a => a.Name);
 ```
 > 此方法目前只支持PostgreSql数据库

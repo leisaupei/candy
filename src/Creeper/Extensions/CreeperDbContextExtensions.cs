@@ -3,8 +3,10 @@ using Creeper.Driver;
 using Creeper.Extensions;
 using Creeper.Generic;
 using Creeper.SqlBuilder;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -21,6 +23,15 @@ namespace Creeper.Driver
 		/// <returns></returns>
 		public static SelectBuilder<TModel> Select<TModel>(this ICreeperDbContext dbContext) where TModel : class, ICreeperDbModel, new()
 			=> new SelectBuilder<TModel>(dbContext);
+
+		/// <summary>
+		/// 查询数据, 等同于Select&lt;TModel&gt;().Where(Expression&lt;Func&lt;TModel, bool&gt;&gt;)
+		/// </summary>
+		/// <typeparam name="TModel"></typeparam>
+		/// <param name="dbContext"></param>
+		/// <returns></returns>
+		public static SelectBuilder<TModel> Select<TModel>(this ICreeperDbContext dbContext, Expression<Func<TModel, bool>> selector) where TModel : class, ICreeperDbModel, new()
+			=> dbContext.Select<TModel>().Where(selector);
 		#endregion
 
 		#region Insert
@@ -64,7 +75,7 @@ namespace Creeper.Driver
 		public static int InsertOnly<TModel>(this ICreeperDbContext dbContext, IEnumerable<TModel> models) where TModel : class, ICreeperDbModel, new()
 		{
 			var sqlBuilders = models.Select(model => dbContext.Insert<TModel>().Set(model).PipeToAffectedRows());
-			return dbContext.GetExecute(DataBaseType.Main).ExecuteDataReaderPipe(sqlBuilders).OfType<int>().Sum();
+			return dbContext.Get(DataBaseType.Main).ExecuteDataReaderPipe(sqlBuilders).OfType<int>().Sum();
 		}
 
 		/// <summary>
@@ -78,7 +89,7 @@ namespace Creeper.Driver
 		public static async ValueTask<int> InsertOnlyAsync<TModel>(this ICreeperDbContext dbContext, IEnumerable<TModel> models, CancellationToken cancellationToken = default) where TModel : class, ICreeperDbModel, new()
 		{
 			var sqlBuilders = models.Select(model => dbContext.Insert<TModel>().Set(model).PipeToAffectedRows());
-			var affrows = await dbContext.GetExecute(DataBaseType.Main).ExecuteDataReaderPipeAsync(sqlBuilders, cancellationToken);
+			var affrows = await dbContext.Get(DataBaseType.Main).ExecuteDataReaderPipeAsync(sqlBuilders, cancellationToken);
 			return affrows.OfType<int>().Sum();
 		}
 
@@ -159,7 +170,7 @@ namespace Creeper.Driver
 		public static int UpdateOnly<TModel>(this ICreeperDbContext dbContext, IEnumerable<TModel> models) where TModel : class, ICreeperDbModel, new()
 		{
 			var sqlBuilders = models.Select(model => dbContext.Update<TModel>().Set(model).PipeToAffectedRows());
-			return dbContext.GetExecute(DataBaseType.Main).ExecuteDataReaderPipe(sqlBuilders).OfType<int>().Sum();
+			return dbContext.Get(DataBaseType.Main).ExecuteDataReaderPipe(sqlBuilders).OfType<int>().Sum();
 		}
 
 		/// <summary>
@@ -171,7 +182,7 @@ namespace Creeper.Driver
 		public static async ValueTask<int> UpdateOnlyAsync<TModel>(this ICreeperDbContext dbContext, IEnumerable<TModel> models, CancellationToken cancellationToken = default) where TModel : class, ICreeperDbModel, new()
 		{
 			var sqlBuilders = models.Select(model => dbContext.Update<TModel>().Set(model).PipeToAffectedRows());
-			var affrows = await dbContext.GetExecute(DataBaseType.Main).ExecuteDataReaderPipeAsync(sqlBuilders, cancellationToken);
+			var affrows = await dbContext.Get(DataBaseType.Main).ExecuteDataReaderPipeAsync(sqlBuilders, cancellationToken);
 			return affrows.OfType<int>().Sum();
 		}
 
@@ -296,7 +307,7 @@ namespace Creeper.Driver
 		public static int UpsertOnly<TModel>(this ICreeperDbContext dbContext, IEnumerable<TModel> models) where TModel : class, ICreeperDbModel, new()
 		{
 			var sqlBuilders = models.Select(model => dbContext.Insert<TModel>().Upsert(model).PipeToAffectedRows());
-			return dbContext.GetExecute(DataBaseType.Main).ExecuteDataReaderPipe(sqlBuilders).OfType<int>().Sum();
+			return dbContext.Get(DataBaseType.Main).ExecuteDataReaderPipe(sqlBuilders).OfType<int>().Sum();
 		}
 
 		/// <summary>
@@ -316,7 +327,7 @@ namespace Creeper.Driver
 		public static async ValueTask<int> UpsertOnlyAsync<TModel>(this ICreeperDbContext dbContext, IEnumerable<TModel> models, CancellationToken cancellationToken = default) where TModel : class, ICreeperDbModel, new()
 		{
 			var sqlBuilders = models.Select(model => dbContext.Insert<TModel>().Upsert(model).PipeToAffectedRows());
-			var affrows = await dbContext.GetExecute(DataBaseType.Main).ExecuteDataReaderPipeAsync(sqlBuilders, cancellationToken);
+			var affrows = await dbContext.Get(DataBaseType.Main).ExecuteDataReaderPipeAsync(sqlBuilders, cancellationToken);
 			return affrows.OfType<int>().Sum();
 		}
 

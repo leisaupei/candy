@@ -1,10 +1,11 @@
-using Creeper.PostgreSql.XUnitTest.Entity.Model;
+using Creeper.DbHelper;
 using Creeper.Driver;
 using Creeper.Generic;
 using System;
 using System.Data.Common;
 using Npgsql;
 using Creeper.PostgreSql.Extensions;
+using Creeper.PostgreSql;
 
 namespace Creeper.PostgreSql.XUnitTest.Entity.Options
 {

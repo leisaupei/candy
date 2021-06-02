@@ -4,6 +4,7 @@ using Creeper.Generic;
 using Creeper.SqlBuilder;
 using System;
 using System.Collections;
+using System.ComponentModel;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
@@ -17,7 +18,7 @@ namespace Creeper.Driver
 	/// </summary>
 	public abstract class CreeperDbConverterBase : ICreeperDbConverter
 	{
-		protected static readonly Regex ParamPattern = new Regex(@"(^(\-|\+)?\d+(\.\d+)?$)|(^SELECT\s.+\sFROM\s)|(true)|(false)", RegexOptions.IgnoreCase);
+		protected static readonly Regex ParamPattern = new(@"(^(\-|\+)?\d+(\.\d+)?$)|(^SELECT\s.+\sFROM\s)|(true)|(false)", RegexOptions.IgnoreCase);
 
 		/// <summary>
 		/// 
@@ -28,7 +29,7 @@ namespace Creeper.Driver
 
 		public virtual string StringConnectWord => "||";
 
-		public abstract string DbFieldMark { get; }
+		public virtual string DbFieldMark => "\"";
 
 		/// <summary>
 		/// 
@@ -44,7 +45,11 @@ namespace Creeper.Driver
 		/// <param name="value"></param>
 		/// <param name="convertType"></param>
 		/// <returns></returns>
-		public abstract object ConvertDbData(object value, Type convertType);
+		public virtual object ConvertDbData(object value, Type convertType)
+		{
+			var converter = TypeDescriptor.GetConverter(convertType);
+			return converter.CanConvertFrom(value.GetType()) ? converter.ConvertFrom(value) : Convert.ChangeType(value, convertType);
+		}
 
 		/// <summary>
 		/// 
@@ -146,10 +151,10 @@ namespace Creeper.Driver
 		/// <summary>
 		/// 反射设置实体类字段值
 		/// </summary>
-		/// <param name="objType"></param>
-		/// <param name="value"></param>
-		/// <param name="model"></param>
-		/// <param name="fs"></param>
+		/// <param name="objType">获取属性的类的类型</param>
+		/// <param name="value">字段的值</param>
+		/// <param name="model">需要设置的类</param>
+		/// <param name="fs">字段名称</param>
 		private void SetPropertyValue(Type objType, object value, object model, string fs)
 		{
 			var p = objType.GetProperty(fs, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);

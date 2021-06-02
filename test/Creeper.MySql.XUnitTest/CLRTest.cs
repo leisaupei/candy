@@ -25,7 +25,7 @@ namespace Creeper.MySql.XUnitTest
 		[Fact]
 		public void Init()
 		{
-			var info = _dbContext.InsertOnly(new TypeTestModel
+			var info = DbContext.InsertOnly(new TypeTestModel
 			{
 				Bigint_t = 10,
 				Binary_t = new byte[] { 1, 234 },
@@ -47,7 +47,6 @@ namespace Creeper.MySql.XUnitTest
 					new MySqlPoint(23, 2),
 				}),
 				Geometry_t = new MySqlPoint(23, 2),
-				Id = new Random().Next(0, int.MaxValue),
 				Integer_t = 2,
 				Json_t = @"{""key"":""value""}",
 				Linestring_t = new MySqlLineString(new[] { new MySqlPoint(1, 2), new MySqlPoint(1, 3) }),
@@ -91,8 +90,8 @@ namespace Creeper.MySql.XUnitTest
 		[InlineData(new byte[] { 0, 23, 1 })]
 		public void Binary(byte[] bs)
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Set(a => a.Binary_t, bs).Where(a => a.Id == Pid).ToAffectedRows();
-			var result = _dbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Binary_t);
+			var affrows = DbContext.Update<TypeTestModel>().Set(a => a.Binary_t, bs).Where(a => a.Id == Pid).ToAffectedRows();
+			var result = DbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Binary_t);
 			Assert.Equal(1, affrows);
 			Assert.True(bs[0] == result[0]);
 		}
@@ -101,8 +100,8 @@ namespace Creeper.MySql.XUnitTest
 		[InlineData(new byte[] { 0, 23, 1 })]
 		public void Varbinary(byte[] bs)
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Set(a => a.Varbinary_t, bs).Where(a => a.Id == Pid).ToAffectedRows();
-			var result = _dbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Varbinary_t);
+			var affrows = DbContext.Update<TypeTestModel>().Set(a => a.Varbinary_t, bs).Where(a => a.Id == Pid).ToAffectedRows();
+			var result = DbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Varbinary_t);
 			Assert.Equal(1, affrows);
 			Assert.True(bs[0] == result[0] && result.Length == bs.Length);
 		}
@@ -111,8 +110,8 @@ namespace Creeper.MySql.XUnitTest
 		[InlineData(9223372036234775807)]
 		public void Bigint(long p)
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Set(a => a.Bigint_t, p).Where(a => a.Id == Pid).ToAffectedRows();
-			var result = _dbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Bigint_t);
+			var affrows = DbContext.Update<TypeTestModel>().Set(a => a.Bigint_t, p).Where(a => a.Id == Pid).ToAffectedRows();
+			var result = DbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Bigint_t);
 			Assert.Equal(1, affrows);
 			Assert.Equal(p, result);
 		}
@@ -121,8 +120,8 @@ namespace Creeper.MySql.XUnitTest
 		[InlineData(200)]
 		public void Bit(byte b)
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Set(a => a.Bit_t, b).Where(a => a.Id == Pid).ToAffectedRows();
-			var result = _dbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Bit_t);
+			var affrows = DbContext.Update<TypeTestModel>().Set(a => a.Bit_t, b).Where(a => a.Id == Pid).ToAffectedRows();
+			var result = DbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Bit_t);
 			Assert.Equal(1, affrows);
 			Assert.Equal(b, result);
 		}
@@ -131,8 +130,8 @@ namespace Creeper.MySql.XUnitTest
 		[InlineData(new byte[] { 0, 23, 1 })]
 		public void Blob(byte[] bs)
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Set(a => a.Blob_t, bs).Where(a => a.Id == Pid).ToAffectedRows();
-			var result = _dbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Blob_t);
+			var affrows = DbContext.Update<TypeTestModel>().Set(a => a.Blob_t, bs).Where(a => a.Id == Pid).ToAffectedRows();
+			var result = DbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Blob_t);
 			Assert.Equal(1, affrows);
 			Assert.True(bs[0] == result[0] && bs.Length == result.Length);
 		}
@@ -141,8 +140,8 @@ namespace Creeper.MySql.XUnitTest
 		[InlineData(new byte[] { 0, 23, 1 })]
 		public void TinyBlob(byte[] bs)
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Set(a => a.Tinyblob_t, bs).Where(a => a.Id == Pid).ToAffectedRows();
-			var result = _dbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Tinyblob_t);
+			var affrows = DbContext.Update<TypeTestModel>().Set(a => a.Tinyblob_t, bs).Where(a => a.Id == Pid).ToAffectedRows();
+			var result = DbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Tinyblob_t);
 			Assert.Equal(1, affrows);
 			Assert.True(bs[0] == result[0] && bs.Length == result.Length);
 		}
@@ -151,8 +150,8 @@ namespace Creeper.MySql.XUnitTest
 		[InlineData("测试char")]
 		public void Char(string str)
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Set(a => a.Char_t, str).Where(a => a.Id == Pid).ToAffectedRows();
-			var result = _dbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Char_t);
+			var affrows = DbContext.Update<TypeTestModel>().Set(a => a.Char_t, str).Where(a => a.Id == Pid).ToAffectedRows();
+			var result = DbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Char_t);
 			Assert.Equal(1, affrows);
 			Assert.Equal(str, result);
 		}
@@ -161,8 +160,8 @@ namespace Creeper.MySql.XUnitTest
 		[InlineData("2021-1-1 20:01:23")]
 		public void Date(DateTime dt)
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Set(a => a.Date_t, dt).Where(a => a.Id == Pid).ToAffectedRows();
-			var result = _dbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Date_t);
+			var affrows = DbContext.Update<TypeTestModel>().Set(a => a.Date_t, dt).Where(a => a.Id == Pid).ToAffectedRows();
+			var result = DbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Date_t);
 			Assert.Equal(1, affrows);
 			Assert.Equal(dt.Date, result?.Date);
 			Assert.True(result?.Hour == 0 && result?.Minute == 0 && result?.Second == 0);
@@ -173,8 +172,8 @@ namespace Creeper.MySql.XUnitTest
 		[InlineData("2021-1-1 20:01:23")]
 		public void Datetime(DateTime dt)
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Set(a => a.Datetime_t, dt).Where(a => a.Id == Pid).ToAffectedRows();
-			var result = _dbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Datetime_t);
+			var affrows = DbContext.Update<TypeTestModel>().Set(a => a.Datetime_t, dt).Where(a => a.Id == Pid).ToAffectedRows();
+			var result = DbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Datetime_t);
 			Assert.Equal(1, affrows);
 			Assert.Equal(dt, result);
 		}
@@ -182,8 +181,8 @@ namespace Creeper.MySql.XUnitTest
 		[InlineData(23.34)]
 		public void Decimal(decimal d)
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Set(a => a.Decimal_t, d).Where(a => a.Id == Pid).ToAffectedRows();
-			var result = _dbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Decimal_t);
+			var affrows = DbContext.Update<TypeTestModel>().Set(a => a.Decimal_t, d).Where(a => a.Id == Pid).ToAffectedRows();
+			var result = DbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Decimal_t);
 			Assert.Equal(1, affrows);
 			Assert.Equal(d, result);
 		}
@@ -192,8 +191,8 @@ namespace Creeper.MySql.XUnitTest
 		[InlineData(23.34)]
 		public void Double(double d)
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Set(a => a.Double_t, d).Where(a => a.Id == Pid).ToAffectedRows();
-			var result = _dbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Double_t);
+			var affrows = DbContext.Update<TypeTestModel>().Set(a => a.Double_t, d).Where(a => a.Id == Pid).ToAffectedRows();
+			var result = DbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Double_t);
 			Assert.Equal(1, affrows);
 			Assert.Equal(d, result);
 		}
@@ -202,8 +201,8 @@ namespace Creeper.MySql.XUnitTest
 		[InlineData(TypeTestEnumT.已删除)]
 		public void Enum(TypeTestEnumT d)
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Set(a => a.Enum_t, TypeTestEnumT.已删除).Where(a => a.Id == Pid).ToAffectedRows();
-			var result = _dbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Enum_t);
+			var affrows = DbContext.Update<TypeTestModel>().Set(a => a.Enum_t, TypeTestEnumT.已删除).Where(a => a.Id == Pid).ToAffectedRows();
+			var result = DbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Enum_t);
 			Assert.Equal(1, affrows);
 			Assert.Equal(d, result);
 		}
@@ -212,8 +211,8 @@ namespace Creeper.MySql.XUnitTest
 		[InlineData(12.33)]
 		public void Float(float f)
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Set(a => a.Float_t, f).Where(a => a.Id == Pid).ToAffectedRows();
-			var result = _dbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Float_t);
+			var affrows = DbContext.Update<TypeTestModel>().Set(a => a.Float_t, f).Where(a => a.Id == Pid).ToAffectedRows();
+			var result = DbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Float_t);
 			Assert.Equal(1, affrows);
 			Assert.Equal(f, result);
 		}
@@ -222,8 +221,8 @@ namespace Creeper.MySql.XUnitTest
 		[InlineData(12)]
 		public void Integer(int i)
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Set(a => a.Integer_t, i).Where(a => a.Id == Pid).ToAffectedRows();
-			var result = _dbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Integer_t);
+			var affrows = DbContext.Update<TypeTestModel>().Set(a => a.Integer_t, i).Where(a => a.Id == Pid).ToAffectedRows();
+			var result = DbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Integer_t);
 			Assert.Equal(1, affrows);
 			Assert.Equal(i, result);
 		}
@@ -232,8 +231,8 @@ namespace Creeper.MySql.XUnitTest
 		[InlineData(12)]
 		public void TinyInt(sbyte i)
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Set(a => a.Tinyint_t, i).Where(a => a.Id == Pid).ToAffectedRows();
-			var result = _dbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Tinyint_t);
+			var affrows = DbContext.Update<TypeTestModel>().Set(a => a.Tinyint_t, i).Where(a => a.Id == Pid).ToAffectedRows();
+			var result = DbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Tinyint_t);
 			Assert.Equal(1, affrows);
 			Assert.Equal(i, result);
 		}
@@ -242,8 +241,8 @@ namespace Creeper.MySql.XUnitTest
 		[InlineData(@"{""s"":""sss""}")]
 		public void Json(string s)
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Set(a => a.Json_t, s).Where(a => a.Id == Pid).ToAffectedRows();
-			var result = _dbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Json_t);
+			var affrows = DbContext.Update<TypeTestModel>().Set(a => a.Json_t, s).Where(a => a.Id == Pid).ToAffectedRows();
+			var result = DbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Json_t);
 			Assert.Equal(1, affrows);
 			Assert.Equal(JToken.Parse(s), JToken.Parse(result));
 		}
@@ -252,8 +251,8 @@ namespace Creeper.MySql.XUnitTest
 		[InlineData(12.33)]
 		public void Real(double d)
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Set(a => a.Real_t, d).Where(a => a.Id == Pid).ToAffectedRows();
-			var result = _dbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Real_t);
+			var affrows = DbContext.Update<TypeTestModel>().Set(a => a.Real_t, d).Where(a => a.Id == Pid).ToAffectedRows();
+			var result = DbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Real_t);
 			Assert.Equal(1, affrows);
 			Assert.Equal(d, result);
 		}
@@ -262,8 +261,8 @@ namespace Creeper.MySql.XUnitTest
 		[InlineData(0x10)]
 		public void Smallint(short d)
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Set(a => a.Smallint_t, d).Where(a => a.Id == Pid).ToAffectedRows();
-			var result = _dbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Smallint_t);
+			var affrows = DbContext.Update<TypeTestModel>().Set(a => a.Smallint_t, d).Where(a => a.Id == Pid).ToAffectedRows();
+			var result = DbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Smallint_t);
 			Assert.Equal(1, affrows);
 			Assert.Equal(d, result);
 		}
@@ -272,8 +271,8 @@ namespace Creeper.MySql.XUnitTest
 		[InlineData(12.33)]
 		public void Numeric(decimal d)
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Set(a => a.Numeric_t, d).Where(a => a.Id == Pid).ToAffectedRows();
-			var result = _dbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Numeric_t);
+			var affrows = DbContext.Update<TypeTestModel>().Set(a => a.Numeric_t, d).Where(a => a.Id == Pid).ToAffectedRows();
+			var result = DbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Numeric_t);
 			Assert.Equal(1, affrows);
 			Assert.Equal(d, result);
 		}
@@ -282,8 +281,8 @@ namespace Creeper.MySql.XUnitTest
 		[InlineData("abcd")]
 		public void Text(string s)
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Set(a => a.Text_t, s).Where(a => a.Id == Pid).ToAffectedRows();
-			var result = _dbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Text_t);
+			var affrows = DbContext.Update<TypeTestModel>().Set(a => a.Text_t, s).Where(a => a.Id == Pid).ToAffectedRows();
+			var result = DbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Text_t);
 			Assert.Equal(1, affrows);
 			Assert.Equal(s, result);
 		}
@@ -292,8 +291,8 @@ namespace Creeper.MySql.XUnitTest
 		[InlineData("abcd")]
 		public void TinyText(string s)
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Set(a => a.Tinytext_t, s).Where(a => a.Id == Pid).ToAffectedRows();
-			var result = _dbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Tinytext_t);
+			var affrows = DbContext.Update<TypeTestModel>().Set(a => a.Tinytext_t, s).Where(a => a.Id == Pid).ToAffectedRows();
+			var result = DbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Tinytext_t);
 			Assert.Equal(1, affrows);
 			Assert.Equal(s, result);
 		}
@@ -302,8 +301,8 @@ namespace Creeper.MySql.XUnitTest
 		[InlineData("abcd")]
 		public void Varchar(string s)
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Set(a => a.Varchar_t, s).Where(a => a.Id == Pid).ToAffectedRows();
-			var result = _dbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Varchar_t);
+			var affrows = DbContext.Update<TypeTestModel>().Set(a => a.Varchar_t, s).Where(a => a.Id == Pid).ToAffectedRows();
+			var result = DbContext.Select<TypeTestModel>(a => a.Id == Pid).FirstOrDefault(a => a.Varchar_t);
 			Assert.Equal(1, affrows);
 			Assert.Equal(s, result);
 		}
@@ -312,8 +311,8 @@ namespace Creeper.MySql.XUnitTest
 		[InlineData(2021)]
 		public void Year(short s)
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Set(a => a.Year_t, s).Where(a => a.Id == Pid).ToAffectedRows();
-			var result = _dbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Year_t);
+			var affrows = DbContext.Update<TypeTestModel>().Set(a => a.Year_t, s).Where(a => a.Id == Pid).ToAffectedRows();
+			var result = DbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Year_t);
 			Assert.Equal(1, affrows);
 			Assert.Equal(s, result);
 		}
@@ -322,8 +321,8 @@ namespace Creeper.MySql.XUnitTest
 		public void Time()
 		{
 			var s = TimeSpan.FromSeconds(20);
-			var affrows = _dbContext.Update<TypeTestModel>().Set(a => a.Time_t, s).Where(a => a.Id == Pid).ToAffectedRows();
-			var result = _dbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Time_t);
+			var affrows = DbContext.Update<TypeTestModel>().Set(a => a.Time_t, s).Where(a => a.Id == Pid).ToAffectedRows();
+			var result = DbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Time_t);
 			Assert.Equal(1, affrows);
 			Assert.Equal(s, result);
 		}
@@ -332,8 +331,8 @@ namespace Creeper.MySql.XUnitTest
 		[InlineData("2021-1-1 20:01:23")]
 		public void Timestamp(DateTime dt)
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Set(a => a.Timestamp_t, dt).Where(a => a.Id == Pid).ToAffectedRows();
-			var result = _dbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Timestamp_t);
+			var affrows = DbContext.Update<TypeTestModel>().Set(a => a.Timestamp_t, dt).Where(a => a.Id == Pid).ToAffectedRows();
+			var result = DbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Timestamp_t);
 			Assert.Equal(1, affrows);
 			Assert.Equal(dt, result);
 		}
@@ -341,8 +340,8 @@ namespace Creeper.MySql.XUnitTest
 		[Fact]
 		public void Set()
 		{
-			var affrows = _dbContext.Update<TypeTestModel>().Set(a => a.Set_t, "2,3").Where(a => a.Id == Pid).ToAffectedRows();
-			var result = _dbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Set_t);
+			var affrows = DbContext.Update<TypeTestModel>().Set(a => a.Set_t, "2,3").Where(a => a.Id == Pid).ToAffectedRows();
+			var result = DbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Set_t);
 			Assert.Equal(1, affrows);
 		}
 
@@ -351,8 +350,8 @@ namespace Creeper.MySql.XUnitTest
 		public void Linestring()
 		{
 			var lineString = new MySqlLineString(new[] { new MySqlPoint(1, 2), new MySqlPoint(1, 3) });
-			var affrows = _dbContext.Update<TypeTestModel>().Set(a => a.Linestring_t, lineString).Where(a => a.Id == Pid).ToAffectedRows();
-			var result = _dbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Linestring_t);
+			var affrows = DbContext.Update<TypeTestModel>().Set(a => a.Linestring_t, lineString).Where(a => a.Id == Pid).ToAffectedRows();
+			var result = DbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Linestring_t);
 			Assert.Equal(1, affrows);
 			Assert.Equal(lineString, result);
 		}
@@ -364,8 +363,8 @@ namespace Creeper.MySql.XUnitTest
 				new[] { new MySqlPoint(1, 2), new MySqlPoint(2, 2), new MySqlPoint(2, 1), new MySqlPoint(1, 2) },
 				new[] { new MySqlPoint(1, 2), new MySqlPoint(3, 3), new MySqlPoint(2, 1), new MySqlPoint(1, 2) }
 			});
-			var affrows = _dbContext.Update<TypeTestModel>().Set(a => a.Polygon_t, polygon).Where(a => a.Id == Pid).ToAffectedRows();
-			var result = _dbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Polygon_t);
+			var affrows = DbContext.Update<TypeTestModel>().Set(a => a.Polygon_t, polygon).Where(a => a.Id == Pid).ToAffectedRows();
+			var result = DbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Polygon_t);
 			Assert.Equal(1, affrows);
 			Assert.Equal(polygon, result);
 		}
@@ -374,8 +373,8 @@ namespace Creeper.MySql.XUnitTest
 		public void Geometry()
 		{
 			Types.MySqlGeometry geometry = new MySqlPoint(2, 1);
-			var affrows = _dbContext.Update<TypeTestModel>().Set(a => a.Geometry_t, geometry).Where(a => a.Id == Pid).ToAffectedRows();
-			var result = _dbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Geometry_t);
+			var affrows = DbContext.Update<TypeTestModel>().Set(a => a.Geometry_t, geometry).Where(a => a.Id == Pid).ToAffectedRows();
+			var result = DbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Geometry_t);
 			Assert.Equal(1, affrows);
 			Assert.IsType<MySqlPoint>(result);
 		}
@@ -384,8 +383,8 @@ namespace Creeper.MySql.XUnitTest
 		public void Point()
 		{
 			Types.MySqlPoint point = new MySqlPoint(6, 2);
-			var affrows = _dbContext.Update<TypeTestModel>().Set(a => a.Point_t, point).Where(a => a.Id == Pid).ToAffectedRows();
-			var result = _dbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Point_t);
+			var affrows = DbContext.Update<TypeTestModel>().Set(a => a.Point_t, point).Where(a => a.Id == Pid).ToAffectedRows();
+			var result = DbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Point_t);
 			Assert.Equal(1, affrows);
 			Assert.Equal(point, result);
 		}
@@ -394,8 +393,8 @@ namespace Creeper.MySql.XUnitTest
 		public void MultiPoint()
 		{
 			Types.MySqlPoint point = new MySqlPoint(6, 2);
-			var affrows = _dbContext.Update<TypeTestModel>().Set(a => a.Point_t, point).Where(a => a.Id == Pid).ToAffectedRows();
-			var result = _dbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Point_t);
+			var affrows = DbContext.Update<TypeTestModel>().Set(a => a.Point_t, point).Where(a => a.Id == Pid).ToAffectedRows();
+			var result = DbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Point_t);
 			Assert.Equal(1, affrows);
 			Assert.Equal(point, result);
 		}
@@ -404,8 +403,8 @@ namespace Creeper.MySql.XUnitTest
 		public void MultiPolygon()
 		{
 			Types.MySqlPoint point = new MySqlPoint(6, 2);
-			var affrows = _dbContext.Update<TypeTestModel>().Set(a => a.Point_t, point).Where(a => a.Id == Pid).ToAffectedRows();
-			var result = _dbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Point_t);
+			var affrows = DbContext.Update<TypeTestModel>().Set(a => a.Point_t, point).Where(a => a.Id == Pid).ToAffectedRows();
+			var result = DbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Point_t);
 			Assert.Equal(1, affrows);
 			Assert.Equal(point, result);
 		}
@@ -414,8 +413,8 @@ namespace Creeper.MySql.XUnitTest
 		public void MultiLineString()
 		{
 			Types.MySqlPoint point = new MySqlPoint(6, 2);
-			var affrows = _dbContext.Update<TypeTestModel>().Set(a => a.Point_t, point).Where(a => a.Id == Pid).ToAffectedRows();
-			var result = _dbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Point_t);
+			var affrows = DbContext.Update<TypeTestModel>().Set(a => a.Point_t, point).Where(a => a.Id == Pid).ToAffectedRows();
+			var result = DbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Point_t);
 			Assert.Equal(1, affrows);
 			Assert.Equal(point, result);
 		}
@@ -430,8 +429,8 @@ namespace Creeper.MySql.XUnitTest
 					new[] { new MySqlPoint(1, 2), new MySqlPoint(3, 3), new MySqlPoint(2, 1), new MySqlPoint(1, 2) }
 				})
 			});
-			var affrows = _dbContext.Update<TypeTestModel>().Set(a => a.Geometrycollection_t, geometries).Where(a => a.Id == Pid).ToAffectedRows();
-			var result = _dbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Geometrycollection_t);
+			var affrows = DbContext.Update<TypeTestModel>().Set(a => a.Geometrycollection_t, geometries).Where(a => a.Id == Pid).ToAffectedRows();
+			var result = DbContext.Select<TypeTestModel>().Where(a => a.Id == Pid).FirstOrDefault(a => a.Geometrycollection_t);
 			Assert.Equal(1, affrows);
 			Assert.Equal(geometries, result);
 

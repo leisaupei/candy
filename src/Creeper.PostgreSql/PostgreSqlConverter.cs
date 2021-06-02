@@ -26,24 +26,15 @@ namespace Creeper.PostgreSql
 
 		public override object ConvertDbData(object value, Type convertType)
 		{
-			switch (convertType)
+			return convertType switch
 			{
-				case var t when t == typeof(PostgisGeometry):
-					return (PostgisGeometry)value;
+				var t when t == typeof(PostgisGeometry) => (PostgisGeometry)value,
 				// jsonb json 类型
-				case var t when PostgreSqlTypeMappingExtensions.JTypes.Contains(t):
-					return JToken.Parse(value?.ToString() ?? "{}");
-
-				case var t when t == typeof(NpgsqlTsQuery):
-					return NpgsqlTsQuery.Parse(value.ToString());
-
-				case var t when t == typeof(BitArray) && value is bool b:
-					return new BitArray(1, b);
-
-				default:
-					var converter = TypeDescriptor.GetConverter(convertType);
-					return converter.CanConvertFrom(value.GetType()) ? converter.ConvertFrom(value) : Convert.ChangeType(value, convertType);
-			}
+				var t when PostgreSqlTypeMappingExtensions.JTypes.Contains(t) => JToken.Parse(value?.ToString() ?? "{}"),
+				var t when t == typeof(NpgsqlTsQuery) => NpgsqlTsQuery.Parse(value.ToString()),
+				var t when t == typeof(BitArray) && value is bool b => new BitArray(1, b),
+				_ => base.ConvertDbData(value, convertType),
+			};
 		}
 
 		public override string ConvertSqlToString(ISqlBuilder sqlBuilder)

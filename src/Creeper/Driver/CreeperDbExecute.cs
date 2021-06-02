@@ -93,7 +93,7 @@ namespace Creeper.Driver
 			var value = async
 				? await ExecuteScalarAsync(cmdText, cmdType, cmdParams, cancellationToken)
 				: ExecuteScalar(cmdText, cmdType, cmdParams);
-			return value == null ? default : TypeHelper.GetConverter(ConnectionOptions.DataBaseKind).ConvertDbData<T>(value);
+			return value == null ? default : DbConverter.ConvertDbData<T>(value);
 		}
 
 		#endregion
@@ -339,15 +339,15 @@ namespace Creeper.Driver
 		{
 			if (async)
 			{
-				await _trans.CommitAsync(cancellationToken);
-				await _trans.Connection.DisposeAsync();
-				await _trans.DisposeAsync();
+				await using (_trans)
+				await using (_trans.Connection)
+					await _trans.CommitAsync(cancellationToken);
 			}
 			else
 			{
-				_trans.Commit();
-				_trans.Connection.Dispose();
-				_trans.Dispose();
+				using (_trans)
+				using (_trans.Connection)
+					_trans.Commit();
 			}
 		}
 		#endregion

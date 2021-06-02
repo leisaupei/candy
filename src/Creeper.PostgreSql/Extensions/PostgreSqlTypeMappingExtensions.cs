@@ -45,25 +45,25 @@ namespace Creeper.PostgreSql.Extensions
     {
         private static PostgresTypeModel _xmlType = null;
         internal static readonly string _sql = @"
-
-SELECT ns.nspname, a.typname, a.oid, a.typbasetype, a.typnotnull,
-CASE WHEN pg_proc.proname='array_recv' THEN 'a' ELSE a.typtype END AS typtype,
-CASE
-  WHEN pg_proc.proname='array_recv' THEN a.typelem
-  ELSE 0
-END AS typelem,
-CASE
-  WHEN pg_proc.proname IN ('array_recv','oidvectorrecv') THEN 3    /* Arrays before */
-  WHEN a.typtype='r' THEN 2                                        /* Ranges before */
-  WHEN a.typtype='d' THEN 1                                        /* Domains before */
-  ELSE 0                                                           /* Base types first */
-END AS ord
+SELECT ns.nspname, a.typname, a.oid
+-- , a.typbasetype, a.typnotnull,
+-- CASE WHEN pg_proc.proname='array_recv' THEN 'a' ELSE a.typtype END AS typtype,
+-- CASE
+--   WHEN pg_proc.proname='array_recv' THEN a.typelem
+--   ELSE 0
+-- END AS typelem,
+-- CASE
+--   WHEN pg_proc.proname IN ('array_recv','oidvectorrecv') THEN 3    /* Arrays before */
+--   WHEN a.typtype='r' THEN 2                                        /* Ranges before */
+--   WHEN a.typtype='d' THEN 1                                        /* Domains before */
+--   ELSE 0                                                           /* Base types first */
+-- END AS ord
 FROM pg_type AS a
 JOIN pg_namespace AS ns ON (ns.oid = a.typnamespace)
-JOIN pg_proc ON pg_proc.oid = a.typreceive
-LEFT OUTER JOIN pg_class AS cls ON (cls.oid = a.typrelid)
-LEFT OUTER JOIN pg_type AS b ON (b.oid = a.typelem)
-LEFT OUTER JOIN pg_class AS elemcls ON (elemcls.oid = b.typrelid)
+-- JOIN pg_proc ON pg_proc.oid = a.typreceive
+-- LEFT OUTER JOIN pg_class AS cls ON (cls.oid = a.typrelid)
+-- LEFT OUTER JOIN pg_type AS b ON (b.oid = a.typelem)
+-- LEFT OUTER JOIN pg_class AS elemcls ON (elemcls.oid = b.typrelid)
 WHERE
   a.typname = 'xml' and a.typtype = 'b'
 ORDER BY typname;
