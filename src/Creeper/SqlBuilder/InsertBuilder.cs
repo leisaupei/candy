@@ -67,7 +67,7 @@ namespace Creeper.SqlBuilder
 					}
 				}
 
-				value = SetDefaultDateTime(name, value);
+				//value = SetDefaultDateTime(name, value);
 				Set(name, value);
 			});
 			if (pks.Count == 0)
@@ -124,7 +124,7 @@ namespace Creeper.SqlBuilder
 						value = SetNewGuid(value);
 				}
 
-				value = SetDefaultDateTime(name, value);
+				//value = SetDefaultDateTime(name, value);
 				Set(name, value);
 			});
 			return this;
