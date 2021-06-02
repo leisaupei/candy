@@ -30,7 +30,6 @@ namespace Creeper.Attributes
 	/// <summary>
 	/// 数据库字段忽略策略
 	/// </summary>
-
 	[Flags]
 	public enum IgnoreWhen
 	{
