@@ -39,7 +39,7 @@ namespace Creeper.Driver
 		/// <typeparam name="TModel"></typeparam>
 		/// <param name="dbExecute"></param>
 		/// <returns></returns>
-		public static InsertBuilder<TModel> Insert<TModel>(this ICreeperDbExecute dbExecute) where TModel : class, ICreeperDbModel, new()
+		private static InsertBuilder<TModel> Insert<TModel>(this ICreeperDbExecute dbExecute) where TModel : class, ICreeperDbModel, new()
 			=> new InsertBuilder<TModel>(dbExecute);
 
 		/// <summary>
@@ -264,9 +264,24 @@ namespace Creeper.Driver
 		/// 根据数据库主键更新/插入, 仅返回受影响行数
 		/// </summary>
 		/// <remarks>
-		/// 主键值为default(不赋值或忽略)时, 必定是插入;
-		/// 若主键条件的行存在, 则更新该行; 否则插入一行, 主键取决于类型规则。
-		/// - 整型自增主键: 根据数据库自增标识
+		/// 主键值为default(不赋值或忽略)时, 必定是插入。<br/>
+		/// 若主键条件的行存在, 则更新该行; 否则插入一行, 主键取决于类型规则。<br/>
+		/// - 整型自增主键: 根据数据库自增标识;<br/>
+		/// - 随机唯一主键: Guid程序会自动生成, 其他算法需要赋值;
+		/// </remarks>
+		/// <typeparam name="TModel"></typeparam>
+		/// <param name="dbExecute"></param>
+		/// <returns></returns>
+		private static UpsertBuilder<TModel> Upsert<TModel>(this ICreeperDbExecute dbExecute) where TModel : class, ICreeperDbModel, new()
+			=> new UpsertBuilder<TModel>(dbExecute);
+
+		/// <summary>
+		/// 根据数据库主键更新/插入, 仅返回受影响行数
+		/// </summary>
+		/// <remarks>
+		/// 主键值为default(不赋值或忽略)时, 必定是插入。<br/>
+		/// 若主键条件的行存在, 则更新该行; 否则插入一行, 主键取决于类型规则。<br/>
+		/// - 整型自增主键: 根据数据库自增标识;<br/>
 		/// - 随机唯一主键: Guid程序会自动生成, 其他算法需要赋值;
 		/// </remarks>
 		/// <typeparam name="TModel"></typeparam>
@@ -274,15 +289,15 @@ namespace Creeper.Driver
 		/// <param name="model"></param>
 		/// <returns>受影响行数</returns>
 		public static int UpsertOnly<TModel>(this ICreeperDbExecute dbExecute, TModel model) where TModel : class, ICreeperDbModel, new()
-			=> dbExecute.Insert<TModel>().Upsert(model).ToAffectedRows();
+			=> dbExecute.Upsert<TModel>().Upsert(model).ToAffectedRows();
 
 		/// <summary>
 		/// 根据数据库主键更新/插入, 仅返回受影响行数
 		/// </summary>
 		/// <remarks>
-		/// 主键值为default(不赋值或忽略)时, 必定是插入;
-		/// 若主键条件的行存在, 则更新该行; 否则插入一行, 主键取决于类型规则。
-		/// - 整型自增主键: 根据数据库自增标识
+		/// 主键值为default(不赋值或忽略)时, 必定是插入。<br/>
+		/// 若主键条件的行存在, 则更新该行; 否则插入一行, 主键取决于类型规则。<br/>
+		/// - 整型自增主键: 根据数据库自增标识;<br/>
 		/// - 随机唯一主键: Guid程序会自动生成, 其他算法需要赋值;
 		/// </remarks>
 		/// <typeparam name="TModel"></typeparam>
@@ -291,15 +306,15 @@ namespace Creeper.Driver
 		/// <param name="cancellationToken"></param>
 		/// <returns>受影响行数</returns>
 		public static ValueTask<int> UpsertOnlyAsync<TModel>(this ICreeperDbExecute dbExecute, TModel model, CancellationToken cancellationToken = default) where TModel : class, ICreeperDbModel, new()
-			=> dbExecute.Insert<TModel>().Upsert(model).ToAffectedRowsAsync(cancellationToken);
+			=> dbExecute.Upsert<TModel>().Upsert(model).ToAffectedRowsAsync(cancellationToken);
 
 		/// <summary>
 		/// 根据数据库主键更新/插入, 仅返回受影响行数
 		/// </summary>
 		/// <remarks>
-		/// 主键值为default(不赋值或忽略)时, 必定是插入;
-		/// 若主键条件的行存在, 则更新该行; 否则插入一行, 主键取决于类型规则。
-		/// - 整型自增主键: 根据数据库自增标识
+		/// 主键值为default(不赋值或忽略)时, 必定是插入。<br/>
+		/// 若主键条件的行存在, 则更新该行; 否则插入一行, 主键取决于类型规则。<br/>
+		/// - 整型自增主键: 根据数据库自增标识;<br/>
 		/// - 随机唯一主键: Guid程序会自动生成, 其他算法需要赋值;
 		/// </remarks>
 		/// <typeparam name="TModel"></typeparam>
@@ -308,8 +323,7 @@ namespace Creeper.Driver
 		/// <returns>受影响行数</returns>
 		public static int UpsertOnly<TModel>(this ICreeperDbExecute dbExecute, IEnumerable<TModel> models) where TModel : class, ICreeperDbModel, new()
 		{
-			var table = EntityHelper.GetDbTable<TModel>();
-			var sqlBuilders = models.Select(model => dbExecute.Insert<TModel>().Upsert(model).PipeToAffectedRows());
+			var sqlBuilders = models.Select(model => dbExecute.Upsert<TModel>().Upsert(model).PipeToAffectedRows());
 			return dbExecute.ExecuteDataReaderPipe(sqlBuilders).OfType<int>().Sum();
 		}
 
@@ -317,9 +331,9 @@ namespace Creeper.Driver
 		/// 根据数据库主键更新/插入, 仅返回受影响行数
 		/// </summary>
 		/// <remarks>
-		/// 主键值为default(不赋值或忽略)时, 必定是插入;
-		/// 若主键条件的行存在, 则更新该行; 否则插入一行, 主键取决于类型规则。
-		/// - 整型自增主键: 根据数据库自增标识
+		/// 主键值为default(不赋值或忽略)时, 必定是插入。<br/>
+		/// 若主键条件的行存在, 则更新该行; 否则插入一行, 主键取决于类型规则。<br/>
+		/// - 整型自增主键: 根据数据库自增标识;<br/>
 		/// - 随机唯一主键: Guid程序会自动生成, 其他算法需要赋值;
 		/// </remarks>
 		/// <typeparam name="TModel"></typeparam>
@@ -329,8 +343,7 @@ namespace Creeper.Driver
 		/// <returns>受影响行数</returns>
 		public static async ValueTask<int> UpsertOnlyAsync<TModel>(this ICreeperDbExecute dbExecute, IEnumerable<TModel> models, CancellationToken cancellationToken = default) where TModel : class, ICreeperDbModel, new()
 		{
-			var table = EntityHelper.GetDbTable<TModel>();
-			var sqlBuilders = models.Select(model => dbExecute.Insert<TModel>().Upsert(model).PipeToAffectedRows());
+			var sqlBuilders = models.Select(model => dbExecute.Upsert<TModel>().Upsert(model).PipeToAffectedRows());
 			var affrows = await dbExecute.ExecuteDataReaderPipeAsync(sqlBuilders, cancellationToken);
 			return affrows.OfType<int>().Sum();
 		}
@@ -339,9 +352,9 @@ namespace Creeper.Driver
 		/// 根据数据库主键更新/插入, 返回更新/插入数据
 		/// </summary>
 		/// <remarks>
-		/// 主键值为default(不赋值或忽略)时, 必定是插入;
-		/// 若主键条件的行存在, 则更新该行; 否则插入一行, 主键取决于类型规则。
-		/// - 整型自增主键: 根据数据库自增标识
+		/// 主键值为default(不赋值或忽略)时, 必定是插入。<br/>
+		/// 若主键条件的行存在, 则更新该行; 否则插入一行, 主键取决于类型规则。<br/>
+		/// - 整型自增主键: 根据数据库自增标识;<br/>
 		/// - 随机唯一主键: Guid程序会自动生成, 其他算法需要赋值;
 		/// </remarks>
 		/// <typeparam name="TModel"></typeparam>
@@ -349,15 +362,15 @@ namespace Creeper.Driver
 		/// <param name="model"></param>
 		/// <returns>受影响行数</returns>
 		public static TModel Upsert<TModel>(this ICreeperDbExecute dbExecute, TModel model) where TModel : class, ICreeperDbModel, new()
-			=> dbExecute.Insert<TModel>().Upsert(model).FirstOrDefault();
+			=> dbExecute.Upsert<TModel>().Upsert(model).FirstOrDefault();
 
 		/// <summary>
 		///根据数据库主键更新/插入, 返回更新/插入数据
 		/// </summary>
 		/// <remarks>
-		/// 主键值为default(不赋值或忽略)时, 必定是插入;
-		/// 若主键条件的行存在, 则更新该行; 否则插入一行, 主键取决于类型规则。
-		/// - 整型自增主键: 根据数据库自增标识
+		/// 主键值为default(不赋值或忽略)时, 必定是插入。<br/>
+		/// 若主键条件的行存在, 则更新该行; 否则插入一行, 主键取决于类型规则。<br/>
+		/// - 整型自增主键: 根据数据库自增标识;<br/>
 		/// - 随机唯一主键: Guid程序会自动生成, 其他算法需要赋值;
 		/// </remarks>
 		/// <typeparam name="TModel"></typeparam>
@@ -366,7 +379,7 @@ namespace Creeper.Driver
 		/// <param name="cancellationToken"></param>
 		/// <returns>受影响行数</returns>
 		public static Task<TModel> UpsertAsync<TModel>(this ICreeperDbExecute dbExecute, TModel model, CancellationToken cancellationToken = default) where TModel : class, ICreeperDbModel, new()
-			=> dbExecute.Insert<TModel>().Upsert(model).FirstOrDefaultAsync(cancellationToken);
+			=> dbExecute.Upsert<TModel>().Upsert(model).FirstOrDefaultAsync(cancellationToken);
 		#endregion
 	}
 }

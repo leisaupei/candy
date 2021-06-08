@@ -29,6 +29,8 @@ namespace Creeper.MySql.XUnitTest.Entity.Model
 		/// 年龄
 		/// </summary>
 		public int? Age { get; set; }
+
+		public int? Stu_no { get; set; }
 		#endregion
 	}
 }

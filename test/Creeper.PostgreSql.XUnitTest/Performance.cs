@@ -17,10 +17,7 @@ namespace Creeper.PostgreSql.XUnitTest
 		{
 			for (int i = 0; i < 10000; i++)
 			{
-				DbContext.Transaction(_transDbContext =>
-				{
-					var affrows = _transDbContext.Update<TypeTestModel>().Set(a => a.Int8_type, 0).Where(a => a.Id == Guid.Empty).ToAffectedRows();
-				});
+				var affrows = DbContext.Update<TypeTestModel>().Set(a => a.Int8_type, 0).Where(a => a.Id == Guid.Empty).ToAffectedRows(out TypeTestModel info);
 			}
 		}
 		[Fact]

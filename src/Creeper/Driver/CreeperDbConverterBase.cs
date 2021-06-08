@@ -4,6 +4,7 @@ using Creeper.Generic;
 using Creeper.SqlBuilder;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Data.Common;
@@ -177,7 +178,25 @@ namespace Creeper.Driver
 
 		protected Type GetOriginalType(Type type) => type.GetOriginalType();
 
-		public abstract string ConvertSqlToString(ISqlBuilder sqlBuilder);
+		public virtual string ConvertSqlToString(ISqlBuilder sqlBuilder)
+		{
+			var sql = sqlBuilder.CommandText;
+
+			foreach (var p in sqlBuilder.Params)
+			{
+				var value = p.Value?.ToString();
+				var key = string.Concat("@", p.ParameterName);
+				if (value == null)
+					sql = SqlHelper.GetNullSql(sql, key);
+
+				else if (ParamPattern.IsMatch(value) && p.DbType == DbType.String)
+					sql = sql.Replace(key, value);
+
+				else
+					sql = sql.Replace(key, $"'{value}'");
+			}
+			return sql.Replace("\r", " ").Replace("\n", " ");
+		}
 
 		public abstract DbParameter GetDbParameter(string name, object value);
 
@@ -193,6 +212,11 @@ namespace Creeper.Driver
 		{
 			format = null;
 			return false;
+		}
+
+		public virtual string GetUpsertCommandText(string mainTable, IList<string> primaryKeys, IList<string> identityKeys, IDictionary<string, string> upsertSets, IList<string> allKeys, bool returning)
+		{
+			throw new NotSupportedException();
 		}
 	}
 }

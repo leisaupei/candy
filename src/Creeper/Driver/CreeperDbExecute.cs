@@ -195,30 +195,32 @@ namespace Creeper.Driver
 
 		private async Task<T> ExecuteDataReaderModelAsync<T>(bool async, string cmdText, CommandType cmdType = CommandType.Text, DbParameter[] cmdParams = null, CancellationToken cancellationToken = default)
 		{
-			var list = await ExecuteDataReaderListAsync<T>(async, cmdText, cmdType, cmdParams, cancellationToken);
+			var list = await ExecuteDataReaderListAsync<T>(async, false, cmdText, cmdType, cmdParams, cancellationToken);
 			return list.Count > 0 ? list[0] : default;
 		}
 		#endregion
 
 		#region ExecuteDataReaderList
 		public Task<List<T>> ExecuteDataReaderListAsync<T>(string cmdText, CommandType cmdType = CommandType.Text, DbParameter[] cmdParams = null, CancellationToken cancellationToken = default)
-		=> ExecuteDataReaderListAsync<T>(true, cmdText, cmdType, cmdParams, cancellationToken);
+		=> ExecuteDataReaderListAsync<T>(true, true, cmdText, cmdType, cmdParams, cancellationToken);
 
 		public List<T> ExecuteDataReaderList<T>(string cmdText, CommandType cmdType = CommandType.Text, DbParameter[] cmdParams = null)
-			=> ExecuteDataReaderListAsync<T>(false, cmdText, cmdType, cmdParams, CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
+			=> ExecuteDataReaderListAsync<T>(false, true, cmdText, cmdType, cmdParams, CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
 
-		private async Task<List<T>> ExecuteDataReaderListAsync<T>(bool async, string cmdText, CommandType cmdType, DbParameter[] cmdParams, CancellationToken cancellationToken)
+		private async Task<List<T>> ExecuteDataReaderListAsync<T>(bool async, bool multi, string cmdText, CommandType cmdType, DbParameter[] cmdParams, CancellationToken cancellationToken)
 		{
 			var list = new List<T>();
 			if (async)
 				await ExecuteDataReaderAsync(dr =>
 				{
 					list.Add(DbConverter.ConvertDataReader<T>(dr));
+					if (!multi) return;
 				}, cmdText, cmdType, cmdParams, cancellationToken);
 			else
 				ExecuteDataReader(dr =>
 				{
 					list.Add(DbConverter.ConvertDataReader<T>(dr));
+					if (!multi) return;
 				}, cmdText, cmdType, cmdParams);
 			return list;
 		}

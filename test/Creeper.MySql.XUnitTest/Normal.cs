@@ -35,8 +35,6 @@ namespace Creeper.MySql.XUnitTest
 				.UnionInnerJoin<StudentModel>((a, b) => a.Id == b.People_id)
 				.UnionFirstOrDefault<StudentModel>();
 
-			var str = SelectBuilder<PeopleModel>.Select()
-					.UnionInnerJoin<StudentModel>((a, b) => a.Id == b.People_id).ToString();
 			var union = DbContext.Select<PeopleModel>().Where(a => a.Id == 2)
 					.Union(SelectBuilder.Select<PeopleModel>().Where(a => a.Id == 2))
 					.ToList();
@@ -52,6 +50,22 @@ namespace Creeper.MySql.XUnitTest
 				People_id = 2,
 				Stu_no = 124,
 			});
+		}
+
+
+		[Fact]
+		public void UpdateReturning()
+		{
+			var info = DbContext.ExecuteDataReaderModel<PeopleModel>(@"
+	UPDATE `people` SET `name` = '111', `age` =20 WHERE `id` = 1;
+	select * from `people` where id = 1;");
+		}
+		[Fact]
+		public void InsertReturning()
+		{
+			var info = DbContext.ExecuteDataReaderModel<PeopleModel>(@"
+INSERT INTO `demo`.`people`(`name`, `age`) VALUES ('222', 20);
+select *from  `demo`.`people` where `id` = LAST_INSERT_ID();");
 		}
 
 	}

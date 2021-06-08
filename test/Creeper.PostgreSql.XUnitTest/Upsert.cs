@@ -21,7 +21,7 @@ namespace Creeper.PostgreSql.XUnitTest
 		[InlineData(2)]
 		public void IdentityPrimaryKey(int id)
 		{
-			var affrows = DbContext.UpsertOnly(new TestIdenPkModel
+			var affrows = DbContext.Upsert(new TestIdenPkModel
 			{
 				Id = id,
 				Age = 20,
@@ -61,7 +61,7 @@ namespace Creeper.PostgreSql.XUnitTest
 		[InlineData("00000000-0000-0000-0000-000000000000", 2)]
 		public void GuidIdentityPrimaryKey(Guid id, int idenId)
 		{
-			var affrows = DbContext.UpsertOnly(new TestUuidIdenPkModel
+			var affrows = DbContext.Upsert(new TestUuidIdenPkModel
 			{
 				Id = id,
 				Id_sec = idenId,

@@ -10,6 +10,7 @@ using Npgsql.LegacyPostgis;
 using NpgsqlTypes;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Data.Common;
@@ -18,7 +19,7 @@ using System.Text.RegularExpressions;
 
 namespace Creeper.PostgreSql
 {
-	public class PostgreSqlConverter : CreeperDbConverterBase
+	internal class PostgreSqlConverter : CreeperDbConverterBase
 	{
 		public override DataBaseKind DataBaseKind => DataBaseKind.PostgreSql;
 
@@ -76,5 +77,35 @@ namespace Creeper.PostgreSql
 
 		public override DbParameter GetDbParameter(string name, object value)
 			=> new NpgsqlParameter(name, value);
+
+		public override string GetUpsertCommandText(string mainTable, IList<string> primaryKeys, IList<string> identityKeys, IDictionary<string, string> upsertSets, IList<string> allKeys, bool returning)
+		{
+			var ret = returning ? $"RETURNING *" : null;
+			if (identityKeys.Count > 0)
+			{
+				//自增主键
+				var exceptIdentityKey = upsertSets.Keys.Except(identityKeys);
+
+				var pksWhere = string.Join(" AND ", primaryKeys.Select(a => $"{a} = {upsertSets[a]}"));
+				return @$"WITH upsert AS (
+						UPDATE {mainTable} SET {string.Join(", ", exceptIdentityKey.Except(primaryKeys).Select(a => $"{a} = {upsertSets[a]}"))} 
+						WHERE {pksWhere} RETURNING {string.Join(", ", primaryKeys)}
+					) 
+					INSERT INTO {mainTable} ({string.Join(", ", exceptIdentityKey)})
+					SELECT {string.Join(", ", exceptIdentityKey.Select(a => upsertSets[a]))}
+					WHERE NOT EXISTS(SELECT 1 FROM upsert WHERE {pksWhere})
+					{ret}";
+			}
+			else
+			{
+				return @$"
+	INSERT INTO {mainTable} ({string.Join(", ", upsertSets.Keys)}) VALUES({string.Join(", ", upsertSets.Values)})
+	ON CONFLICT({string.Join(", ", primaryKeys)}) DO UPDATE
+	SET {string.Join(", ", upsertSets.Keys.Except(primaryKeys).Select(a => $"{a} = EXCLUDED.{a}"))}
+	{ret}";
+
+			}
+
+		}
 	}
 }

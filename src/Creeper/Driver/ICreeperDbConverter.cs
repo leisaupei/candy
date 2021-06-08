@@ -87,17 +87,33 @@ namespace Creeper.Driver
 		/// <summary>
 		/// 通过object类型判断设置特别的数据库参数, 如MySqlGeometry类型
 		/// </summary>
-		/// <param name="format"></param>
-		/// <param name="value"></param>
-		/// <returns></returns>
+		/// <param name="format">包含'{0}'的字符串格式</param>
+		/// <param name="value">传入值, 传出转换后的值</param>
+		/// <returns>是否通过设置</returns>
 		bool SetSpecialDbParameter(out string format, ref object value);
 
 		/// <summary>
-		/// 自定义输出
+		/// 自定义输出, 
 		/// </summary>
-		/// <param name="type"></param>
-		/// <param name="format"></param>
+		/// <param name="type">输出类型</param>
+		/// <param name="format">包含'{0}'的字符串格式</param>
 		/// <returns></returns>
 		bool TrySpecialOutput(Type type, out string format);
+
+		/// <summary>
+		/// 获取增补表达式
+		/// </summary>
+		/// <param name="mainTable">表</param>
+		/// <param name="primaryKeys">主键集合</param>
+		/// <param name="identityKeys">自增键集合</param>
+		/// <param name="upsertSets">需要设置的值</param>
+		/// <returns></returns>
+		/// 
+
+		/// 
+
+		/// <param name="allKeys"></param><param name="returning"></param>
+		
+		string GetUpsertCommandText(string mainTable, IList<string> primaryKeys, IList<string> identityKeys, IDictionary<string, string> upsertSets, IList<string> allKeys, bool returning);
 	}
 }

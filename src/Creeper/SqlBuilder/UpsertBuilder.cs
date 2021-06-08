@@ -14,31 +14,36 @@ using System.Threading.Tasks;
 namespace Creeper.SqlBuilder
 {
 	/// <summary>
-	/// insert 语句实例
+	/// upsert 语句实例
 	/// </summary>
 	/// <typeparam name="TModel"></typeparam>
-	public sealed class InsertBuilder<TModel> : WhereBuilder<InsertBuilder<TModel>, TModel>
+	public sealed class UpsertBuilder<TModel> : WhereBuilder<UpsertBuilder<TModel>, TModel>
 		where TModel : class, ICreeperDbModel, new()
 	{
 		/// <summary>
 		/// 字段列表
 		/// </summary>
-		private readonly Dictionary<string, string> _insertSets = new Dictionary<string, string>();
+		private readonly Dictionary<string, string> _upsertSets = new Dictionary<string, string>();
+		private readonly List<string> _fields = new List<string>();
+		private readonly List<string> _primaryKeys = new List<string>();
+		private readonly List<string> _identityKeys = new List<string>();
 
-		internal InsertBuilder(ICreeperDbContext dbContext) : base(dbContext) { }
 
-		internal InsertBuilder(ICreeperDbExecute dbExecute) : base(dbExecute) { }
+		internal UpsertBuilder(ICreeperDbContext dbContext) : base(dbContext) { }
+
+		internal UpsertBuilder(ICreeperDbExecute dbExecute) : base(dbExecute) { }
 
 		/// <summary>
-		/// 根据实体类插入
+		/// 插入更新
 		/// </summary>
 		/// <param name="model"></param>
 		/// <returns></returns>
-		public InsertBuilder<TModel> Set(TModel model)
+		internal UpsertBuilder<TModel> Upsert(TModel model)
 		{
 			EntityHelper.GetAllFields<TModel>(p =>
 			{
 				string name = DbConverter.WithQuotationMarks(p.Name.ToLower());
+				_fields.Add(name);
 				object value = p.GetValue(model);
 				var column = p.GetCustomAttribute<CreeperDbColumnAttribute>();
 				if (column != null)
@@ -48,19 +53,24 @@ namespace Creeper.SqlBuilder
 
 					//如果自增字段而且没有赋值, 那么忽略此字段
 					if (IngoreIdentity(column, value, p.PropertyType))
-						return;
+						_identityKeys.Add(name);
 
 					//如果是Guid主键而且没有赋值, 那么生成一个值
 					if (column.Primary)
+					{
+						_primaryKeys.Add(name);
 						value = SetNewGuid(value);
-				}
+					}
 
+				}
 				//value = SetDefaultDateTime(name, value);
 				Set(name, value);
 			});
+			if (_primaryKeys.Count == 0)
+				throw new NoPrimaryKeyException<TModel>();
+
 			return this;
 		}
-
 		private static bool IngoreIdentity(CreeperDbColumnAttribute column, object value, Type propertyType)
 		{
 			if (column.Identity)
@@ -80,71 +90,17 @@ namespace Creeper.SqlBuilder
 			return value;
 		}
 
-		private object SetDefaultDateTime(string name, object value)
-		{
-			if (name == DbConverter.WithQuotationMarks("create_time"))
-			{
-				//不可空datetime类型赋值本地当前时间
-				if (value is DateTime d && d == default)
-					value = DateTime.Now;
-				//不可空long类型时间戳赋值本地当前时间毫秒时间戳
-				else if (value is long l && l == default)
-					value = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-			}
-
-			return value;
-		}
-
-		/// <summary>
-		/// 设置一个结果 调用Field方法定义
-		/// </summary>
-		/// <param name="selector">key selector</param>
-		/// <param name="sqlBuilder">sql</param>
-		/// <returns></returns>
-		public InsertBuilder<TModel> Set(Expression<Func<TModel, object>> selector, ISqlBuilder sqlBuilder)
-		{
-			var key = GetSelectorWithoutAlias(selector);
-			_insertSets[key] = sqlBuilder.CommandText;
-			return AddParameters(sqlBuilder.Params);
-		}
-
-		/// <summary>
-		/// 设置语句 不可空参数
-		/// </summary>
-		/// <typeparam name="TKey"></typeparam>
-		/// <param name="selector"></param>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		public InsertBuilder<TModel> Set<TKey>(Expression<Func<TModel, TKey>> selector, TKey value)
-			=> Set(GetSelectorWithoutAlias(selector), value);
-
-		/// <summary>
-		/// 设置语句 可空重载
-		/// </summary>
-		/// <typeparam name="TKey"></typeparam>
-		/// <param name="selector"></param>
-		/// <param name="value"></param>
-		/// <returns></returns>
-		public InsertBuilder<TModel> Set<TKey>(Expression<Func<TModel, TKey?>> selector, TKey? value) where TKey : struct
-		{
-			var key = GetSelectorWithoutAlias(selector);
-			if (value != null) return Set(key, value.Value);
-
-			_insertSets[key] = "null";
-			return this;
-		}
-
 		/// <summary>
 		/// 设置某字段的值
 		/// </summary>
 		/// <param name="key"></param>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		private InsertBuilder<TModel> Set(string key, object value)
+		private UpsertBuilder<TModel> Set(string key, object value)
 		{
 			if (value == null)
 			{
-				_insertSets[key] = "null";
+				_upsertSets[key] = "null";
 				return this;
 			}
 			var isSpecial = DbConverter.SetSpecialDbParameter(out string format, ref value);
@@ -153,7 +109,7 @@ namespace Creeper.SqlBuilder
 
 			var pName = string.Concat("@", index);
 
-			_insertSets[key] = !isSpecial ? pName : string.Format(format, pName);
+			_upsertSets[key] = !isSpecial ? pName : string.Format(format, pName);
 			return this;
 		}
 
@@ -174,7 +130,7 @@ namespace Creeper.SqlBuilder
 		/// 返回受影响行数
 		/// </summary>
 		/// <returns></returns>
-		public InsertBuilder<TModel> PipeToAffectedRows() => base.Pipe<int>(PipeReturnType.Rows);
+		public UpsertBuilder<TModel> PipeToAffectedRows() => base.Pipe<int>(PipeReturnType.Rows);
 
 		/// <summary>
 		/// 插入数据库并返回数据
@@ -213,19 +169,12 @@ namespace Creeper.SqlBuilder
 
 		public override string GetCommandText()
 		{
-			if (!_insertSets.Any())
-				throw new ArgumentNullException(nameof(_insertSets));
+			if (!_upsertSets.Any())
+				throw new ArgumentNullException(nameof(_upsertSets));
 
-			string returning = null;
-			if (ReturnType == PipeReturnType.One)
-			{
-				if (DbConverter.DataBaseKind == DataBaseKind.MySql)
-					throw new NotSupportedException("mysql is not supported returning");
-				returning = $"RETURNING {EntityHelper.GetFieldsAlias<TModel>(null, DbConverter)}";
-			}
-			if (WhereList.Count == 0)
-				return $"INSERT INTO {MainTable} ({string.Join(", ", _insertSets.Keys)}) VALUES({string.Join(", ", _insertSets.Values)}) {returning}";
-			return $"INSERT INTO {MainTable} ({string.Join(", ", _insertSets.Keys)}) SELECT {string.Join(", ", _insertSets.Values)} WHERE {string.Join(" AND ", WhereList)} {returning}";
+			if (ReturnType == PipeReturnType.One && DbConverter.DataBaseKind == DataBaseKind.MySql)
+				throw new NotSupportedException("mysql is not supported returning");
+			return DbConverter.GetUpsertCommandText(MainTable, _primaryKeys, _identityKeys, _upsertSets, new List<string>(), ReturnType == PipeReturnType.One);
 
 		}
 		#endregion

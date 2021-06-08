@@ -24,7 +24,7 @@ namespace Creeper.SqlBuilder
 		/// <summary>
 		/// 设置列表
 		/// </summary>
-		private readonly List<string> _setList = new List<string>();
+		private readonly List<string> _setList = new();
 
 		/// <summary>
 		/// set 数量
@@ -56,13 +56,8 @@ namespace Creeper.SqlBuilder
 				string name = DbConverter.WithQuotationMarks(p.Name.ToLower());
 				object value = p.GetValue(model);
 				var column = p.GetCustomAttribute<CreeperDbColumnAttribute>();
-				if (column?.Primary == true)
-				{
-					Where(name + " = {0}", value);
-					return;
-				}
-
-				Set(name, value);
+				if (column?.Primary == true) Where(name + " = {0}", value);
+				else Set(name, value);
 			});
 			if (WhereCount == 0)
 				throw new NoPrimaryKeyException<TModel>();
@@ -91,10 +86,7 @@ namespace Creeper.SqlBuilder
 		/// <param name="value">value</param>
 		/// <returns></returns>
 		public UpdateBuilder<TModel> Set<TKey>(Expression<Func<TModel, TKey>> selector, TKey value)
-		{
-			var field = GetSelectorWithoutAlias(selector);
-			return Set(field, value);
-		}
+			=> Set(GetSelectorWithoutAlias(selector), value);
 
 		private UpdateBuilder<TModel> Set(string field, object value)
 		{
@@ -165,7 +157,7 @@ namespace Creeper.SqlBuilder
 		public UpdateBuilder<TModel> Append<TKey>(Expression<Func<TModel, TKey[]>> selector, params TKey[] value) where TKey : struct
 		{
 			AddParameter(out string valueIndex, value);
-			return AddSetExpression(string.Format("{0} = {0} || @{1}", GetSelectorWithoutAlias(selector), valueIndex));
+			return AddSetExpression(string.Format("{0} = {0} {2} @{1}", GetSelectorWithoutAlias(selector), valueIndex, DbConverter.StringConnectWord));
 		}
 
 		/// <summary>
@@ -236,24 +228,23 @@ namespace Creeper.SqlBuilder
 		/// 返回修改行数, 并且ref实体类(一行)
 		/// </summary>
 		/// <returns></returns>
-		public int ToAffectedRows(out TModel refInfo)
+		public int ToAffectedRows(out TModel info)
 		{
 			ReturnType = PipeReturnType.One;
-			refInfo = base.FirstOrDefault<TModel>();
-			if (refInfo == null) return 0;
-			return 1;
+			info = base.FirstOrDefault<TModel>();
+			return info == null ? 0 : 1;
 		}
 
 		/// <summary>
 		/// 返回修改行数, 并且ref列表(多行)
 		/// </summary>
-		/// <param name="refInfo"></param>
+		/// <param name="info"></param>
 		/// <returns></returns>
-		public int ToAffectedRows(out List<TModel> refInfo)
+		public int ToAffectedRows(out List<TModel> info)
 		{
 			ReturnType = PipeReturnType.List;
-			refInfo = base.ToList<TModel>();
-			return refInfo.Count;
+			info = base.ToList<TModel>();
+			return info.Count;
 		}
 
 		/// <summary>
@@ -334,9 +325,14 @@ namespace Creeper.SqlBuilder
 			if (ReturnType != PipeReturnType.Rows)
 			{
 				if (DbConverter.DataBaseKind == DataBaseKind.MySql)
-					throw new NotSupportedException("Mysql not supported returning method.");
-				Fields = EntityHelper.GetFieldsAlias<TModel>(MainAlias, DbConverter);
-				ret = $"RETURNING {Fields}";
+				{
+					var field = EntityHelper.GetFieldsAlias<TModel>(MainAlias, DbConverter);
+					ret = $"; SELECT {field} FROM {MainTable} AS {MainAlias} WHERE {string.Join(" AND ", WhereList)}";
+				}
+				else
+				{
+					ret = $"RETURNING *";
+				}
 			}
 			return $"UPDATE {MainTable} AS {MainAlias} SET {string.Join(",", _setList)} WHERE {string.Join(" AND ", WhereList)} {ret}";
 		}

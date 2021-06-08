@@ -269,10 +269,25 @@ namespace Creeper.Driver
 		/// </remarks>
 		/// <typeparam name="TModel"></typeparam>
 		/// <param name="dbContext"></param>
+		/// <returns></returns>
+		private static UpsertBuilder<TModel> Upsert<TModel>(this ICreeperDbContext dbContext) where TModel : class, ICreeperDbModel, new()
+			=> new UpsertBuilder<TModel>(dbContext);
+
+		/// <summary>
+		/// 根据数据库主键更新/插入, 仅返回受影响行数
+		/// </summary>
+		/// <remarks>
+		/// 主键值为default(不赋值或忽略)时, 必定是插入。<br/>
+		/// 若主键条件的行存在, 则更新该行; 否则插入一行, 主键取决于类型规则。<br/>
+		/// - 整型自增主键: 根据数据库自增标识;<br/>
+		/// - 随机唯一主键: Guid程序会自动生成, 其他算法需要赋值;
+		/// </remarks>
+		/// <typeparam name="TModel"></typeparam>
+		/// <param name="dbContext"></param>
 		/// <param name="model"></param>
 		/// <returns>受影响行数</returns>
 		public static int UpsertOnly<TModel>(this ICreeperDbContext dbContext, TModel model) where TModel : class, ICreeperDbModel, new()
-			=> dbContext.Insert<TModel>().Upsert(model).ToAffectedRows();
+			=> dbContext.Upsert<TModel>().Upsert(model).ToAffectedRows();
 
 		/// <summary>
 		/// 根据数据库主键更新/插入, 仅返回受影响行数
@@ -289,7 +304,7 @@ namespace Creeper.Driver
 		/// <param name="cancellationToken"></param>
 		/// <returns>受影响行数</returns>
 		public static ValueTask<int> UpsertOnlyAsync<TModel>(this ICreeperDbContext dbContext, TModel model, CancellationToken cancellationToken = default) where TModel : class, ICreeperDbModel, new()
-			=> dbContext.Insert<TModel>().Upsert(model).ToAffectedRowsAsync(cancellationToken);
+			=> dbContext.Upsert<TModel>().Upsert(model).ToAffectedRowsAsync(cancellationToken);
 
 		/// <summary>
 		/// 根据数据库主键更新/插入, 仅返回受影响行数
@@ -306,7 +321,7 @@ namespace Creeper.Driver
 		/// <returns>受影响行数</returns>
 		public static int UpsertOnly<TModel>(this ICreeperDbContext dbContext, IEnumerable<TModel> models) where TModel : class, ICreeperDbModel, new()
 		{
-			var sqlBuilders = models.Select(model => dbContext.Insert<TModel>().Upsert(model).PipeToAffectedRows());
+			var sqlBuilders = models.Select(model => dbContext.Upsert<TModel>().Upsert(model).PipeToAffectedRows());
 			return dbContext.Get(DataBaseType.Main).ExecuteDataReaderPipe(sqlBuilders).OfType<int>().Sum();
 		}
 
@@ -326,7 +341,7 @@ namespace Creeper.Driver
 		/// <returns>受影响行数</returns>
 		public static async ValueTask<int> UpsertOnlyAsync<TModel>(this ICreeperDbContext dbContext, IEnumerable<TModel> models, CancellationToken cancellationToken = default) where TModel : class, ICreeperDbModel, new()
 		{
-			var sqlBuilders = models.Select(model => dbContext.Insert<TModel>().Upsert(model).PipeToAffectedRows());
+			var sqlBuilders = models.Select(model => dbContext.Upsert<TModel>().Upsert(model).PipeToAffectedRows());
 			var affrows = await dbContext.Get(DataBaseType.Main).ExecuteDataReaderPipeAsync(sqlBuilders, cancellationToken);
 			return affrows.OfType<int>().Sum();
 		}
@@ -345,7 +360,7 @@ namespace Creeper.Driver
 		/// <param name="model"></param>
 		/// <returns>受影响行数</returns>
 		public static TModel Upsert<TModel>(this ICreeperDbContext dbContext, TModel model) where TModel : class, ICreeperDbModel, new()
-			=> dbContext.Insert<TModel>().Upsert(model).FirstOrDefault();
+			=> dbContext.Upsert<TModel>().Upsert(model).FirstOrDefault();
 
 		/// <summary>
 		///根据数据库主键更新/插入, 返回更新/插入数据
@@ -362,7 +377,7 @@ namespace Creeper.Driver
 		/// <param name="cancellationToken"></param>
 		/// <returns>受影响行数</returns>
 		public static Task<TModel> UpsertAsync<TModel>(this ICreeperDbContext dbContext, TModel model, CancellationToken cancellationToken = default) where TModel : class, ICreeperDbModel, new()
-			=> dbContext.Insert<TModel>().Upsert(model).FirstOrDefaultAsync(cancellationToken);
+			=> dbContext.Upsert<TModel>().Upsert(model).FirstOrDefaultAsync(cancellationToken);
 		#endregion
 	}
 }

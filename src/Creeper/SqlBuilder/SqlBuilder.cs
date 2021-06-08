@@ -124,9 +124,10 @@ namespace Creeper.SqlBuilder
 		}
 
 		/// <summary>
-		/// 使用数据库缓存, 仅支持FirstOrDefault,ToScalar方法
+		/// 使用主键缓存
 		/// </summary>
 		/// <returns></returns>
+		[Obsolete]
 		public TBuilder ByPkCache(TimeSpan? expireTime = null)
 		{
 			_ = _dbContext.DbCache ?? throw new DbCacheNotFoundException();
@@ -181,27 +182,27 @@ namespace Creeper.SqlBuilder
 		/// 返回第一个元素
 		/// </summary>
 		/// <returns></returns>
-		protected object ToScalar() => GetCacheResult(Scalar);
+		protected object ToScalar() => GetCacheResult(() => DbExecute.ExecuteScalar(CommandText, CommandType.Text, Params.ToArray()));
 
 		/// <summary>
 		/// 返回第一个元素
 		/// </summary>
 		/// <returns></returns>
 		protected ValueTask<object> ToScalarAsync(CancellationToken cancellationToken)
-			=> new(GetCacheResultAsync(() => ScalarAsync(cancellationToken).AsTask()));
+			=> GetCacheResultAsync(() => DbExecute.ExecuteScalarAsync(CommandText, CommandType.Text, Params.ToArray(), cancellationToken));
 
 		/// <summary>
 		/// 返回第一个元素
 		/// </summary>
 		/// <returns></returns>
-		protected TKey ToScalar<TKey>() => GetCacheResult(Scalar<TKey>);
+		protected TKey ToScalar<TKey>() => GetCacheResult(() => DbExecute.ExecuteScalar<TKey>(CommandText, CommandType.Text, Params.ToArray()));
 
 		/// <summary>
 		/// 返回第一个元素
 		/// </summary>
 		/// <returns></returns>
 		protected ValueTask<TKey> ToScalarAsync<TKey>(CancellationToken cancellationToken)
-			=> new(GetCacheResultAsync(() => ScalarAsync<TKey>(cancellationToken).AsTask()));
+			=> GetCacheResultAsync(() => DbExecute.ExecuteScalarAsync<TKey>(CommandText, CommandType.Text, Params.ToArray(), cancellationToken));
 		#endregion
 
 		#region ToList
@@ -226,19 +227,19 @@ namespace Creeper.SqlBuilder
 		/// <summary>
 		/// 返回第一行
 		/// </summary>
-		/// <typeparam name="T"></typeparam>
+		/// <typeparam name="TResult"></typeparam>
 		/// <returns></returns>
-		protected T FirstOrDefault<T>()
-			=> GetCacheResult(One<T>);
+		protected TResult FirstOrDefault<TResult>()
+			=> GetCacheResult(() => DbExecute.ExecuteDataReaderModel<TResult>(CommandText, CommandType.Text, Params.ToArray()));
 
 		/// <summary>
 		/// 返回第一行
 		/// </summary>
 		/// <param name="cancellationToken"></param>
-		/// <typeparam name="T"></typeparam>
+		/// <typeparam name="TResult"></typeparam>
 		/// <returns></returns>
-		protected Task<T> FirstOrDefaultAsync<T>(CancellationToken cancellationToken)
-			=> GetCacheResultAsync(() => OneAsync<T>(cancellationToken));
+		protected Task<TResult> FirstOrDefaultAsync<TResult>(CancellationToken cancellationToken)
+			=> GetCacheResultAsync(() => DbExecute.ExecuteDataReaderModelAsync<TResult>(CommandText, CommandType.Text, Params.ToArray(), cancellationToken));
 		#endregion
 
 		#region ToRows
@@ -314,72 +315,24 @@ namespace Creeper.SqlBuilder
 		{
 			if (_cacheType == DbCacheType.None) return fn.Invoke();
 			var key = string.Concat(_cachePrefix, ToString().GetMD5String());
-			if (_dbContext.DbCache.Exists(key))
-			{
-				var value = (TResult)_dbContext.DbCache.Get(key, typeof(TResult));
-				return value;
-			}
+			if (_dbContext.DbCache.Exists(key)) return (TResult)_dbContext.DbCache.Get(key, typeof(TResult));
 			var ret = fn.Invoke();
 			_dbContext.DbCache.Set(key, ret, _dbCacheExpireTime);
 			return ret;
 		}
-		private async Task<T> GetCacheResultAsync<T>(Func<Task<T>> fn)
+		private async Task<TResult> GetCacheResultAsync<TResult>(Func<Task<TResult>> fn)
 		{
 			if (_cacheType == DbCacheType.None) return await fn.Invoke();
 			var key = string.Concat(_cachePrefix, ToString().GetMD5String());
-			if (await _dbContext.DbCache.ExistsAsync(key))
-				return (T)await _dbContext.DbCache.GetAsync(key, typeof(T));
+			if (await _dbContext.DbCache.ExistsAsync(key)) return (TResult)await _dbContext.DbCache.GetAsync(key, typeof(TResult));
 			var ret = await fn.Invoke();
 			await _dbContext.DbCache.SetAsync(key, ret, _dbCacheExpireTime);
 			return ret;
 		}
+		private async ValueTask<TResult> GetCacheResultAsync<TResult>(Func<ValueTask<TResult>> fn) => await GetCacheResultAsync(() => fn.Invoke().AsTask());
+
 		private ICreeperDbExecute DbExecute
 			=> _dbExecute ?? _dbContext.Get(_dataBaseType) ?? throw new DbExecuteNotFoundException();
-
-		/// <summary>
-		/// 返回第一个元素
-		/// </summary>
-		/// <returns></returns>
-		private object Scalar()
-			=> DbExecute.ExecuteScalar(CommandText, CommandType.Text, Params.ToArray());
-
-		/// <summary>
-		/// 返回第一个元素
-		/// </summary>
-		/// <returns></returns>
-		private ValueTask<object> ScalarAsync(CancellationToken cancellationToken)
-			=> DbExecute.ExecuteScalarAsync(CommandText, CommandType.Text, Params.ToArray(), cancellationToken);
-
-		/// <summary>
-		/// 返回第一个元素
-		/// </summary>
-		/// <returns></returns>
-		private TKey Scalar<TKey>()
-			=> DbExecute.ExecuteScalar<TKey>(CommandText, CommandType.Text, Params.ToArray());
-
-		/// <summary>
-		/// 返回第一个元素
-		/// </summary>
-		/// <returns></returns>
-		private ValueTask<TKey> ScalarAsync<TKey>(CancellationToken cancellationToken)
-			=> DbExecute.ExecuteScalarAsync<TKey>(CommandText, CommandType.Text, Params.ToArray(), cancellationToken);
-
-		/// <summary>
-		/// 返回第一行
-		/// </summary>
-		/// <typeparam name="TResult"></typeparam>
-		/// <returns></returns>
-		private TResult One<TResult>()
-			=> DbExecute.ExecuteDataReaderModel<TResult>(CommandText, CommandType.Text, Params.ToArray());
-
-		/// <summary>
-		/// 返回第一行
-		/// </summary>
-		/// <param name="cancellationToken"></param>
-		/// <typeparam name="TResult"></typeparam>
-		/// <returns></returns>
-		private Task<TResult> OneAsync<TResult>(CancellationToken cancellationToken)
-			=> DbExecute.ExecuteDataReaderModelAsync<TResult>(CommandText, CommandType.Text, Params.ToArray(), cancellationToken);
 		#endregion
 
 	}
