@@ -216,16 +216,7 @@ namespace Creeper.SqlBuilder
 			if (!_insertSets.Any())
 				throw new ArgumentNullException(nameof(_insertSets));
 
-			string returning = null;
-			if (ReturnType == PipeReturnType.One)
-			{
-				if (DbConverter.DataBaseKind == DataBaseKind.MySql)
-					throw new NotSupportedException("mysql is not supported returning");
-				returning = $"RETURNING {EntityHelper.GetFieldsAlias<TModel>(null, DbConverter)}";
-			}
-			if (WhereList.Count == 0)
-				return $"INSERT INTO {MainTable} ({string.Join(", ", _insertSets.Keys)}) VALUES({string.Join(", ", _insertSets.Values)}) {returning}";
-			return $"INSERT INTO {MainTable} ({string.Join(", ", _insertSets.Keys)}) SELECT {string.Join(", ", _insertSets.Values)} WHERE {string.Join(" AND ", WhereList)} {returning}";
+			return DbConverter.GetInsertCommandText<TModel>(MainTable, _insertSets, WhereList.ToArray(), ReturnType != PipeReturnType.Rows);
 
 		}
 		#endregion

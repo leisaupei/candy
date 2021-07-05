@@ -144,7 +144,7 @@ namespace Creeper.Driver
 			=> dbContext.Update<TModel>().Where(models);
 
 		/// <summary>
-		/// 以主键为条件更新数据, 仅返回受影响行数; 此处程序覆盖数据库方法, 只适用某些可视数据覆盖后端数据场景, 请谨慎使用
+		/// 以主键为条件更新数据, 仅返回受影响行数; NULL不处理; 此处程序覆盖数据库方法, 只适用某些可视数据覆盖后端数据场景, 请谨慎使用
 		/// </summary>
 		/// <typeparam name="TModel"></typeparam>
 		/// <param name="dbContext"></param>
@@ -153,7 +153,7 @@ namespace Creeper.Driver
 			=> dbContext.Update<TModel>().Set(model).ToAffectedRows();
 
 		/// <summary>
-		/// 以主键为条件更新数据, 仅返回受影响行数; 此处程序覆盖数据库方法, 只适用某些可视数据覆盖后端数据场景, 请谨慎使用
+		/// 以主键为条件更新数据, 仅返回受影响行数; NULL不处理; 此处程序覆盖数据库方法, 只适用某些可视数据覆盖后端数据场景, 请谨慎使用
 		/// </summary>
 		/// <typeparam name="TModel"></typeparam>
 		/// <param name="dbContext"></param>
@@ -162,7 +162,7 @@ namespace Creeper.Driver
 			=> dbContext.Update<TModel>().Set(model).ToAffectedRowsAsync(cancellationToken);
 
 		/// <summary>
-		/// 以主键为条件更新数据, 仅返回受影响行数; 此处程序覆盖数据库方法, 只适用某些可视数据覆盖后端数据场景, 请谨慎使用
+		/// 以主键为条件更新数据, 仅返回受影响行数; NULL不处理; 此处程序覆盖数据库方法, 只适用某些可视数据覆盖后端数据场景, 请谨慎使用
 		/// </summary>
 		/// <typeparam name="TModel"></typeparam>
 		/// <param name="dbContext"></param>
@@ -174,7 +174,7 @@ namespace Creeper.Driver
 		}
 
 		/// <summary>
-		/// 以主键为条件更新数据, 仅返回受影响行数; 此处程序覆盖数据库方法, 只适用某些可视数据覆盖后端数据场景, 请谨慎使用
+		/// 以主键为条件更新数据, 仅返回受影响行数; NULL不处理; 此处程序覆盖数据库方法, 只适用某些可视数据覆盖后端数据场景, 请谨慎使用
 		/// </summary>
 		/// <typeparam name="TModel"></typeparam>
 		/// <param name="dbContext"></param>
@@ -187,7 +187,7 @@ namespace Creeper.Driver
 		}
 
 		/// <summary>
-		/// 以主键为条件更新数据, 返回更新后数据; 此处程序覆盖数据库方法, 只适用某些可视数据覆盖后端数据场景, 请谨慎使用
+		/// 以主键为条件更新数据, 返回更新后数据; NULL不处理; 此处程序覆盖数据库方法, 只适用某些可视数据覆盖后端数据场景, 请谨慎使用
 		/// </summary>
 		/// <typeparam name="TModel"></typeparam>
 		/// <param name="dbContext"></param>
@@ -196,7 +196,7 @@ namespace Creeper.Driver
 			=> dbContext.Update<TModel>().Set(model).ToAffectedRows(out TModel result) > 0 ? result : default;
 
 		/// <summary>
-		/// 以主键为条件更新数据, 返回更新后数据; 此处程序覆盖数据库方法, 只适用某些可视数据覆盖后端数据场景, 请谨慎使用
+		/// 以主键为条件更新数据, 返回更新后数据; NULL不处理; 此处程序覆盖数据库方法, 只适用某些可视数据覆盖后端数据场景, 请谨慎使用
 		/// </summary>
 		/// <typeparam name="TModel"></typeparam>
 		/// <param name="dbContext"></param>

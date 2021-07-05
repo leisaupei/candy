@@ -28,6 +28,9 @@ namespace Creeper.SqlBuilder
 		/// or表达式
 		/// </summary>
 		private readonly List<string> _orExpression = new List<string>();
+
+		private string[] _pks;
+		internal string[] Pks => _pks ??= EntityHelper.GetPkFields<TModel>();
 		#endregion
 
 		#region Constructor
@@ -358,17 +361,16 @@ namespace Creeper.SqlBuilder
 		/// <returns></returns>
 		internal TBuilder Where(TModel model)
 		{
-			var pks = EntityHelper.GetPkFields<TModel>();
-			if (pks.Length == 0)
+			if (Pks.Length == 0)
 				throw new NoPrimaryKeyException<TModel>();
 
-			var filters = new string[pks.Length];
-			var objs = new object[pks.Length];
+			var filters = new string[Pks.Length];
+			var objs = new object[Pks.Length];
 
-			for (int i = 0; i < pks.Length; i++)
+			for (int i = 0; i < Pks.Length; i++)
 			{
-				filters[i] = $"\"{pks[i]}\"={{{i}}}";
-				objs[i] = typeof(TModel).GetProperty(pks[i], BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(model);
+				filters[i] = $"\"{Pks[i]}\"={{{i}}}";
+				objs[i] = typeof(TModel).GetProperty(Pks[i], BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance).GetValue(model);
 			}
 
 			return Where(string.Join(" AND ", filters), objs);
@@ -381,13 +383,12 @@ namespace Creeper.SqlBuilder
 		/// <returns></returns>
 		internal TBuilder Where(IEnumerable<TModel> models)
 		{
-			var pks = EntityHelper.GetPkFields<TModel>();
-			if (pks.Length == 0)
+			if (Pks.Length == 0)
 				throw new NoPrimaryKeyException<TModel>();
 
-			var properties = new PropertyInfo[pks.Length];
-			for (int i = 0; i < pks.Length; i++)
-				properties[i] = typeof(TModel).GetProperty(pks[i], BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+			var properties = new PropertyInfo[Pks.Length];
+			for (int i = 0; i < Pks.Length; i++)
+				properties[i] = typeof(TModel).GetProperty(Pks[i], BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
 
 			var filters = new string[properties.Length];
 			var objs = new object[properties.Length];
@@ -397,7 +398,7 @@ namespace Creeper.SqlBuilder
 			{
 				for (int i = 0; i < properties.Length; i++)
 				{
-					filters[i] = $"\"{pks[i]}\"={{{i}}}";
+					filters[i] = $"\"{Pks[i]}\"={{{i}}}";
 					objs[i] = properties[i].GetValue(m);
 				}
 				Where(string.Join(" AND ", filters), objs);

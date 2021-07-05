@@ -12,6 +12,9 @@ namespace Microsoft.Extensions.DependencyInjection
 		/// </summary>
 		/// <param name="option"></param>
 		/// <param name="action"></param>
+		/// <remarks>
+		/// 1. 使用Mysql数据库连接字符串时, 默认添加Allow User Variables=True参数, 以使用Update Returning
+		/// </remarks>
 		/// <returns></returns>
 		public static void AddMySqlDbContext<TDbContext>(this CreeperOptions option, Action<CreeperDbContextOptions> action) where TDbContext : class, ICreeperDbContext
 		{
@@ -31,7 +34,7 @@ namespace Microsoft.Extensions.DependencyInjection
 		}
 
 		/// <summary>
-		/// 因Mysql空间数据为自定义类型, 所以放置控制开关
+		/// 因Mysql空间数据为自定义类型, 所以放置控制开关, 默认是false
 		/// </summary>
 		/// <param name="_"></param>
 		public static void UseMySqlGeometry(this CreeperDbContextOptions _)

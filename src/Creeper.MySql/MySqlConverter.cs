@@ -29,30 +29,30 @@ namespace Creeper.MySql
 			typeof(MySqlPoint),
 			typeof(MySqlPolygon)
 		};
-		internal static bool UseGeometryType = false;
+		internal static bool UseGeometryType { get; set; } = false;
 		public override DataBaseKind DataBaseKind => DataBaseKind.MySql;
 
 		public override string DbFieldMark => "`";
 		public override string CastStringDbType => "CHAR";
 		public override object ConvertDbData(object value, Type convertType)
 		{
-			switch (convertType)
-			{
-				case var t when _geometryTypes.Contains(t):
-					return MySqlGeometry.Parse(value.ToString());
+			if (UseGeometryType && _geometryTypes.Contains(convertType))
+				return MySqlGeometry.Parse(value.ToString());
 
-				default:
-					var converter = TypeDescriptor.GetConverter(convertType);
-					return converter.CanConvertFrom(value.GetType()) ? converter.ConvertFrom(value) : Convert.ChangeType(value, convertType);
-			}
+			return base.ConvertDbData(value, convertType);
 		}
 
 		public override DbParameter GetDbParameter(string name, object value)
 			=> new MySqlParameter(name, value);
 
 		public override DbConnection GetDbConnection(string connectionString)
-		=> new MySqlConnection(connectionString);
+		{
+			var connectionStringBuilder = new MySqlConnectionStringBuilder(connectionString);
+			connectionStringBuilder.AllowUserVariables = true;
 
+			var connection = new MySqlConnection(connectionStringBuilder.ConnectionString);
+			return connection;
+		}
 		public override bool SetSpecialDbParameter(out string format, ref object value)
 		{
 			if (UseGeometryType && _geometryTypes.Contains(value.GetType()))
@@ -88,21 +88,73 @@ namespace Creeper.MySql
 		/// <param name="primaryKeys">主键集合</param>
 		/// <param name="identityKeys">没有赋值的自增键集合</param>
 		/// <param name="upsertSets">需要设置的值</param>
+		/// <param name="returning"></param>
 		/// <returns></returns>
-		/// 
 
-		/// 
-
-		/// <param name="allKeys"></param><param name="returning"></param>
-		
-		public override string GetUpsertCommandText(string mainTable, IList<string> primaryKeys, IList<string> identityKeys, IDictionary<string, string> upsertSets, IList<string> allKeys, bool returning)
+		public override string GetUpsertCommandText(string mainTable, IList<string> primaryKeys, IList<string> identityKeys, IDictionary<string, string> upsertSets, bool returning)
 		{
+			if (returning)
+				throw new NotSupportedException("mysql is not supported returning");
 			//自增主键
 			var exceptIdentityKey = upsertSets.Keys.Except(identityKeys);
 
 			return @$"INSERT INTO {mainTable}({string.Join(", ", exceptIdentityKey)}) VALUES({string.Join(", ", exceptIdentityKey.Select(a => upsertSets[a]))}) 
 ON DUPLICATE KEY UPDATE {string.Join(", ", exceptIdentityKey.Except(primaryKeys).Select(a => $"{a} = {upsertSets[a]}"))}";
 		}
-	}
 
+		public override string GetUpdateCommandText(string mainTable, string mainAlias, List<string> setList, List<string> whereList, bool returning, string[] pks)
+		{
+			string ret1 = null, ret2 = null, ret3 = null;
+			if (returning)
+			{
+				for (int i = 0; i < pks.Length; i++)
+				{
+					ret1 += string.Format("@{0}1 := ''", pks[i]);
+					ret2 += string.Format("{1}{0}{1} = (SELECT @{0}1 := {1}{0}{1})", pks[i], DbFieldMark);
+					ret3 += string.Format("{1}{0}{1} = @{0}1", pks[i], DbFieldMark);
+					if (i != pks.Length - 1)
+					{
+						ret1 += ", ";
+						ret2 += ", ";
+						ret3 += " AND ";
+					}
+				}
+				ret1 = $"SET {ret1};";
+				ret2 = $", {ret2}";
+				ret3 = $"; SELECT * FROM {mainTable} WHERE {ret3}";
+				//ret2 = $"; SELECT * FROM {mainTable} AS {mainAlias} WHERE {string.Join(" AND ", whereList)}";
+				/*
+				 * set @update_id := '';
+	update `admin` set `age` = '17', id = (SELECT @update_id := @update_id || ',' ||`id`) where `name` = '111';
+	select @update_id;
+
+				 * */
+			}
+			return $"{ret1}UPDATE {mainTable} AS {mainAlias} SET {string.Join(",", setList)}{ret2} WHERE {string.Join(" AND ", whereList)} {ret3}";
+		}
+		public override string GetInsertCommandText<TModel>(string mainTable, Dictionary<string, string> insertKeyValuePairs, string[] wheres, bool returning)
+		{
+			if (returning)
+			{
+				var idpks = GetIdentityPrimaryKeys<TModel>();
+				if (idpks.Length == 1)
+				{
+					var sql = $"INSERT INTO {mainTable} ({string.Join(", ", insertKeyValuePairs.Keys)}) SELECT {string.Join(", ", insertKeyValuePairs.Values)} {(wheres.Length == 0 ? "" : $"WHERE {string.Join(" AND ", wheres)}")} {(returning ? "RETURNING *" : "")}";
+				}
+				else
+				{
+					var pks = GetPrimaryKeys<TModel>();
+					var rdpks = pks.Intersect(idpks);
+				}
+			}
+			/*
+			 * 
+	//		 * 	INSERT INTO `testdb`.`admin`(`name`, `password`, `age`, `regtime`, `LastLoginTime`) VALUES ('111', '123456', 17, '2021-06-23 14:42:25', '2021-06-23 14:42:25');
+	//select @@identity;
+
+			 * 
+			 * */
+			return base.GetInsertCommandText<TModel>(mainTable, insertKeyValuePairs, wheres, returning);
+		}
+	}
 }

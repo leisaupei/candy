@@ -24,7 +24,7 @@ namespace Creeper
 	}
 	internal class CreeperDbTableAttributeNotFoundException : CreeperException
 	{
-		public CreeperDbTableAttributeNotFoundException() : base("没有找到CreeperDbTableAttribute特性") { }
+		public CreeperDbTableAttributeNotFoundException(string dbModelName) : base(dbModelName + "没有找到CreeperDbTableAttribute特性") { }
 	}
 	internal class DbExecuteNotFoundException : CreeperException
 	{

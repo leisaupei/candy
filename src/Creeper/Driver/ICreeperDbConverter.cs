@@ -101,19 +101,37 @@ namespace Creeper.Driver
 		bool TrySpecialOutput(Type type, out string format);
 
 		/// <summary>
-		/// 获取增补表达式
+		/// 获取增补sql语句
 		/// </summary>
 		/// <param name="mainTable">表</param>
 		/// <param name="primaryKeys">主键集合</param>
 		/// <param name="identityKeys">自增键集合</param>
 		/// <param name="upsertSets">需要设置的值</param>
+		/// <param name="returning"></param>
 		/// <returns></returns>
-		/// 
+		string GetUpsertCommandText(string mainTable, IList<string> primaryKeys, IList<string> identityKeys, IDictionary<string, string> upsertSets, bool returning);
 
-		/// 
+		/// <summary>
+		/// 获取更新sql语句
+		/// </summary>
+		/// <param name="mainTable"></param>
+		/// <param name="mainAlias"></param>
+		/// <param name="setList"></param>
+		/// <param name="whereList"></param>
+		/// <param name="returning"></param>
+		/// <param name="pks"></param>
+		/// <returns></returns>
 
-		/// <param name="allKeys"></param><param name="returning"></param>
-		
-		string GetUpsertCommandText(string mainTable, IList<string> primaryKeys, IList<string> identityKeys, IDictionary<string, string> upsertSets, IList<string> allKeys, bool returning);
+		string GetUpdateCommandText(string mainTable, string mainAlias, List<string> setList, List<string> whereList, bool returning, string[] pks);
+
+		/// <summary>
+		/// 获取insert sql语句
+		/// </summary>
+		/// <param name="mainTable"></param>
+		/// <param name="insertKeyValuePairs"></param>
+		/// <param name="wheres"></param>
+		/// <param name="returning"></param>
+		/// <returns></returns>
+		string GetInsertCommandText<TModel>(string mainTable, Dictionary<string, string> insertKeyValuePairs, string[] wheres, bool returning) where TModel : class, ICreeperDbModel, new();
 	}
 }

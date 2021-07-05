@@ -1,6 +1,7 @@
 ﻿using Creeper.Driver;
 using Creeper.MySql.XUnitTest.Entity.Options;
 using Microsoft.Extensions.DependencyInjection;
+using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
 using System.Linq;

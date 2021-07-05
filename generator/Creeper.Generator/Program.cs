@@ -99,7 +99,7 @@ namespace Creeper.Generator
 
 			creeperGenerator.Gen(model);
 			Console.WriteLine("successful...");
-			Console.ReadKey();
+			//Console.ReadKey();
 		}
 
 		private static ServiceProvider BuildServiceProvider()
@@ -133,6 +133,17 @@ namespace Creeper.Generator
 			});
 			var serviceProvider = services.BuildServiceProvider();
 			return serviceProvider;
+		}
+
+		public static void Clone<TFrom, TTo>(TFrom from, TTo to)
+		{
+
+		}
+
+		public static Action<TTo> Clone<TFrom, TTo>(Action<TFrom> from)
+		{
+			var obj = Activator.CreateInstance<TTo>();
+			return new Action<TTo>(obj=> { });
 		}
 	}
 }

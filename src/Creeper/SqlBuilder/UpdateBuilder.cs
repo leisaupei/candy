@@ -53,8 +53,9 @@ namespace Creeper.SqlBuilder
 		{
 			EntityHelper.GetAllFields<TModel>(p =>
 			{
-				string name = DbConverter.WithQuotationMarks(p.Name.ToLower());
 				object value = p.GetValue(model);
+				if (value == null) return;
+				string name = DbConverter.WithQuotationMarks(p.Name.ToLower());
 				var column = p.GetCustomAttribute<CreeperDbColumnAttribute>();
 				if (column?.Primary == true) Where(name + " = {0}", value);
 				else Set(name, value);
@@ -227,25 +228,23 @@ namespace Creeper.SqlBuilder
 		/// <summary>
 		/// 返回修改行数, 并且ref实体类(一行)
 		/// </summary>
+		/// <remarks>
+		/// 注意: 
+		///	1. mysql使用更新并返回时, 且只能返回一行, 需要在ConnectionString加上[Allow User Variables=True]参数
+		/// </remarks>
 		/// <returns></returns>
-		public int ToAffectedRows(out TModel info)
-		{
-			ReturnType = PipeReturnType.One;
-			info = base.FirstOrDefault<TModel>();
-			return info == null ? 0 : 1;
-		}
+		public int ToAffectedRows(out TModel info) => (info = FirstOrDefault()) == null ? 0 : 1;
 
 		/// <summary>
 		/// 返回修改行数, 并且ref列表(多行)
 		/// </summary>
+		/// <remarks>
+		/// 注意: 
+		///	1. mysql使用更新并返回时, 且只能返回一行, 需要在ConnectionString加上[Allow User Variables=True]参数
+		/// </remarks>
 		/// <param name="info"></param>
 		/// <returns></returns>
-		public int ToAffectedRows(out List<TModel> info)
-		{
-			ReturnType = PipeReturnType.List;
-			info = base.ToList<TModel>();
-			return info.Count;
-		}
+		public int ToAffectedRows(out List<TModel> info) => (info = ToList<TModel>()).Count;
 
 		/// <summary>
 		/// 管道模式
@@ -256,16 +255,24 @@ namespace Creeper.SqlBuilder
 		/// <summary>
 		/// 插入数据库并返回数据
 		/// </summary>
+		/// <remarks>
+		/// 注意: 
+		///	1. mysql使用更新并返回时, 且只能返回一行, 需要在ConnectionString加上[Allow User Variables=True]参数
+		/// </remarks>
 		/// <returns></returns>
 		public TModel FirstOrDefault()
 		{
 			ReturnType = PipeReturnType.One;
-			return base.FirstOrDefault<TModel>();
+			return FirstOrDefault<TModel>();
 		}
 
 		/// <summary>
 		/// 插入数据库并返回数据
 		/// </summary>
+		/// <remarks>
+		/// 注意: 
+		///	1. mysql使用更新并返回时, 且只能返回一行, 需要在ConnectionString加上[Allow User Variables=True]参数
+		/// </remarks>
 		/// <returns></returns>
 		public Task<TModel> FirstOrDefaultAsync(CancellationToken cancellationToken = default)
 		{
@@ -276,6 +283,10 @@ namespace Creeper.SqlBuilder
 		/// <summary>
 		/// 插入数据库并返回数据
 		/// </summary>
+		/// <remarks>
+		/// 注意: 
+		///	1. mysql使用更新并返回时, 且只能返回一行, 需要在ConnectionString加上[Allow User Variables=True]参数
+		/// </remarks>
 		/// <typeparam name="TResult"></typeparam>
 		/// <returns></returns>
 		public new Task<TResult> FirstOrDefaultAsync<TResult>(CancellationToken cancellationToken = default)
@@ -287,6 +298,10 @@ namespace Creeper.SqlBuilder
 		/// <summary>
 		/// 插入数据库并返回数据
 		/// </summary>
+		/// <remarks>
+		/// 注意: 
+		///	1. mysql使用更新并返回时, 且只能返回一行, 需要在ConnectionString加上[Allow User Variables=True]参数
+		/// </remarks>
 		/// <typeparam name="TResult"></typeparam>
 		/// <returns></returns>
 		public new Task<List<TResult>> ToListAsync<TResult>(CancellationToken cancellationToken = default)
@@ -298,9 +313,13 @@ namespace Creeper.SqlBuilder
 		/// <summary>
 		/// 插入数据库并返回数据
 		/// </summary>
+		/// <remarks>
+		/// 注意: 
+		///	1. mysql使用更新并返回时, 且只能返回一行, 需要在ConnectionString加上[Allow User Variables=True]参数
+		/// </remarks>
 		/// <typeparam name="TResult"></typeparam>
 		/// <returns></returns>
-		public new List<TResult> ToList<TResult>()
+		public new List<TResult> ToList<TResult>() 
 		{
 			ReturnType = PipeReturnType.List;
 			return base.ToList<TResult>();
@@ -320,22 +339,10 @@ namespace Creeper.SqlBuilder
 				throw new ArgumentNullException(nameof(WhereList));
 			if (_setList.Count == 0)
 				throw new ArgumentNullException(nameof(_setList));
-
-			var ret = string.Empty;
-			if (ReturnType != PipeReturnType.Rows)
-			{
-				if (DbConverter.DataBaseKind == DataBaseKind.MySql)
-				{
-					var field = EntityHelper.GetFieldsAlias<TModel>(MainAlias, DbConverter);
-					ret = $"; SELECT {field} FROM {MainTable} AS {MainAlias} WHERE {string.Join(" AND ", WhereList)}";
-				}
-				else
-				{
-					ret = $"RETURNING *";
-				}
-			}
-			return $"UPDATE {MainTable} AS {MainAlias} SET {string.Join(",", _setList)} WHERE {string.Join(" AND ", WhereList)} {ret}";
+			var returning = ReturnType != PipeReturnType.Rows;
+			return DbConverter.GetUpdateCommandText(MainTable, MainAlias, _setList, WhereList, returning, returning ? Pks : new string[0]);
 		}
+
 		#endregion
 	}
 }

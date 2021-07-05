@@ -126,12 +126,12 @@ namespace Creeper.PostgreSql.XUnitTest
 		{
 			object[] obj = DbContext.ExecuteDataReaderPipe(new ISqlBuilder[] {
 				SelectBuilder<PeopleModel>.Select().WhereAny(a => a.Id, new[] { StuPeopleId1, StuPeopleId2 }).PipeToList(),
-				DbContext.Select<PeopleModel>().Where(a => a.Id == StuPeopleId1).PipeFirstOrDefault<(Guid, string)>("id,name"),
-				DbContext.Select<PeopleModel>().Where(a =>a.Id==StuPeopleId1).PipeToList<(Guid, string)>("id,name"),
-				DbContext.Select<PeopleModel>().WhereAny(a => a.Id, new[] { StuPeopleId1, StuPeopleId2 }).PipeToList<Dictionary<string, object>>("name,id"),
-				DbContext.Select<PeopleModel>().Where(a => a.Id == StuPeopleId1).PipeFirstOrDefault<ToOneTTestModel>("name,id"),
-				DbContext.Select<StudentModel>().Where(a => a.People_id == StuPeopleId1).PipeFirstOrDefault<Guid>("people_id"),
-				DbContext.Select<StudentModel>().UnionLeftJoin<PeopleModel>((a,b) => a.People_id == b.Id).Where(a => a.People_id == StuPeopleId2).PipeUnionFirstOrDefault<PeopleModel>(),
+				DbContext.Select<PeopleModel>().Where(a => a.Id == StuPeopleId1).FirstOrDefaultPipe<(Guid, string)>("id,name"),
+				DbContext.Select<PeopleModel>().Where(a =>a.Id==StuPeopleId1).ToListPipe<(Guid, string)>("id,name"),
+				DbContext.Select<PeopleModel>().WhereAny(a => a.Id, new[] { StuPeopleId1, StuPeopleId2 }).ToListPipe<Dictionary<string, object>>("name,id"),
+				DbContext.Select<PeopleModel>().Where(a => a.Id == StuPeopleId1).FirstOrDefaultPipe<ToOneTTestModel>("name,id"),
+				DbContext.Select<StudentModel>().Where(a => a.People_id == StuPeopleId1).FirstOrDefaultPipe<Guid>("people_id"),
+				DbContext.Select<StudentModel>().LeftJoinUnion<PeopleModel>((a,b) => a.People_id == b.Id).Where(a => a.People_id == StuPeopleId2).FirstOrDefaultUnionPipe<PeopleModel>(),
 				 });
 			var info = obj[0].ToObjectArray().OfType<PeopleModel>();
 			var info1 = ((Guid, string))obj[1];
@@ -228,12 +228,12 @@ namespace Creeper.PostgreSql.XUnitTest
 		{
 			Stopwatch stop = new Stopwatch();
 			stop.Start();
-			var union0 = DbContext.Select<StudentModel>().UnionInnerJoin<PeopleModel>((a, b) => a.People_id == b.Id && a.Stu_no == StuNo1).UnionFirstOrDefault<PeopleModel>();
+			var union0 = DbContext.Select<StudentModel>().InnerJoinUnion<PeopleModel>((a, b) => a.People_id == b.Id && a.Stu_no == StuNo1).FirstOrDefaultUnion<PeopleModel>();
 
 			var a = stop.ElapsedMilliseconds;
-			var union1 = DbContext.Select<StudentModel>().UnionInnerJoin<PeopleModel>((a, b) => a.People_id == b.Id && a.Stu_no == StuNo1).UnionFirstOrDefault<PeopleModel>();
+			var union1 = DbContext.Select<StudentModel>().InnerJoinUnion<PeopleModel>((a, b) => a.People_id == b.Id && a.Stu_no == StuNo1).FirstOrDefaultUnion<PeopleModel>();
 			var b = stop.ElapsedMilliseconds;
-			var union2 = DbContext.Select<StudentModel>().UnionInnerJoin<PeopleModel>((a, b) => a.People_id == b.Id && a.Stu_no == StuNo1).UnionFirstOrDefault<PeopleModel>();
+			var union2 = DbContext.Select<StudentModel>().InnerJoinUnion<PeopleModel>((a, b) => a.People_id == b.Id && a.Stu_no == StuNo1).FirstOrDefaultUnion<PeopleModel>();
 			var c = stop.ElapsedMilliseconds;
 			stop.Stop();
 

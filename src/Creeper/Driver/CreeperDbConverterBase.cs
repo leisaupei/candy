@@ -48,6 +48,8 @@ namespace Creeper.Driver
 		/// <returns></returns>
 		public virtual object ConvertDbData(object value, Type convertType)
 		{
+			if (value.GetType() == convertType)
+				return value;
 			var converter = TypeDescriptor.GetConverter(convertType);
 			return converter.CanConvertFrom(value.GetType()) ? converter.ConvertFrom(value) : Convert.ChangeType(value, convertType);
 		}
@@ -171,12 +173,14 @@ namespace Creeper.Driver
 		private object CheckType(object value, Type valueType)
 		{
 			if (value.IsNullOrDBNull()) return null;
-			valueType = GetOriginalType(valueType);
-
+			valueType = valueType.GetOriginalType();
 			return ConvertDbData(value, valueType);
 		}
 
 		protected Type GetOriginalType(Type type) => type.GetOriginalType();
+
+		protected string[] GetPrimaryKeys<T>() => EntityHelper.GetPkFields<T>();
+		protected string[] GetIdentityPrimaryKeys<T>() => EntityHelper.GetIdentityPkFields<T>();
 
 		public virtual string ConvertSqlToString(ISqlBuilder sqlBuilder)
 		{
@@ -186,14 +190,9 @@ namespace Creeper.Driver
 			{
 				var value = p.Value?.ToString();
 				var key = string.Concat("@", p.ParameterName);
-				if (value == null)
-					sql = SqlHelper.GetNullSql(sql, key);
-
-				else if (ParamPattern.IsMatch(value) && p.DbType == DbType.String)
-					sql = sql.Replace(key, value);
-
-				else
-					sql = sql.Replace(key, $"'{value}'");
+				if (value == null) sql = SqlHelper.GetNullSql(sql, key);
+				else if (ParamPattern.IsMatch(value) && p.DbType == DbType.String) sql = sql.Replace(key, value);
+				else sql = sql.Replace(key, $"'{value}'");
 			}
 			return sql.Replace("\r", " ").Replace("\n", " ");
 		}
@@ -214,9 +213,15 @@ namespace Creeper.Driver
 			return false;
 		}
 
-		public virtual string GetUpsertCommandText(string mainTable, IList<string> primaryKeys, IList<string> identityKeys, IDictionary<string, string> upsertSets, IList<string> allKeys, bool returning)
+		public virtual string GetUpsertCommandText(string mainTable, IList<string> primaryKeys, IList<string> identityKeys, IDictionary<string, string> upsertSets, bool returning)
+			=> throw new NotSupportedException();
+
+		public virtual string GetUpdateCommandText(string mainTable, string mainAlias, List<string> setList, List<string> whereList, bool returning, string[] pks)
+			=> throw new NotImplementedException();
+
+		public virtual string GetInsertCommandText<TModel>(string mainTable, Dictionary<string, string> insertKeyValuePairs, string[] wheres, bool returning) where TModel : class, ICreeperDbModel, new()
 		{
-			throw new NotSupportedException();
+			throw new NotImplementedException();
 		}
 	}
 }

@@ -4,6 +4,7 @@ using System.Data.SQLite;
 using Xunit;
 using Creeper.Driver;
 using Creeper.Sqlite.XUnitTest.Entity.Model;
+using Creeper.SqlBuilder;
 
 namespace Creeper.Sqlite.XUnitTest
 {
@@ -13,9 +14,12 @@ namespace Creeper.Sqlite.XUnitTest
 		[Fact]
 		public void Select()
 		{
-			var categoryName = DbContext.Select<ProductModel>(a => a.Id == Pid)
-				.InnerJoin<CategoryModel>((a, b) => a.Category_id.Value == b.Id)
-				.FirstOrDefault<CategoryModel, string>(b => b.Name);
+			//var categoryName = DbContext.Select<ProductModel>(a => a.Id == Pid)
+			//	.InnerJoin<CategoryModel>((a, b) => a.Category_id.Value == b.Id)
+			//	.FirstOrDefault<CategoryModel, string>(b => b.Name);
+			//var categoryName = SelectBuilder.Select<ProductModel>(a => a.Id == Pid)
+			//	.InnerJoin<CategoryModel>((a, b) => a.Category_id == b.Id)
+			//	.ToString();
 		}
 		[Fact]
 		public void Transaction()

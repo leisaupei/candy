@@ -78,7 +78,7 @@ namespace Creeper.PostgreSql
 		public override DbParameter GetDbParameter(string name, object value)
 			=> new NpgsqlParameter(name, value);
 
-		public override string GetUpsertCommandText(string mainTable, IList<string> primaryKeys, IList<string> identityKeys, IDictionary<string, string> upsertSets, IList<string> allKeys, bool returning)
+		public override string GetUpsertCommandText(string mainTable, IList<string> primaryKeys, IList<string> identityKeys, IDictionary<string, string> upsertSets, bool returning)
 		{
 			var ret = returning ? $"RETURNING *" : null;
 			if (identityKeys.Count > 0)
@@ -105,7 +105,21 @@ namespace Creeper.PostgreSql
 	{ret}";
 
 			}
+		}
+		public override string GetUpdateCommandText(string mainTable, string mainAlias, List<string> setList, List<string> whereList, bool returning, string[] pks)
+		{
+			return $"UPDATE {mainTable} AS {mainAlias} SET {string.Join(",", setList)} WHERE {string.Join(" AND ", whereList)} {(returning ? "RETURNING *" : null)}";
+		}
 
+		public override string GetInsertCommandText<TModel>(string mainTable, Dictionary<string, string> insertKeyValuePairs, string[] wheres, bool returning)
+		{
+			var sql = $"INSERT INTO {mainTable} ({string.Join(", ", insertKeyValuePairs.Keys)})";
+			if (wheres.Length == 0)
+				sql += $" VALUES({string.Join(", ", insertKeyValuePairs.Values)})";
+			else
+				sql += $" SELECT {string.Join(", ", insertKeyValuePairs.Values)} WHERE {string.Join(" AND ", wheres)}";
+
+			return string.Concat(sql, returning ? " RETURNING *" : "");
 		}
 	}
 }

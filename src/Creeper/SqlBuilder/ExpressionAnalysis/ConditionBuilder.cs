@@ -91,27 +91,22 @@ namespace Creeper.SqlBuilder.ExpressionAnalysis
 		protected override Expression VisitBinary(BinaryExpression node)
 		{
 			if (node == null) return node;
+			var isVisit = false;
 			//表达式是否包含转换类型的表达式, 一般枚举类型运算需要用到
-			if (node.Left.NodeType == ExpressionType.Convert || node.Right.NodeType == ExpressionType.Convert)
-			{
-				if (node.Left.NodeType == ExpressionType.Convert)
-					VisitConvert((UnaryExpression)node.Left, node.Right, true);
-				else
-					VisitConvert((UnaryExpression)node.Right, node.Left, false);
-			}
-			else if (node.NodeType == ExpressionType.ArrayIndex) //array[1]表达式包含数组索引
-			{
-				if (node.Left.NodeType == ExpressionType.MemberAccess)
-				{
-					Visit(node.Left);
+			if (node.Left.NodeType == ExpressionType.Convert) isVisit = VisitConvert((UnaryExpression)node.Left, node.Right, true);
 
-					//数据库索引从1开始
-					_conditionParts.Push(string.Concat("[", (int)node.Right.GetExpressionValue() + 1, "]"));
-					MergeConditionParts();
-					return node;
-				}
+			else if (node.Right.NodeType == ExpressionType.Convert) isVisit = VisitConvert((UnaryExpression)node.Right, node.Left, false);
+
+			else if (node.NodeType == ExpressionType.ArrayIndex && node.Left.NodeType == ExpressionType.MemberAccess) //array[1]表达式包含数组索引
+			{
+				Visit(node.Left);
+
+				//数据库索引从1开始
+				_conditionParts.Push(string.Concat("[", (int)node.Right.GetExpressionValue() + 1, "]"));
+				MergeConditionParts();
+				return node;
 			}
-			else
+			if (!isVisit) //如果没有被解析, 那么使用通用解析方法
 			{
 				Visit(node.Left);
 				Visit(node.Right);

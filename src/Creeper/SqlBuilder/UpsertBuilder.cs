@@ -172,9 +172,7 @@ namespace Creeper.SqlBuilder
 			if (!_upsertSets.Any())
 				throw new ArgumentNullException(nameof(_upsertSets));
 
-			if (ReturnType == PipeReturnType.One && DbConverter.DataBaseKind == DataBaseKind.MySql)
-				throw new NotSupportedException("mysql is not supported returning");
-			return DbConverter.GetUpsertCommandText(MainTable, _primaryKeys, _identityKeys, _upsertSets, new List<string>(), ReturnType == PipeReturnType.One);
+			return DbConverter.GetUpsertCommandText(MainTable, _primaryKeys, _identityKeys, _upsertSets, ReturnType == PipeReturnType.One);
 
 		}
 		#endregion

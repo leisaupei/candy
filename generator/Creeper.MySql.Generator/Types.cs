@@ -73,11 +73,16 @@ namespace Creeper.MySql.Generator
 				case "varbinary":
 					cSharpType = "byte[]"; break;
 
-
+				case "char":
+					cSharpType = length switch
+					{
+						var l when l == 36 => "Guid",
+						_ => "string",
+					};
+					break;
 				case "tinytext":
 				case "mediumtext":
 				case "longtext":
-				case "char":
 				case "text":
 				case "json":
 				case "set":

@@ -28,11 +28,30 @@ namespace Creeper.DbHelper
 		/// </summary>
 		/// <param name="type"></param>
 		/// <returns></returns>
+		public static string[] GetIdentityPkFields(Type type)
+		{
+			InitStaticTypesFields(type);
+			return _typeFields[string.Concat(type.FullName, SystemLoadSuffix)].IdentityPkFields;
+		}
+
+		/// <summary>
+		/// 根据实体类获取所有主键
+		/// </summary>
+		/// <returns></returns>
+		public static string[] GetIdentityPkFields<T>() => GetIdentityPkFields(typeof(T));
+
+
+		/// <summary>
+		/// 根据实体类获取所有主键
+		/// </summary>
+		/// <param name="type"></param>
+		/// <returns></returns>
 		public static string[] GetPkFields(Type type)
 		{
 			InitStaticTypesFields(type);
 			return _typeFields[string.Concat(type.FullName, SystemLoadSuffix)].PkFields;
 		}
+
 		/// <summary>
 		/// 根据实体类获取所有主键
 		/// </summary>
@@ -56,13 +75,14 @@ namespace Creeper.DbHelper
 		/// <param name="t"></param>
 		static void InitStaticTypesFields(Type t)
 		{
+			if (_typeFields != null) return;
 			lock (_lock)
 			{
 				if (_typeFields != null) return;
 
 				if (!t.GetInterfaces().Contains(typeof(ICreeperDbModel))) return;
 
-				var types = t.Assembly.GetTypes().Where(f => f.Namespace?.Contains(".Model") == true
+				var types = t.Assembly.GetTypes().Where(f => (f.Namespace?.Contains(".Model") ?? false)
 					&& f.GetCustomAttribute<CreeperDbTableAttribute>() != null
 					&& t.GetInterfaces().Contains(typeof(ICreeperDbModel)));
 
@@ -89,9 +109,10 @@ namespace Creeper.DbHelper
 		{
 			var fields = new List<string>();
 			var pkFields = new List<string>();
-			var dbKind = type.GetCustomAttribute<CreeperDbTableAttribute>()?.DataBaseKind ?? throw new CreeperDbTableAttributeNotFoundException();
+			var identityPkFields = new List<string>();
+			var dbKind = type.GetCustomAttribute<CreeperDbTableAttribute>()?.DataBaseKind ?? throw new CreeperDbTableAttributeNotFoundException(type.FullName);
 			var converter = TypeHelper.GetConverter(dbKind);
-			GetAllFields(p =>
+			FieldsEnumerator(p =>
 			{
 				var name = p.Name.ToLower();
 				if (converter.TrySpecialOutput(p.PropertyType, out var format))
@@ -101,12 +122,17 @@ namespace Creeper.DbHelper
 
 				var column = p.GetCustomAttribute<CreeperDbColumnAttribute>();
 				if (column != null && column.Primary)
+				{
 					pkFields.Add(name);
+					if (column.Identity)
+						identityPkFields.Add(name);
+				}
 			}, type);
 			var fieldInfo = new TypeFieldsInfo
 			{
 				Fields = fields.ToArray(),
 				PkFields = pkFields.ToArray(),
+				IdentityPkFields = identityPkFields.ToArray(),
 			};
 
 			return fieldInfo;
@@ -165,14 +191,14 @@ namespace Creeper.DbHelper
 		/// <typeparam name="T"></typeparam>
 		/// <param name="action"></param>
 		internal static void GetAllFields<T>(Action<PropertyInfo> action) where T : ICreeperDbModel =>
-			GetAllFields(action, typeof(T));
+			FieldsEnumerator(action, typeof(T));
 
 		/// <summary>
 		/// 遍历所有字段
 		/// </summary>
 		/// <param name="action"></param>
 		/// <param name="type"></param>
-		static void GetAllFields(Action<PropertyInfo> action, Type type)
+		static void FieldsEnumerator(Action<PropertyInfo> action, Type type)
 		{
 			IEnumerable<PropertyInfo> properties = GetProperties(type);
 			foreach (var p in properties)
@@ -196,6 +222,7 @@ namespace Creeper.DbHelper
 		{
 			public string[] Fields { get; set; } = new string[0];
 			public string[] PkFields { get; set; } = new string[0];
+			public string[] IdentityPkFields { get; set; } = new string[0];
 
 		}
 	}
