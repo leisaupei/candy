@@ -180,7 +180,10 @@ namespace Creeper.Driver
 		protected Type GetOriginalType(Type type) => type.GetOriginalType();
 
 		protected string[] GetPrimaryKeys<T>() => EntityHelper.GetPkFields<T>();
+
 		protected string[] GetIdentityPrimaryKeys<T>() => EntityHelper.GetIdentityPkFields<T>();
+
+		protected string GetReturningColumns<T>() where T : ICreeperDbModel => EntityHelper.GetFieldsAlias<T>(null, this);
 
 		public virtual string ConvertSqlToString(ISqlBuilder sqlBuilder)
 		{
@@ -213,15 +216,13 @@ namespace Creeper.Driver
 			return false;
 		}
 
-		public virtual string GetUpsertCommandText(string mainTable, IList<string> primaryKeys, IList<string> identityKeys, IDictionary<string, string> upsertSets, bool returning)
+		public virtual string GetUpsertCommandText<TModel>(string mainTable, IList<string> primaryKeys, IList<string> identityKeys, IDictionary<string, string> upsertSets, bool returning) where TModel : class, ICreeperDbModel, new()
 			=> throw new NotSupportedException();
 
-		public virtual string GetUpdateCommandText(string mainTable, string mainAlias, List<string> setList, List<string> whereList, bool returning, string[] pks)
+		public virtual string GetUpdateCommandText<TModel>(string mainTable, string mainAlias, List<string> setList, List<string> whereList, bool returning, string[] pks) where TModel : class, ICreeperDbModel, new()
 			=> throw new NotImplementedException();
 
 		public virtual string GetInsertCommandText<TModel>(string mainTable, Dictionary<string, string> insertKeyValuePairs, string[] wheres, bool returning) where TModel : class, ICreeperDbModel, new()
-		{
-			throw new NotImplementedException();
-		}
+			=> throw new NotImplementedException();
 	}
 }

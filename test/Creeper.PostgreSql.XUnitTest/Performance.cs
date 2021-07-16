@@ -2,6 +2,7 @@
 using Creeper.Generic;
 using Creeper.PostgreSql.XUnitTest.Entity.Model;
 using Creeper.PostgreSql.XUnitTest.Entity.Options;
+using Npgsql;
 using System;
 using System.Linq;
 using System.Threading;

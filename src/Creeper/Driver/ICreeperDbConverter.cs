@@ -109,7 +109,7 @@ namespace Creeper.Driver
 		/// <param name="upsertSets">需要设置的值</param>
 		/// <param name="returning"></param>
 		/// <returns></returns>
-		string GetUpsertCommandText(string mainTable, IList<string> primaryKeys, IList<string> identityKeys, IDictionary<string, string> upsertSets, bool returning);
+		string GetUpsertCommandText<TModel>(string mainTable, IList<string> primaryKeys, IList<string> identityKeys, IDictionary<string, string> upsertSets, bool returning) where TModel : class, ICreeperDbModel, new();
 
 		/// <summary>
 		/// 获取更新sql语句
@@ -122,7 +122,7 @@ namespace Creeper.Driver
 		/// <param name="pks"></param>
 		/// <returns></returns>
 
-		string GetUpdateCommandText(string mainTable, string mainAlias, List<string> setList, List<string> whereList, bool returning, string[] pks);
+		string GetUpdateCommandText<TModel>(string mainTable, string mainAlias, List<string> setList, List<string> whereList, bool returning, string[] pks) where TModel : class, ICreeperDbModel, new();
 
 		/// <summary>
 		/// 获取insert sql语句

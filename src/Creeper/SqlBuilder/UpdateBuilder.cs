@@ -61,7 +61,7 @@ namespace Creeper.SqlBuilder
 				else Set(name, value);
 			});
 			if (WhereCount == 0)
-				throw new NoPrimaryKeyException<TModel>();
+				throw new CreeperNoPrimaryKeyException<TModel>();
 
 			return this;
 		}
@@ -319,7 +319,7 @@ namespace Creeper.SqlBuilder
 		/// </remarks>
 		/// <typeparam name="TResult"></typeparam>
 		/// <returns></returns>
-		public new List<TResult> ToList<TResult>() 
+		public new List<TResult> ToList<TResult>()
 		{
 			ReturnType = PipeReturnType.List;
 			return base.ToList<TResult>();
@@ -340,7 +340,7 @@ namespace Creeper.SqlBuilder
 			if (_setList.Count == 0)
 				throw new ArgumentNullException(nameof(_setList));
 			var returning = ReturnType != PipeReturnType.Rows;
-			return DbConverter.GetUpdateCommandText(MainTable, MainAlias, _setList, WhereList, returning, returning ? Pks : new string[0]);
+			return DbConverter.GetUpdateCommandText<TModel>(MainTable, MainAlias, _setList, WhereList, returning, returning ? Pks : new string[0]);
 		}
 
 		#endregion

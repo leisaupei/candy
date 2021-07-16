@@ -2,6 +2,7 @@
 using Creeper.Driver;
 using Creeper.Extensions;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -14,11 +15,14 @@ namespace Creeper.DbHelper
 	/// </summary>
 	internal static class EntityHelper
 	{
-		static IReadOnlyDictionary<string, TypeFieldsInfo> _typeFields;
+		static IDictionary<string, TypeFieldsInfo> _typeFields = new Dictionary<string, TypeFieldsInfo>();
 
 		const string SystemLoadSuffix = ".SystemLoad";
 		static readonly object _lock = new();
-
+		static string GetKey(Type type)
+		{
+			return string.Concat(type.FullName, SystemLoadSuffix);
+		}
 		static EntityHelper()
 		{
 		}
@@ -28,11 +32,7 @@ namespace Creeper.DbHelper
 		/// </summary>
 		/// <param name="type"></param>
 		/// <returns></returns>
-		public static string[] GetIdentityPkFields(Type type)
-		{
-			InitStaticTypesFields(type);
-			return _typeFields[string.Concat(type.FullName, SystemLoadSuffix)].IdentityPkFields;
-		}
+		public static string[] GetIdentityPkFields(Type type) => GetTypeFieldsInfo(type).IdentityPkFields;
 
 		/// <summary>
 		/// 根据实体类获取所有主键
@@ -46,11 +46,7 @@ namespace Creeper.DbHelper
 		/// </summary>
 		/// <param name="type"></param>
 		/// <returns></returns>
-		public static string[] GetPkFields(Type type)
-		{
-			InitStaticTypesFields(type);
-			return _typeFields[string.Concat(type.FullName, SystemLoadSuffix)].PkFields;
-		}
+		public static string[] GetPkFields(Type type) => GetTypeFieldsInfo(type).PkFields;
 
 		/// <summary>
 		/// 根据实体类获取所有主键
@@ -61,44 +57,35 @@ namespace Creeper.DbHelper
 		/// <summary>
 		/// 根据实体类获取所有字段数组, 不包含双引号
 		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <returns></returns>
+		public static string[] GetFields<T>() => GetFields(typeof(T));
+
+		/// <summary>
+		/// 根据实体类获取所有字段数组, 不包含双引号
+		/// </summary>
 		/// <param name="type"></param>
 		/// <returns></returns>
-		public static string[] GetFields(Type type)
-		{
-			InitStaticTypesFields(type);
-			return _typeFields[string.Concat(type.FullName, SystemLoadSuffix)].Fields;
-		}
+		public static string[] GetFields(Type type) => GetTypeFieldsInfo(type).Fields;
 
 		/// <summary>
 		/// 根据类型初始化, 实体类map
 		/// </summary>
-		/// <param name="t"></param>
-		static void InitStaticTypesFields(Type t)
+		/// <param name="type"></param>
+		static TypeFieldsInfo GetTypeFieldsInfo(Type type)
 		{
-			if (_typeFields != null) return;
-			lock (_lock)
-			{
-				if (_typeFields != null) return;
-
-				if (!t.GetInterfaces().Contains(typeof(ICreeperDbModel))) return;
-
-				var types = t.Assembly.GetTypes().Where(f => (f.Namespace?.Contains(".Model") ?? false)
-					&& f.GetCustomAttribute<CreeperDbTableAttribute>() != null
-					&& t.GetInterfaces().Contains(typeof(ICreeperDbModel)));
-
-				var dict = new Dictionary<string, TypeFieldsInfo>();
-				foreach (var type in types)
+			var key = GetKey(type);
+			if (!_typeFields.TryGetValue(key, out var value))
+				lock (_lock)
 				{
-					var key = string.Concat(type.FullName, SystemLoadSuffix);
-					var fieldInfo = GetTypeFields(type);
-					dict[key] = fieldInfo;
+					if (!type.GetInterfaces().Contains(typeof(ICreeperDbModel)))
+						throw new CreeperNotDbModelDeriverException(type.FullName);
+
+					value = GetTypeFields(type);
+					_typeFields[key] = value;
 				}
-				_typeFields = dict;
-			}
+			return value;
 		}
-
-		static void InitStaticTypesFields<T>() where T : ICreeperDbModel => InitStaticTypesFields(typeof(T));
-
 
 		/// <summary>
 		/// 获取当前所有字段列表
@@ -162,11 +149,9 @@ namespace Creeper.DbHelper
 		/// <returns></returns>
 		public static string GetFieldsAlias(string alias, Type type, ICreeperDbConverter converter)
 		{
-			InitStaticTypesFields(type);
-			var fs = _typeFields[string.Concat(type.FullName, SystemLoadSuffix)].Fields;
+			var fs = GetTypeFieldsInfo(type).Fields;
 			var sb = new StringBuilder();
 			alias = !string.IsNullOrEmpty(alias) ? alias + '.' : alias;
-
 			for (int i = 0; i < fs.Length; i++)
 			{
 				sb.Append($"{alias}{converter.WithQuotationMarks(fs[i])}");
@@ -203,7 +188,6 @@ namespace Creeper.DbHelper
 			IEnumerable<PropertyInfo> properties = GetProperties(type);
 			foreach (var p in properties)
 				action?.Invoke(p);
-
 		}
 
 		private static IEnumerable<PropertyInfo> GetProperties(Type type)
@@ -212,6 +196,7 @@ namespace Creeper.DbHelper
 			{
 				var column = p.GetCustomAttribute<CreeperDbColumnAttribute>();
 				if (column == null) return true;
+				//如果字段含有忽略返回自增标识
 				if ((column.IgnoreFlags & IgnoreWhen.Returning) != 0)
 					return false;
 				return true;
@@ -220,8 +205,17 @@ namespace Creeper.DbHelper
 
 		internal class TypeFieldsInfo
 		{
+			/// <summary>
+			/// 所有返回字段名称
+			/// </summary>
 			public string[] Fields { get; set; } = new string[0];
+			/// <summary>
+			/// 所有主键字段
+			/// </summary>
 			public string[] PkFields { get; set; } = new string[0];
+			/// <summary>
+			/// 所有自增主键字段
+			/// </summary>
 			public string[] IdentityPkFields { get; set; } = new string[0];
 
 		}

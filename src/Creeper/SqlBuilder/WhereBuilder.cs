@@ -362,7 +362,7 @@ namespace Creeper.SqlBuilder
 		internal TBuilder Where(TModel model)
 		{
 			if (Pks.Length == 0)
-				throw new NoPrimaryKeyException<TModel>();
+				throw new CreeperNoPrimaryKeyException<TModel>();
 
 			var filters = new string[Pks.Length];
 			var objs = new object[Pks.Length];
@@ -384,7 +384,7 @@ namespace Creeper.SqlBuilder
 		internal TBuilder Where(IEnumerable<TModel> models)
 		{
 			if (Pks.Length == 0)
-				throw new NoPrimaryKeyException<TModel>();
+				throw new CreeperNoPrimaryKeyException<TModel>();
 
 			var properties = new PropertyInfo[Pks.Length];
 			for (int i = 0; i < Pks.Length; i++)

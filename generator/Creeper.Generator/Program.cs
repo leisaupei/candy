@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 namespace Creeper.Generator
 {
@@ -120,30 +121,48 @@ namespace Creeper.Generator
 			var mySqlRules = cfg.GetSection("GenerateRules:MySqlRules").Get<MySqlGeneratorRules>();
 			services.AddCreeperGenerator(option =>
 			{
-				option.UseMySqlRules(o =>
-				{
-					o.Excepts = mySqlRules.Excepts;
-					o.FieldIgnore = mySqlRules.FieldIgnore;
-				});
-				option.UsePostgreSqlRules(o =>
-				{
-					o.Excepts = postgreSqlRules.Excepts;
-					o.FieldIgnore = postgreSqlRules.FieldIgnore;
-				});
+				option.UseMySqlRules(o => Copy(mySqlRules, o));
+
+				option.UsePostgreSqlRules(o => Copy(postgreSqlRules, o));
 			});
 			var serviceProvider = services.BuildServiceProvider();
 			return serviceProvider;
 		}
 
-		public static void Clone<TFrom, TTo>(TFrom from, TTo to)
+		private static TTo Copy<TFrom, TTo>(TFrom fromValue) where TTo : new()
 		{
-
+			var toValue = Activator.CreateInstance<TTo>();
+			Copy(fromValue, toValue);
+			return toValue;
 		}
-
-		public static Action<TTo> Clone<TFrom, TTo>(Action<TFrom> from)
+		private static void Copy<TFrom, TTo>(TFrom fromValue, TTo toValue) where TTo : new()
 		{
-			var obj = Activator.CreateInstance<TTo>();
-			return new Action<TTo>(obj=> { });
+			if (fromValue is null)
+			{
+				throw new ArgumentNullException(nameof(fromValue));
+			}
+
+			var toProperties = typeof(TTo).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+			var fromType = typeof(TFrom);
+
+			foreach (var toProperty in toProperties)
+			{
+				var fromProperty = fromType.GetProperty(toProperty.Name, BindingFlags.Public | BindingFlags.Instance);
+				if (fromProperty.PropertyType == toProperty.PropertyType)
+					fromProperty.SetValue(toValue, fromProperty.GetValue(fromValue));
+			}
+		}
+		private static Action<TTo> Copy<TFrom, TTo>(Action<TFrom> from) where TTo : new()
+		{
+			if (from is null)
+			{
+				throw new ArgumentNullException(nameof(from));
+			}
+
+			var fromValue = Activator.CreateInstance<TFrom>();
+			from.Invoke(fromValue);
+
+			return new Action<TTo>(toValue => Copy(fromValue, toValue));
 		}
 	}
 }

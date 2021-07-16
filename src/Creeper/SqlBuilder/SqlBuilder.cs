@@ -117,7 +117,7 @@ namespace Creeper.SqlBuilder
 		/// <returns></returns>
 		public TBuilder ByCache(TimeSpan? expireTime = null)
 		{
-			_ = _dbContext.DbCache ?? throw new DbCacheNotFoundException();
+			_ = _dbContext.DbCache ?? throw new CreeperDbCacheNotFoundException();
 			_cacheType = DbCacheType.Default;
 			_dbCacheExpireTime = expireTime;
 			return This;
@@ -130,7 +130,7 @@ namespace Creeper.SqlBuilder
 		[Obsolete]
 		public TBuilder ByPkCache(TimeSpan? expireTime = null)
 		{
-			_ = _dbContext.DbCache ?? throw new DbCacheNotFoundException();
+			_ = _dbContext.DbCache ?? throw new CreeperDbCacheNotFoundException();
 			_cacheType = DbCacheType.PkCache;
 			_dbCacheExpireTime = expireTime;
 			return This;
@@ -332,7 +332,7 @@ namespace Creeper.SqlBuilder
 		private async ValueTask<TResult> GetCacheResultAsync<TResult>(Func<ValueTask<TResult>> fn) => await GetCacheResultAsync(() => fn.Invoke().AsTask());
 
 		private ICreeperDbExecute DbExecute
-			=> _dbExecute ?? _dbContext.Get(_dataBaseType) ?? throw new DbExecuteNotFoundException();
+			=> _dbExecute ?? _dbContext.Get(_dataBaseType) ?? throw new CreeperDbExecuteNotFoundException();
 		#endregion
 
 	}

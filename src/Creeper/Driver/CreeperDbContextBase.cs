@@ -72,13 +72,13 @@ namespace Creeper.Driver
 		/// <summary>
 		/// 获取连接配置
 		/// </summary>
-		/// <exception cref="DbConnectionOptionNotFoundException">没有找到对应名称实例</exception>
+		/// <exception cref="CreeperDbConnectionOptionNotFoundException">没有找到对应名称实例</exception>
 		/// <returns>对应实例</returns>
 		private ICreeperDbConnection GetExecuteOption(DataBaseType dataBaseType)
 		{
 			ICreeperDbConnection option = GetOption(dataBaseType);
 			if (option == null)
-				throw new DbConnectionOptionNotFoundException(dataBaseType, DbTypeStrategy);
+				throw new CreeperDbConnectionOptionNotFoundException(dataBaseType, DbTypeStrategy);
 			return option;
 		}
 

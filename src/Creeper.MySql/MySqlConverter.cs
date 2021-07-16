@@ -88,10 +88,9 @@ namespace Creeper.MySql
 		/// <param name="primaryKeys">主键集合</param>
 		/// <param name="identityKeys">没有赋值的自增键集合</param>
 		/// <param name="upsertSets">需要设置的值</param>
-		/// <param name="returning"></param>
+		/// <param name="returning">是否返回</param>
 		/// <returns></returns>
-
-		public override string GetUpsertCommandText(string mainTable, IList<string> primaryKeys, IList<string> identityKeys, IDictionary<string, string> upsertSets, bool returning)
+		public override string GetUpsertCommandText<TModel>(string mainTable, IList<string> primaryKeys, IList<string> identityKeys, IDictionary<string, string> upsertSets, bool returning)
 		{
 			if (returning)
 				throw new NotSupportedException("mysql is not supported returning");
@@ -102,7 +101,7 @@ namespace Creeper.MySql
 ON DUPLICATE KEY UPDATE {string.Join(", ", exceptIdentityKey.Except(primaryKeys).Select(a => $"{a} = {upsertSets[a]}"))}";
 		}
 
-		public override string GetUpdateCommandText(string mainTable, string mainAlias, List<string> setList, List<string> whereList, bool returning, string[] pks)
+		public override string GetUpdateCommandText<TModel>(string mainTable, string mainAlias, List<string> setList, List<string> whereList, bool returning, string[] pks)
 		{
 			string ret1 = null, ret2 = null, ret3 = null;
 			if (returning)
@@ -122,39 +121,32 @@ ON DUPLICATE KEY UPDATE {string.Join(", ", exceptIdentityKey.Except(primaryKeys)
 				ret1 = $"SET {ret1};";
 				ret2 = $", {ret2}";
 				ret3 = $"; SELECT * FROM {mainTable} WHERE {ret3}";
-				//ret2 = $"; SELECT * FROM {mainTable} AS {mainAlias} WHERE {string.Join(" AND ", whereList)}";
-				/*
-				 * set @update_id := '';
-	update `admin` set `age` = '17', id = (SELECT @update_id := @update_id || ',' ||`id`) where `name` = '111';
-	select @update_id;
-
-				 * */
 			}
 			return $"{ret1}UPDATE {mainTable} AS {mainAlias} SET {string.Join(",", setList)}{ret2} WHERE {string.Join(" AND ", whereList)} {ret3}";
 		}
 		public override string GetInsertCommandText<TModel>(string mainTable, Dictionary<string, string> insertKeyValuePairs, string[] wheres, bool returning)
 		{
+			var sql = $"INSERT INTO {mainTable} ({string.Join(", ", insertKeyValuePairs.Keys)})";
+			if (wheres.Length == 0)
+				sql += $" VALUES({string.Join(", ", insertKeyValuePairs.Values)})";
+			else
+				sql += $" SELECT {string.Join(", ", insertKeyValuePairs.Values)} FROM DUAL WHERE {string.Join(" AND ", wheres)}";
+
 			if (returning)
 			{
+				var columns = GetReturningColumns<TModel>();
 				var idpks = GetIdentityPrimaryKeys<TModel>();
 				if (idpks.Length == 1)
 				{
-					var sql = $"INSERT INTO {mainTable} ({string.Join(", ", insertKeyValuePairs.Keys)}) SELECT {string.Join(", ", insertKeyValuePairs.Values)} {(wheres.Length == 0 ? "" : $"WHERE {string.Join(" AND ", wheres)}")} {(returning ? "RETURNING *" : "")}";
+					sql += $"; SELECT {columns} FROM {mainTable} WHERE `{idpks[0]}` = @@IDENTITY";
 				}
 				else
 				{
 					var pks = GetPrimaryKeys<TModel>();
-					var rdpks = pks.Intersect(idpks);
+					sql += $"; SELECT {columns} FROM {mainTable} WHERE {string.Join(" AND ", pks.Select(a => $"`{a}` = {insertKeyValuePairs[a]}"))}";
 				}
 			}
-			/*
-			 * 
-	//		 * 	INSERT INTO `testdb`.`admin`(`name`, `password`, `age`, `regtime`, `LastLoginTime`) VALUES ('111', '123456', 17, '2021-06-23 14:42:25', '2021-06-23 14:42:25');
-	//select @@identity;
-
-			 * 
-			 * */
-			return base.GetInsertCommandText<TModel>(mainTable, insertKeyValuePairs, wheres, returning);
+			return sql;
 		}
 	}
 }

@@ -53,8 +53,10 @@ namespace Creeper.SqlBuilder
 
 					//如果自增字段而且没有赋值, 那么忽略此字段
 					if (IngoreIdentity(column, value, p.PropertyType))
+					{
 						_identityKeys.Add(name);
-
+						return;
+					}
 					//如果是Guid主键而且没有赋值, 那么生成一个值
 					if (column.Primary)
 					{
@@ -67,7 +69,7 @@ namespace Creeper.SqlBuilder
 				Set(name, value);
 			});
 			if (_primaryKeys.Count == 0)
-				throw new NoPrimaryKeyException<TModel>();
+				throw new CreeperNoPrimaryKeyException<TModel>();
 
 			return this;
 		}
@@ -172,7 +174,7 @@ namespace Creeper.SqlBuilder
 			if (!_upsertSets.Any())
 				throw new ArgumentNullException(nameof(_upsertSets));
 
-			return DbConverter.GetUpsertCommandText(MainTable, _primaryKeys, _identityKeys, _upsertSets, ReturnType == PipeReturnType.One);
+			return DbConverter.GetUpsertCommandText<TModel>(MainTable, _primaryKeys, _identityKeys, _upsertSets, ReturnType == PipeReturnType.One);
 
 		}
 		#endregion

@@ -20,6 +20,6 @@ namespace Creeper.DbHelper
 		/// <returns></returns>
 		public static ICreeperDbConverter GetConverter(DataBaseKind dataBaseKind)
 			=> DbTypeConverters.TryGetValue(dataBaseKind, out var convert)
-			? convert : throw new DbConverterNotFoundException(dataBaseKind);
+			? convert : throw new CreeperDbConverterNotFoundException(dataBaseKind);
 	}
 }

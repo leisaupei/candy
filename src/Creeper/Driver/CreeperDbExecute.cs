@@ -143,6 +143,7 @@ namespace Creeper.Driver
 			{
 				while (dr.Read())
 					action?.Invoke(dr);
+				return Task.CompletedTask;
 			}, cmdText, cmdType, cmdParams, false, CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
 
 		/// <summary>
@@ -158,7 +159,7 @@ namespace Creeper.Driver
 
 			}, cmdText, cmdType, cmdParams, true, cancellationToken);
 
-		private async ValueTask ExecuteDataReaderAsync(Action<DbDataReader> action, string cmdText, CommandType cmdType, DbParameter[] cmdParams, bool async, CancellationToken cancellationToken)
+		private async ValueTask ExecuteDataReaderAsync(Func<DbDataReader, Task> action, string cmdText, CommandType cmdType, DbParameter[] cmdParams, bool async, CancellationToken cancellationToken)
 		{
 			DbCommand cmd = null;
 			try
@@ -167,12 +168,12 @@ namespace Creeper.Driver
 				if (async)
 				{
 					await using DbDataReader dr = await cmd.ExecuteReaderAsync(cancellationToken);
-					action?.Invoke(dr);
+					await action?.Invoke(dr);
 				}
 				else
 				{
 					using DbDataReader dr = cmd.ExecuteReader();
-					action?.Invoke(dr);
+					action?.Invoke(dr).ConfigureAwait(false).GetAwaiter().GetResult();
 				}
 			}
 			catch (Exception ex)
@@ -251,52 +252,39 @@ namespace Creeper.Driver
 				paras.AddRange(item.Params);
 				cmdText.Append(item.CommandText).AppendLine(";");
 			}
-			if (async)
-				await ExecuteDataReaderAsync(async dr =>
-				{
-					for (int i = 0; i < results.Length; i++)
-					{
-						var item = builders.ElementAt(i);
-						List<object> list = new List<object>();
-						while (await dr.ReadAsync(cancellationToken))
-							list.Add(DbConverter.ConvertDataReader(dr, item.Type));
-
-						results[i] = GetResult(dr, item, list);
-
-						await dr.NextResultAsync();
-					}
-				}, cmdText.ToString(), CommandType.Text, paras.ToArray(), true, cancellationToken);
-			else
-				ExecuteDataReaderAsync(dr =>
-				{
-					for (int i = 0; i < results.Length; i++)
-					{
-						var item = builders.ElementAt(i);
-						List<object> list = new List<object>();
-						while (dr.Read())
-							list.Add(DbConverter.ConvertDataReader(dr, item.Type));
-
-						results[i] = GetResult(dr, item, list);
-
-						dr.NextResult();
-					}
-				}, cmdText.ToString(), CommandType.Text, paras.ToArray(), false, CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
-
-			static object GetResult(DbDataReader dr, ISqlBuilder item, List<object> list)
-			{
-				return item.ReturnType switch
-				{
-					PipeReturnType.List =>
-					   list.ToArray(),
-					PipeReturnType.One =>
-					   list.Count > 0 ? list[0] : item.Type.IsTuple() ? Activator.CreateInstance(item.Type) : default, // 返回默认值
-					PipeReturnType.Rows =>
-						dr.RecordsAffected,
-					_ => throw new ArgumentException("ReturnType is wrong", nameof(item.ReturnType)),
-				};
-			}
+			await ExecuteDataReaderAsync(dr => SetResult(builders, dr, results, async, cancellationToken), cmdText.ToString(), CommandType.Text, paras.ToArray(), async, cancellationToken);
 
 			return results;
+		}
+		async Task SetResult(IEnumerable<ISqlBuilder> builders, DbDataReader dr, object[] results, bool async, CancellationToken cancellationToken)
+		{
+			for (int i = 0; i < results.Length; i++)
+			{
+				var item = builders.ElementAt(i);
+				List<object> list = new List<object>();
+				while (async ? await dr.ReadAsync(cancellationToken) : dr.Read())
+					list.Add(DbConverter.ConvertDataReader(dr, item.Type));
+
+				results[i] = GetResult(dr, item, list);
+
+				if (async)
+					await dr.NextResultAsync(cancellationToken);
+				else
+					dr.NextResult();
+			}
+		}
+		static object GetResult(DbDataReader dr, ISqlBuilder item, List<object> list)
+		{
+			return item.ReturnType switch
+			{
+				PipeReturnType.List =>
+				   list.ToArray(),
+				PipeReturnType.One =>
+				   list.Count > 0 ? list[0] : item.Type.IsTuple() ? Activator.CreateInstance(item.Type) : default, // 返回默认值
+				PipeReturnType.Rows =>
+					dr.RecordsAffected,
+				_ => throw new ArgumentException("ReturnType is wrong", nameof(item.ReturnType)),
+			};
 		}
 		#endregion
 

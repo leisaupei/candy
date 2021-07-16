@@ -10,32 +10,36 @@ namespace Creeper
 
 		public CreeperException(string message, Exception innerException) : base(message, innerException) { }
 	}
-	internal class NoPrimaryKeyException<T> : CreeperException
+	internal class CreeperNoPrimaryKeyException<T> : CreeperException
 	{
-		public NoPrimaryKeyException() : base(typeof(T).Name + "没有主键标识") { }
+		public CreeperNoPrimaryKeyException() : base(typeof(T).Name + "没有主键标识") { }
 	}
-	internal class DbConverterNotFoundException : CreeperException
+	internal class CreeperDbConverterNotFoundException : CreeperException
 	{
-		public DbConverterNotFoundException(DataBaseKind dbKind) : base($"没有添加相应的数据库种类的转换器, 使用Add{dbKind}Option()注入相应数据库配置") { }
+		public CreeperDbConverterNotFoundException(DataBaseKind dbKind) : base($"没有添加相应的数据库种类的转换器, 使用Add{dbKind}Option()注入相应数据库配置") { }
 	}
-	internal class DbCacheNotFoundException : CreeperException
+	internal class CreeperDbCacheNotFoundException : CreeperException
 	{
-		public DbCacheNotFoundException() : base("DbCache为空, 使用UseDbCache<T>方法注入数据库缓存示例") { }
+		public CreeperDbCacheNotFoundException() : base("DbCache为空, 使用UseDbCache<T>方法注入数据库缓存示例") { }
 	}
 	internal class CreeperDbTableAttributeNotFoundException : CreeperException
 	{
 		public CreeperDbTableAttributeNotFoundException(string dbModelName) : base(dbModelName + "没有找到CreeperDbTableAttribute特性") { }
 	}
-	internal class DbExecuteNotFoundException : CreeperException
+	internal class CreeperNotDbModelDeriverException : CreeperException
 	{
-		public DbExecuteNotFoundException() : base("DbExecute为空") { }
+		public CreeperNotDbModelDeriverException(string dbModelName) : base(dbModelName + "不是ICreeperDbModel派生类") { }
+	}
+	internal class CreeperDbExecuteNotFoundException : CreeperException
+	{
+		public CreeperDbExecuteNotFoundException() : base("DbExecute为空") { }
 	}
 	internal class CreeperSqlExecuteException : CreeperException
 	{
 		public CreeperSqlExecuteException(string message, Exception innerException) : base(message, innerException) { }
 	}
-	internal class DbConnectionOptionNotFoundException : CreeperException
+	internal class CreeperDbConnectionOptionNotFoundException : CreeperException
 	{
-		public DbConnectionOptionNotFoundException(DataBaseType dataBaseType, DataBaseTypeStrategy dataBaseTypeStrategy) : base($"没找到相应的数据库配置, 策略: {dataBaseTypeStrategy}, 类型: {dataBaseType}") { }
+		public CreeperDbConnectionOptionNotFoundException(DataBaseType dataBaseType, DataBaseTypeStrategy dataBaseTypeStrategy) : base($"没找到相应的数据库配置, 策略: {dataBaseTypeStrategy}, 类型: {dataBaseType}") { }
 	}
 }
